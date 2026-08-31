@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clash Zone - Ultimate CoC Hub</title>
+  <title>Clash Zone - Ultimate CoC Gaming Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -66,12 +66,13 @@
 
     .nav-links {
       display: flex;
-      gap: 15px;
+      gap: 12px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .btn {
-      padding: 8px 18px;
+      padding: 8px 16px;
       border-radius: 8px;
       font-size: 14px;
       font-weight: 600;
@@ -80,10 +81,7 @@
       transition: 0.3s;
     }
 
-    .btn-primary {
-      background: var(--primary);
-      color: #000;
-    }
+    .btn-primary { background: var(--primary); color: #000; }
     .btn-primary:hover { background: var(--primary-hover); }
 
     .btn-outline {
@@ -91,15 +89,10 @@
       border: 1px solid var(--primary);
       color: var(--primary);
     }
-    .btn-outline:hover {
-      background: var(--primary);
-      color: #000;
-    }
+    .btn-outline:hover { background: var(--primary); color: #000; }
 
-    .btn-danger {
-      background: #ef4444;
-      color: #fff;
-    }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-success { background: var(--green); color: #fff; }
 
     /* Container */
     .container {
@@ -110,16 +103,16 @@
 
     /* Hero Banner */
     .hero {
-      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80') center/cover;
+      background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80') center/cover;
       border-radius: 16px;
-      padding: 40px 20px;
+      padding: 35px 20px;
       text-align: center;
       border: 1px solid var(--card-border);
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
-    .hero h1 { font-size: 48px; color: var(--primary); }
-    .hero p { color: var(--text-dim); max-width: 600px; margin: auto; }
+    .hero h1 { font-size: 46px; color: var(--primary); }
+    .hero p { color: var(--text-dim); max-width: 650px; margin: auto; font-size: 15px; }
 
     /* Section Headings */
     .section-title {
@@ -181,28 +174,59 @@
       margin-bottom: 10px;
     }
 
-    /* User Only Section Blur Notice */
+    /* Profile Badge Card */
+    .profile-dashboard {
+      background: linear-gradient(135deg, #121824, #1a2233);
+      border: 1px solid var(--primary);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat-box {
+      background: rgba(0,0,0,0.4);
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      text-align: center;
+    }
+    .stat-box small { color: var(--text-dim); display: block; font-size: 11px; }
+    .stat-box span { font-weight: 700; font-size: 16px; color: var(--primary); }
+
+    /* Locked Notice */
     .locked-notice {
       background: rgba(239, 68, 68, 0.1);
       border: 1px dashed #ef4444;
-      padding: 20px;
+      padding: 24px;
       border-radius: 12px;
       text-align: center;
       margin-bottom: 25px;
     }
 
-    /* Wallet and Upload Modals */
+    /* Modals */
     .modal {
       display: none;
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(5px);
+      backdrop-filter: blur(6px);
       justify-content: center;
       align-items: center;
       z-index: 200;
       padding: 15px;
+      overflow-y: auto;
     }
 
     .modal-content {
@@ -210,9 +234,10 @@
       border: 1px solid var(--primary);
       border-radius: 16px;
       width: 100%;
-      max-width: 420px;
+      max-width: 460px;
       padding: 24px;
       position: relative;
+      margin: auto;
     }
 
     .close-btn {
@@ -221,33 +246,56 @@
       background: transparent;
       border: none;
       color: var(--text-dim);
-      font-size: 20px;
+      font-size: 22px;
       cursor: pointer;
     }
 
+    /* Auth Tab Buttons */
+    .tab-header {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 10px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 6px;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #000;
+    }
+
     .form-group {
-      margin-bottom: 15px;
+      margin-bottom: 14px;
     }
 
     .form-group label {
       display: block;
       font-size: 13px;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       color: var(--text-dim);
     }
 
     .form-group input, .form-group select {
       width: 100%;
-      padding: 10px;
+      padding: 10px 12px;
       background: #0a0d14;
       border: 1px solid var(--card-border);
       border-radius: 8px;
       color: #fff;
       outline: none;
     }
-    .form-group input:focus { border-color: var(--primary); }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
 
-    /* QR Code Wallet Display */
     .qr-box {
       text-align: center;
       background: #0a0d14;
@@ -264,7 +312,7 @@
       padding: 5px;
     }
 
-    /* Table for Leaderboard */
+    /* Leaderboard Table */
     .table-box {
       width: 100%;
       background: var(--card-bg);
@@ -293,15 +341,36 @@
   <header>
     <div class="nav-container">
       <div class="brand" onclick="location.reload()">⚔️ Clash Zone</div>
-      <div class="nav-links" id="navActions">
-        </div>
+      <div class="nav-links" id="navActions"></div>
     </div>
   </header>
 
   <div class="container">
     <div class="hero">
       <h1>THE CLASH ARENA</h1>
-      <p>Download Top Pro Layouts, Join High-Reward Tournaments & Level Up Your Clan.</p>
+      <p>Pro Base Layouts, High-Reward Tournaments & Custom Profile Ranking System.</p>
+    </div>
+
+    <div id="profileDashboard" style="display: none;" class="profile-dashboard">
+      <div>
+        <h2 style="color:var(--primary); font-size: 28px; line-height: 1;" id="dashName">Chief Aman</h2>
+        <p style="color:var(--text-dim); font-size: 13px;" id="dashTag">Tag: #P9L80YQ2 | Mobile: 9876543210</p>
+      </div>
+      <div class="profile-stats">
+        <div class="stat-box">
+          <small>Town Hall</small>
+          <span id="dashTH">TH 16</span>
+        </div>
+        <div class="stat-box">
+          <small>Ranking Points</small>
+          <span id="dashPoints" style="color: #60a5fa;">250 XP</span>
+        </div>
+        <div class="stat-box">
+          <small>Clan</small>
+          <span id="dashClan">War Warriors</span>
+        </div>
+        <button class="btn btn-outline" onclick="openProfileModal()">✏️ Update CoC Profile (+150 XP)</button>
+      </div>
     </div>
 
     <h2 class="section-title">🏆 Live & Upcoming Tournaments</h2>
@@ -333,7 +402,7 @@
         <div class="card-body">
           <span class="badge">TH 16 War Base</span>
           <div class="card-title">Anti 3-Star Pro Layout</div>
-          <button class="btn btn-outline" style="width: 100%;" onclick="alert('Base Link Copied to Clipboard!')">Copy Base Link</button>
+          <button class="btn btn-outline" style="width: 100%;" onclick="alert('Base Link Copied!')">Copy Base Link</button>
         </div>
       </div>
       <div class="card">
@@ -341,7 +410,7 @@
         <div class="card-body">
           <span class="badge">TH 15 Trophy Base</span>
           <div class="card-title">Legend League Ring Base</div>
-          <button class="btn btn-outline" style="width: 100%;" onclick="alert('Base Link Copied to Clipboard!')">Copy Base Link</button>
+          <button class="btn btn-outline" style="width: 100%;" onclick="alert('Base Link Copied!')">Copy Base Link</button>
         </div>
       </div>
     </div>
@@ -349,8 +418,8 @@
     <div id="lockedZone">
       <div class="locked-notice">
         <h3>🔒 Member Only Zone</h3>
-        <p style="color:var(--text-dim); font-size: 14px;">User Ranking, Profile, Wallet and Custom Base Upload options are locked. Please login or signup to access.</p>
-        <button class="btn btn-primary" style="margin-top: 10px;" onclick="openModal('authModal')">Login / Sign Up</button>
+        <p style="color:var(--text-dim); font-size: 14px;">User Rankings, CoC Profile Customization, Wallet & Base Upload options are locked. Please Login or Sign Up with your mobile number.</p>
+        <button class="btn btn-primary" style="margin-top: 12px;" onclick="openAuthModal('signup')">Sign Up / Login Now</button>
       </div>
     </div>
 
@@ -360,41 +429,21 @@
         <button class="btn btn-primary" onclick="openModal('uploadModal')">+ Upload New Base</button>
       </div>
 
-      <h2 class="section-title">🎖️ Top Player Rankings</h2>
+      <h2 class="section-title">🎖️ Top Player Rankings & Points</h2>
       <div class="table-box">
         <table>
           <thead>
             <tr>
               <th>Rank</th>
-              <th>Clash Player</th>
+              <th>Player Name</th>
               <th>Town Hall</th>
+              <th>Clan</th>
+              <th>Points / XP</th>
               <th>Trophies</th>
-              <th>Win Rate</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>🥇 #1</td>
-              <td><b>Apex Predator</b></td>
-              <td>TH 16</td>
-              <td>5,840 🏆</td>
-              <td>88%</td>
-            </tr>
-            <tr>
-              <td>🥈 #2</td>
-              <td><b>ShadowKing</b></td>
-              <td>TH 16</td>
-              <td>5,710 🏆</td>
-              <td>84%</td>
-            </tr>
-            <tr>
-              <td>🥉 #3</td>
-              <td><b>DevilHunter</b></td>
-              <td>TH 15</td>
-              <td>5,490 🏆</td>
-              <td>79%</td>
-            </tr>
-          </tbody>
+          <tbody id="leaderboardBody">
+            </tbody>
         </table>
       </div>
     </div>
@@ -403,18 +452,104 @@
   <div class="modal" id="authModal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal('authModal')">×</button>
-      <h2 id="authTitle" style="color:var(--primary); font-size: 26px; margin-bottom: 10px;">Player Login</h2>
       
-      <div class="form-group">
-        <label>Player Name / Username</label>
-        <input type="text" id="authName" placeholder="e.g. AmanClasher" />
-      </div>
-      <div class="form-group">
-        <label>Player Tag / Email</label>
-        <input type="text" id="authTag" placeholder="#P9L80YQ2 or email" />
+      <div class="tab-header">
+        <button class="tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">Login</button>
+        <button class="tab-btn" id="tabSignupBtn" onclick="switchAuthTab('signup')">New Sign Up</button>
       </div>
 
-      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleAuth()">Submit & Enter Arena</button>
+      <div id="loginForm">
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <input type="tel" id="loginMobile" placeholder="10-digit mobile number" maxlength="10" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password" />
+        </div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">Login to Account</button>
+      </div>
+
+      <div id="signupForm" style="display: none;">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="regName" placeholder="e.g. Aman Kumar" />
+        </div>
+        <div class="form-group">
+          <label>Mobile Number (For Login)</label>
+          <input type="tel" id="regMobile" placeholder="10-digit mobile number" maxlength="10" />
+        </div>
+        <div class="form-group">
+          <label>In-Game Player Tag</label>
+          <input type="text" id="regTag" placeholder="#P9L80YQ2" />
+        </div>
+        <div class="form-group">
+          <label>Create Password</label>
+          <input type="password" id="regPassword" placeholder="Minimum 4 characters" />
+        </div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleSignup()">Create Account & Get 100 XP</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="profileModal">
+    <div class="modal-content" style="max-width: 520px;">
+      <button class="close-btn" onclick="closeModal('profileModal')">×</button>
+      <h2 style="color:var(--primary); font-size: 26px; margin-bottom: 5px;">🛡️ Update CoC Profile</h2>
+      <p style="color:var(--green); font-size: 13px; margin-bottom: 15px;">Fill details to earn <b>+150 XP Ranking Points!</b></p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label>Town Hall Level</label>
+          <select id="profTH">
+            <option value="TH 16">Town Hall 16</option>
+            <option value="TH 15">Town Hall 15</option>
+            <option value="TH 14">Town Hall 14</option>
+            <option value="TH 13">Town Hall 13</option>
+            <option value="TH 12">Town Hall 12</option>
+            <option value="TH 11">Town Hall 11</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Current Trophies 🏆</label>
+          <input type="number" id="profTrophies" placeholder="e.g. 5200" />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label>Clan Name</label>
+          <input type="text" id="profClan" placeholder="e.g. India Warriors" />
+        </div>
+        <div class="form-group">
+          <label>Clan Role</label>
+          <select id="profRole">
+            <option value="Leader">Leader</option>
+            <option value="Co-Leader">Co-Leader</option>
+            <option value="Elder">Elder</option>
+            <option value="Member">Member</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label>War Stars Won ⭐</label>
+          <input type="number" id="profStars" placeholder="e.g. 1250" />
+        </div>
+        <div class="form-group">
+          <label>Favorite Strategy</label>
+          <select id="profStrat">
+            <option value="Root Rider Spam">Root Rider Spam</option>
+            <option value="Super Bowler Smash">Super Bowler Smash</option>
+            <option value="Lalo / Queen Charge">Lalo / Queen Charge</option>
+            <option value="Hybrid (Miner+Hog)">Hybrid (Miner+Hog)</option>
+            <option value="Electro Dragon">Electro Dragon</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-success" style="width: 100%; margin-top: 10px;" onclick="saveCoCProfile()">Save Details & Add +150 Points</button>
     </div>
   </div>
 
@@ -422,7 +557,7 @@
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal('walletModal')">×</button>
       <h2 style="color:var(--primary); font-size: 26px; margin-bottom: 5px;">💰 Add Cash to Wallet</h2>
-      <p style="color:var(--text-dim); font-size: 13px;">Instant Deposit via Merchant BharatPe UPI</p>
+      <p style="color:var(--text-dim); font-size: 13px;">Merchant BharatPe Instant Payment</p>
       
       <div class="form-group" style="margin-top: 15px;">
         <label>Amount (₹ INR)</label>
@@ -436,7 +571,7 @@
       </div>
 
       <div class="form-group">
-        <label>12-Digit UPI Ref / UTR Number (After Payment)</label>
+        <label>12-Digit UPI Ref / UTR Number (Payment ke baad)</label>
         <input type="text" id="utrNumber" placeholder="Enter UTR from payment receipt" />
       </div>
 
@@ -471,90 +606,248 @@
         <input type="url" id="baseLink" placeholder="https://link.clashofclans.com/..." />
       </div>
 
-      <button class="btn btn-primary" style="width: 100%;" onclick="saveNewBase()">Publish Base</button>
+      <button class="btn btn-primary" style="width: 100%;" onclick="saveNewBase()">Publish Base (+50 XP)</button>
     </div>
   </div>
 
   <script>
-    // BharatPe UPI Config (Change this to your actual BharatPe UPI ID)
-    const MERCHANT_UPI = "BHARATPE2E0W0V3V1032895@unitype"; // Apna BharatPe UPI yaha dalein
+    // BharatPe UPI ID Config
+    const MERCHANT_UPI = "aman.bharatpe@icici"; // Apna BharatPe UPI ID yaha daalein
 
-    // State Check on Load
     document.addEventListener("DOMContentLoaded", () => {
       renderNav();
       checkUserState();
+      renderLeaderboard();
     });
 
     function renderNav() {
-      const user = JSON.parse(localStorage.getItem("coc_user"));
+      const user = JSON.parse(localStorage.getItem("active_user"));
       const navActions = document.getElementById("navActions");
 
       if (user) {
         navActions.innerHTML = `
           <button class="btn btn-outline" onclick="openModal('walletModal')">💰 ₹<span id="walletBal">${user.balance || 0}</span></button>
-          <span style="font-weight: 600; color: var(--primary);">👤 ${user.name}</span>
+          <button class="btn btn-outline" onclick="openProfileModal()">👤 ${user.name} (${user.points || 100} XP)</button>
           <button class="btn btn-danger" onclick="logoutUser()">Logout</button>
         `;
       } else {
         navActions.innerHTML = `
-          <button class="btn btn-primary" onclick="openModal('authModal')">Login / Sign Up</button>
+          <button class="btn btn-primary" onclick="openAuthModal('login')">Login</button>
+          <button class="btn btn-outline" onclick="openAuthModal('signup')">Sign Up</button>
         `;
       }
     }
 
     function checkUserState() {
-      const user = JSON.parse(localStorage.getItem("coc_user"));
+      const user = JSON.parse(localStorage.getItem("active_user"));
       const lockedZone = document.getElementById("lockedZone");
       const memberZone = document.getElementById("memberZone");
+      const profileDashboard = document.getElementById("profileDashboard");
 
       if (user) {
         lockedZone.style.display = "none";
         memberZone.style.display = "block";
+        profileDashboard.style.display = "flex";
+
+        // Update Dashboard info
+        document.getElementById("dashName").innerText = `Chief ${user.name}`;
+        document.getElementById("dashTag").innerText = `Tag: ${user.tag || '#N/A'} | Mobile: ${user.mobile}`;
+        document.getElementById("dashTH").innerText = user.th || "TH 16";
+        document.getElementById("dashPoints").innerText = `${user.points || 100} XP`;
+        document.getElementById("dashClan").innerText = user.clan || "No Clan";
       } else {
         lockedZone.style.display = "block";
         memberZone.style.display = "none";
+        profileDashboard.style.display = "none";
       }
     }
 
-    function handleAuth() {
-      const name = document.getElementById("authName").value.trim();
-      const tag = document.getElementById("authTag").value.trim();
+    /* Auth Tab Switching */
+    function openAuthModal(tab = 'login') {
+      openModal('authModal');
+      switchAuthTab(tab);
+    }
 
-      if (!name || !tag) {
-        alert("Kripya apna Naam aur Player Tag/Email bharein!");
+    function switchAuthTab(tab) {
+      const loginForm = document.getElementById("loginForm");
+      const signupForm = document.getElementById("signupForm");
+      const tabLoginBtn = document.getElementById("tabLoginBtn");
+      const tabSignupBtn = document.getElementById("tabSignupBtn");
+
+      if (tab === 'login') {
+        loginForm.style.display = "block";
+        signupForm.style.display = "none";
+        tabLoginBtn.classList.add("active");
+        tabSignupBtn.classList.remove("active");
+      } else {
+        loginForm.style.display = "none";
+        signupForm.style.display = "block";
+        tabSignupBtn.classList.add("active");
+        tabLoginBtn.classList.remove("active");
+      }
+    }
+
+    /* Signup Handler */
+    function handleSignup() {
+      const name = document.getElementById("regName").value.trim();
+      const mobile = document.getElementById("regMobile").value.trim();
+      const tag = document.getElementById("regTag").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
+
+      if (!name || mobile.length !== 10 || !tag || password.length < 4) {
+        alert("Kripya saari details sahi bharein! (Mobile 10 digit aur Password kam se kam 4 akshar ka)");
         return;
       }
 
-      const userData = {
+      let users = JSON.parse(localStorage.getItem("all_users")) || [];
+      if (users.find(u => u.mobile === mobile)) {
+        alert("Is Mobile number se account pehle se bana hua hai! Kripya Login karein.");
+        switchAuthTab('login');
+        return;
+      }
+
+      const newUser = {
         name: name,
+        mobile: mobile,
         tag: tag,
-        balance: 0
+        password: password,
+        balance: 0,
+        points: 100, // Signup bonus points
+        th: "TH 16",
+        clan: "New Challenger",
+        trophies: "5000",
+        stars: "500",
+        role: "Member"
       };
 
-      localStorage.setItem("coc_user", JSON.stringify(userData));
+      users.push(newUser);
+      localStorage.setItem("all_users", JSON.stringify(users));
+      localStorage.setItem("active_user", JSON.stringify(newUser));
+
       closeModal("authModal");
       renderNav();
       checkUserState();
-      alert(`Welcome, Chief ${name}!`);
+      renderLeaderboard();
+
+      alert(`🎉 Account successfully create ho gaya! Aapko +100 Signup XP Points mile hain.`);
+      // Open Profile Modal right after signup
+      setTimeout(() => {
+        openProfileModal();
+      }, 500);
+    }
+
+    /* Login Handler */
+    function handleLogin() {
+      const mobile = document.getElementById("loginMobile").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+
+      let users = JSON.parse(localStorage.getItem("all_users")) || [];
+      const matchedUser = users.find(u => u.mobile === mobile && u.password === password);
+
+      if (matchedUser) {
+        localStorage.setItem("active_user", JSON.stringify(matchedUser));
+        closeModal("authModal");
+        renderNav();
+        checkUserState();
+        renderLeaderboard();
+        alert(`Welcome back, Chief ${matchedUser.name}!`);
+      } else {
+        alert("Mobile number ya Password galat hai! Agar naye hain to Sign Up karein.");
+      }
     }
 
     function logoutUser() {
-      localStorage.removeItem("coc_user");
+      localStorage.removeItem("active_user");
       renderNav();
       checkUserState();
     }
 
+    /* Profile Update Modal & Points Addition */
+    function openProfileModal() {
+      const user = JSON.parse(localStorage.getItem("active_user"));
+      if (!user) return;
+
+      document.getElementById("profTH").value = user.th || "TH 16";
+      document.getElementById("profTrophies").value = user.trophies || "5000";
+      document.getElementById("profClan").value = user.clan || "";
+      document.getElementById("profRole").value = user.role || "Member";
+      document.getElementById("profStars").value = user.stars || "";
+
+      openModal("profileModal");
+    }
+
+    function saveCoCProfile() {
+      let user = JSON.parse(localStorage.getItem("active_user"));
+      if (!user) return;
+
+      const th = document.getElementById("profTH").value;
+      const trophies = document.getElementById("profTrophies").value || "5000";
+      const clan = document.getElementById("profClan").value || "Solo";
+      const role = document.getElementById("profRole").value;
+      const stars = document.getElementById("profStars").value || "500";
+
+      // Update active user details and add +150 Points
+      user.th = th;
+      user.trophies = trophies;
+      user.clan = clan;
+      user.role = role;
+      user.stars = stars;
+      user.points = (user.points || 100) + 150; // +150 XP bonus
+
+      localStorage.setItem("active_user", JSON.stringify(user));
+
+      // Update in all_users DB
+      let users = JSON.parse(localStorage.getItem("all_users")) || [];
+      users = users.map(u => u.mobile === user.mobile ? user : u);
+      localStorage.setItem("all_users", JSON.stringify(users));
+
+      closeModal("profileModal");
+      renderNav();
+      checkUserState();
+      renderLeaderboard();
+
+      alert(`✅ Profile updated successfully!\nAapko +150 XP Ranking Points jud gaye hain! Kul Points: ${user.points} XP`);
+    }
+
+    /* Dynamic Leaderboard */
+    function renderLeaderboard() {
+      const leaderboardBody = document.getElementById("leaderboardBody");
+      let users = JSON.parse(localStorage.getItem("all_users")) || [];
+
+      // Default Pro players
+      let allRankings = [
+        { name: "Apex Predator", th: "TH 16", clan: "Team Liquid", points: 950, trophies: 5840 },
+        { name: "ShadowKing", th: "TH 16", clan: "Dark Nebula", points: 820, trophies: 5710 },
+        { name: "DevilHunter", th: "TH 15", clan: "Indian Legends", points: 640, trophies: 5490 },
+        ...users
+      ];
+
+      // Sort by Points high to low
+      allRankings.sort((a, b) => (b.points || 0) - (a.points || 0));
+
+      leaderboardBody.innerHTML = allRankings.map((p, idx) => `
+        <tr>
+          <td>${idx === 0 ? '🥇 #1' : idx === 1 ? '🥈 #2' : idx === 2 ? '🥉 #3' : '#' + (idx + 1)}</td>
+          <td><b>${p.name}</b></td>
+          <td>${p.th || 'TH 16'}</td>
+          <td>${p.clan || 'Solo'}</td>
+          <td style="color: var(--primary); font-weight: 700;">${p.points || 100} XP</td>
+          <td>${p.trophies || 5000} 🏆</td>
+        </tr>
+      `).join('');
+    }
+
     function checkAccess(action) {
-      const user = localStorage.getItem("coc_user");
+      const user = localStorage.getItem("active_user");
       if (!user) {
-        alert("Is tournament me participate karne ke liye pehle Login karein!");
-        openModal("authModal");
+        alert("Is tournament me hissa lene ke liye pehle Login / Sign Up karein!");
+        openAuthModal('signup');
       } else {
         openModal("walletModal");
       }
     }
 
-    // Wallet UPI Dynamic QR
+    /* Wallet QR */
     function updateQR() {
       const amount = document.getElementById("payAmount").value || 10;
       const upiUrl = `upi://pay?pa=${MERCHANT_UPI}&pn=ClashZoneMerchant&am=${amount}&cu=INR`;
@@ -567,15 +860,19 @@
       const amount = parseFloat(document.getElementById("payAmount").value);
 
       if (!utr || utr.length < 8) {
-        alert("Kripya payment ke baad aane wala sahi 12-digit UTR/Ref number dalein!");
+        alert("Kripya payment ke baad aane wala sahi 12-digit UTR number dalein!");
         return;
       }
 
-      let user = JSON.parse(localStorage.getItem("coc_user"));
+      let user = JSON.parse(localStorage.getItem("active_user"));
       user.balance = (user.balance || 0) + amount;
-      localStorage.setItem("coc_user", JSON.stringify(user));
+      localStorage.setItem("active_user", JSON.stringify(user));
 
-      alert(`₹${amount} add karne ki request submit ho gyi! (UTR: ${utr})\nMerchant account me payment aate hi verify ho jayega.`);
+      let users = JSON.parse(localStorage.getItem("all_users")) || [];
+      users = users.map(u => u.mobile === user.mobile ? user : u);
+      localStorage.setItem("all_users", JSON.stringify(users));
+
+      alert(`₹${amount} add karne ki request submit ho gayi! (UTR: ${utr})\nMerchant BharatPe account me verify hote hi reflect ho jayega.`);
       closeModal("walletModal");
       renderNav();
     }
@@ -586,10 +883,11 @@
       const link = document.getElementById("baseLink").value.trim();
 
       if (!link) {
-        alert("Base ka link paste karein!");
+        alert("Base ka valid link paste karein!");
         return;
       }
 
+      // Add Base to Grid
       const baseGrid = document.getElementById("baseGrid");
       const card = document.createElement("div");
       card.className = "card";
@@ -602,17 +900,26 @@
         </div>
       `;
       baseGrid.prepend(card);
+
+      // Reward points for uploading base
+      let user = JSON.parse(localStorage.getItem("active_user"));
+      if (user) {
+        user.points = (user.points || 100) + 50;
+        localStorage.setItem("active_user", JSON.stringify(user));
+        let users = JSON.parse(localStorage.getItem("all_users")) || [];
+        users = users.map(u => u.mobile === user.mobile ? user : u);
+        localStorage.setItem("all_users", JSON.stringify(users));
+        renderNav();
+        checkUserState();
+        renderLeaderboard();
+      }
+
       closeModal("uploadModal");
-      alert("Base Layout successfully publish ho gaya!");
+      alert("Base publish ho gaya aur aapko +50 XP bonus points mile!");
     }
 
-    function openModal(id) {
-      document.getElementById(id).style.display = "flex";
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).style.display = "none";
-    }
+    function openModal(id) { document.getElementById(id).style.display = "flex"; }
+    function closeModal(id) { document.getElementById(id).style.display = "none"; }
   </script>
 </body>
 </html>
