@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wallet & BharatPe Payment | Clash Zone</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --card-bg: rgba(16, 21, 34, 0.95);
+      --gold: #fbbf24;
+      --gold-glow: rgba(251, 191, 36, 0.4);
+      --neon-blue: #00f0ff;
+      --border-color: rgba(251, 191, 36, 0.25);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, var(--bg-dark) 80%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .header-bar {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .back-btn {
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wallet-card {
+      background: var(--card-bg);
+      border: 1px solid var(--gold);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 500px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    .balance-box {
+      background: linear-gradient(135deg, #111827, #1f2937);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .balance-box small {
+      color: var(--text-muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .balance-box h2 {
+      font-size: 36px;
+      color: var(--gold);
+      font-family: 'Teko', sans-serif;
+      margin-top: 4px;
+    }
+
+    .preset-chips {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .chip {
+      flex: 1;
+      padding: 8px;
+      background: #080c14;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.2s;
+    }
+    .chip:hover, .chip.active {
+      border-color: var(--gold);
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--gold);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      background: #080c14;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+    .form-group input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    .qr-section {
+      background: #080c14;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .qr-section img {
+      width: 180px;
+      height: 180px;
+      background: #fff;
+      padding: 6px;
+      border-radius: 10px;
+      margin: 10px 0;
+    }
+
+    .btn-pay {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(180deg, #fde047 0%, var(--gold) 100%);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--gold-glow);
+      text-transform: uppercase;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Arena</a>
+    <span style="font-family:'Cinzel'; color:var(--gold); font-weight:900;">CLASH ZONE</span>
+  </div>
+
+  <div class="wallet-card">
+    
+    <div class="balance-box">
+      <small>Current Wallet Balance</small>
+      <h2 id="displayWalletBal">₹0 INR</h2>
+    </div>
+
+    <div class="form-group">
+      <label><i class="fa-solid fa-indian-rupee-sign"></i> Select / Enter Amount</label>
+      <div class="preset-chips">
+        <div class="chip" onclick="setAmount(50)">₹50</div>
+        <div class="chip active" onclick="setAmount(100)">₹100</div>
+        <div class="chip" onclick="setAmount(200)">₹200</div>
+        <div class="chip" onclick="setAmount(500)">₹500</div>
+      </div>
+      <input type="number" id="depositAmount" value="100" min="10" oninput="generateDynamicQR()">
+    </div>
+
+    <div class="qr-section">
+      <p style="color:var(--gold); font-size:14px; font-weight:700;"><i class="fa-solid fa-qrcode"></i> Scan with GPay / PhonePe / Paytm</p>
+      <img id="bharatPeQR" src="" alt="BharatPe QR Code">
+      <p style="color:var(--text-muted); font-size:12px;">Merchant: <b>BharatPe Secure Merchant Pay</b></p>
+    </div>
+
+    <div class="form-group">
+      <label><i class="fa-solid fa-receipt"></i> 12-Digit UPI Ref / UTR No. (Payment ke baad)</label>
+      <input type="text" id="utrRef" placeholder="e.g. 4234XXXXXXXX" maxlength="12">
+    </div>
+
+    <button class="btn-pay" onclick="verifyAndAddCash()"><i class="fa-solid fa-circle-check"></i> Submit Deposit</button>
+
+  </div>
+
+  <script>
+    // 👇 Yahan apni REAL BharatPe UPI ID daalein (Jaise: bharatpe.9812345678@icici)
+    const MERCHANT_VPA = "aman.BHARATPE2E0W0V1O32895@unitype"; 
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadWalletData();
+      generateDynamicQR();
+    });
+
+    function loadWalletData() {
+      const user = JSON.parse(localStorage.getItem("cz_user"));
+      if (user) {
+        document.getElementById("displayWalletBal").innerText = `₹${user.wallet || 0} INR`;
+      } else {
+        alert("Pehle Login karein!");
+        window.location.href = "index.html";
+      }
+    }
+
+    function setAmount(val) {
+      document.getElementById("depositAmount").value = val;
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      if (event && event.target) event.target.classList.add("active");
+      generateDynamicQR();
+    }
+
+    function generateDynamicQR() {
+      const amt = document.getElementById("depositAmount").value || 10;
+      const upiUrl = `upi://pay?pa=${MERCHANT_VPA}&pn=ClashZoneMerchant&am=${amt}&cu=INR`;
+      const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
+      document.getElementById("bharatPeQR").src = qrApi;
+    }
+
+    function verifyAndAddCash() {
+      const utr = document.getElementById("utrRef").value.trim();
+      const amt = parseFloat(document.getElementById("depositAmount").value);
+
+      if (!utr || utr.length < 8) {
+        alert("Kripya payment receipt se dekh kar sahi UTR / Ref Number bharein!");
+        return;
+      }
+
+      let user = JSON.parse(localStorage.getItem("cz_user"));
+      if (!user) return;
+
+      user.wallet = (user.wallet || 0) + amt;
+      localStorage.setItem("cz_user", JSON.stringify(user));
+
+      let users = JSON.parse(localStorage.getItem("cz_all_users")) || [];
+      users = users.map(u => u.mobile === user.mobile ? user : u);
+      localStorage.setItem("cz_all_users", JSON.stringify(users));
+
+      alert(`✅ ₹${amt} ka deposit request submit ho gaya! (UTR: ${utr})\nMerchant BharatPe account me verify hote hi add ho jayega.`);
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

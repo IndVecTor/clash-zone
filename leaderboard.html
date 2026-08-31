@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Leaderboard | CLASH ZONE</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@500;600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <a class="brand-logo" href="index.html">
+        <img src="https://api.iconify.design/game-icons:barbarian.svg?color=%23fbbf24" alt="Barbarian Logo">
+        <span class="brand-text">CLASH ZONE</span>
+      </a>
+      <div class="header-actions" id="topNavActions"></div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title"><i class="fa-solid fa-ranking-star" style="color:var(--gold);"></i> Top Leaderboard</h2>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player Name</th>
+            <th>Town Hall</th>
+            <th>Clan</th>
+            <th>Points (XP)</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardRows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="tournaments.html" class="nav-item">
+      <i class="fa-solid fa-trophy"></i>
+      <span>Wars</span>
+    </a>
+    <a href="bases.html" class="nav-item">
+      <i class="fa-solid fa-chess-rook"></i>
+      <span>Bases</span>
+    </a>
+    <a href="leaderboard.html" class="nav-item active">
+      <i class="fa-solid fa-chart-simple"></i>
+      <span>Ranks</span>
+    </a>
+    <button class="nav-item" id="bottomProfileBtn" onclick="openAuthModal('login')">
+      <i class="fa-solid fa-user"></i>
+      <span id="bottomProfileText">Login</span>
+    </button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

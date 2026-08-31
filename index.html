@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CLASH ZONE | Ultimate Esports & Base Hub</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@500;600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-container">
+      <a class="brand-logo" href="index.html">
+        <img src="https://api.iconify.design/game-icons:barbarian.svg?color=%23fbbf24" alt="Barbarian Logo">
+        <span class="brand-text">CLASH ZONE</span>
+      </a>
+      <div class="header-actions" id="topNavActions"></div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+    
+    <!-- HERO SECTION -->
+    <div class="hero">
+      <h1>CONQUER THE ARENA</h1>
+      <p>Download Undefeated Pro Layouts, Compete in Tournaments & Earn Real Cash Rewards.</p>
+    </div>
+
+    <!-- LOGGED IN USER PROFILE STRIP -->
+    <div id="userProfileStrip" class="user-profile-strip" style="display: none;">
+      <div class="user-info">
+        <div class="user-avatar"><i class="fa-solid fa-shield-halved"></i></div>
+        <div>
+          <h3 id="dashName" style="color:var(--gold); font-size: 20px;">Chief</h3>
+          <p id="dashDetails" style="font-size: 13px; color:var(--text-muted);">TH 16 | Clan: Solo</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <div style="background: #080c14; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--gold);">
+          <span style="font-size: 12px; color:var(--text-muted);">Points:</span>
+          <b id="dashXP" style="color:var(--neon-blue); font-size: 16px;">100 XP</b>
+        </div>
+        <button class="btn btn-outline" onclick="openModal('profileModal')"><i class="fa-solid fa-pen-to-square"></i> Edit Profile</button>
+      </div>
+    </div>
+
+    <!-- QUICK CATEGORY HUBS -->
+    <div class="section-header">
+      <h2 class="section-title"><i class="fa-solid fa-bolt" style="color:var(--gold);"></i> Explore Hubs</h2>
+    </div>
+
+    <div class="grid">
+      <!-- Wars Hub Card -->
+      <div class="card">
+        <div class="card-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=500&q=80" alt="Tournaments">
+          <span class="card-badge">Esports</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Active War Tournaments</div>
+          <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 12px;">Participate in solo and 5v5 war cups for cash prize pools.</p>
+          <a href="tournaments.html" class="btn btn-gold" style="width: 100%; justify-content: center;"><i class="fa-solid fa-trophy"></i> Open Wars</a>
+        </div>
+      </div>
+
+      <!-- Bases Hub Card -->
+      <div class="card">
+        <div class="card-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=500&q=80" alt="Base Layouts">
+          <span class="card-badge">Pro Layouts</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Pro Base Layouts</div>
+          <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 12px;">Copy direct anti 3-star, trophy push and farming bases.</p>
+          <a href="bases.html" class="btn btn-outline" style="width: 100%; justify-content: center;"><i class="fa-solid fa-chess-rook"></i> Browse Bases</a>
+        </div>
+      </div>
+
+      <!-- Leaderboard Hub Card -->
+      <div class="card">
+        <div class="card-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=500&q=80" alt="Leaderboard">
+          <span class="card-badge">Rankings</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Global Leaderboard</div>
+          <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 12px;">See top rankers, total XP points and highest trophy holders.</p>
+          <a href="leaderboard.html" class="btn btn-gold" style="width: 100%; justify-content: center;"><i class="fa-solid fa-ranking-star"></i> Check Ranks</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="tournaments.html" class="nav-item">
+      <i class="fa-solid fa-trophy"></i>
+      <span>Wars</span>
+    </a>
+    <a href="bases.html" class="nav-item">
+      <i class="fa-solid fa-chess-rook"></i>
+      <span>Bases</span>
+    </a>
+    <a href="leaderboard.html" class="nav-item">
+      <i class="fa-solid fa-chart-simple"></i>
+      <span>Ranks</span>
+    </a>
+    <button class="nav-item" id="bottomProfileBtn" onclick="openAuthModal('login')">
+      <i class="fa-solid fa-user"></i>
+      <span id="bottomProfileText">Login</span>
+    </button>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div class="modal" id="authModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal('authModal')">×</button>
+      
+      <div class="tab-switch">
+        <button class="tab-btn active" id="btnTabLogin" onclick="switchAuth('login')">Login</button>
+        <button class="tab-btn" id="btnTabSignup" onclick="switchAuth('signup')">Sign Up</button>
+      </div>
+
+      <div id="loginForm">
+        <div class="form-group">
+          <label><i class="fa-solid fa-phone"></i> Mobile Number</label>
+          <input type="tel" id="logMobile" placeholder="10-digit mobile number" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-lock"></i> Password</label>
+          <input type="password" id="logPass" placeholder="Enter password">
+        </div>
+        <button class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login Now</button>
+      </div>
+
+      <div id="signupForm" style="display: none;">
+        <div class="form-group">
+          <label><i class="fa-solid fa-user"></i> Full Name</label>
+          <input type="text" id="regName" placeholder="e.g. Aman Clasher">
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-phone"></i> Mobile Number</label>
+          <input type="tel" id="regMobile" placeholder="10-digit mobile number" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-hashtag"></i> CoC Player Tag</label>
+          <input type="text" id="regTag" placeholder="#P9L80YQ2">
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-lock"></i> Set Password</label>
+          <input type="password" id="regPass" placeholder="Min 4 characters">
+        </div>
+        <button class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="doSignup()"><i class="fa-solid fa-user-plus"></i> Create Account (+100 XP)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal('profileModal')">×</button>
+      <h2 style="font-family:'Teko'; color:var(--gold); font-size:28px;"><i class="fa-solid fa-id-card"></i> Update CoC Profile</h2>
+      <p style="color:var(--neon-blue); font-size:13px; margin-bottom:15px;">Earn <b>+150 XP Ranking Points</b> by saving details!</p>
+
+      <div class="form-group">
+        <label>Town Hall Level</label>
+        <select id="profTH">
+          <option>TH 16</option>
+          <option>TH 15</option>
+          <option>TH 14</option>
+          <option>TH 13</option>
+          <option>TH 12</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Clan Name</label>
+        <input type="text" id="profClan" placeholder="e.g. Soul Clan">
+      </div>
+      <div class="form-group">
+        <label>Current Trophies 🏆</label>
+        <input type="number" id="profTrophies" placeholder="e.g. 5400">
+      </div>
+
+      <button class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="saveProfile()"><i class="fa-solid fa-floppy-disk"></i> Save & Get +150 Points</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
