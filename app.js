@@ -47,21 +47,29 @@ let allFetchedBases = [];
 onAuthStateChanged(auth, async (user) => {
   const headerAuth = document.getElementById("headerAuthArea");
   const userProfileStrip = document.getElementById("userProfileStrip");
+  const navProfileBtn = document.getElementById("navProfileBtn");
 
   if (user) {
     const displayName = user.displayName || user.email.split('@')[0];
     
     if (headerAuth) {
       headerAuth.innerHTML = `
-        <button onclick="window.openModal('uploadModal')" class="bg-amber-500 hover:bg-amber-400 text-black px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-500/20">
+        <button onclick="window.openModal('uploadModal')" class="bg-amber-500 hover:bg-amber-400 text-black px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-500/20">
           <i class="fa-solid fa-cloud-arrow-up"></i>
-          <span>Upload Base</span>
+          <span>Upload</span>
         </button>
-        <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs">
+        <div class="flex items-center gap-2 bg-czPanel border border-slate-700 px-3 py-1.5 rounded-xl text-xs">
           <i class="fa-solid fa-circle-check text-emerald-400"></i>
-          <span class="font-bold text-white max-w-[110px] truncate">${displayName}</span>
-          <button onclick="window.handleLogout()" class="text-red-400 hover:text-red-300 ml-1" title="Logout"><i class="fa-solid fa-power-off"></i></button>
+          <span class="font-bold text-white max-w-[100px] truncate">${displayName}</span>
+          <button onclick="window.handleLogout()" class="text-rose-400 hover:text-rose-300 ml-1" title="Logout"><i class="fa-solid fa-power-off"></i></button>
         </div>
+      `;
+    }
+
+    if (navProfileBtn) {
+      navProfileBtn.innerHTML = `
+        <i class="fa-solid fa-user-check text-emerald-400 text-lg"></i>
+        <span>${displayName.slice(0, 7)}</span>
       `;
     }
 
@@ -72,24 +80,31 @@ onAuthStateChanged(auth, async (user) => {
         if (userDoc.exists()) {
           const u = userDoc.data();
           document.getElementById("dashPlayerName").innerText = u.name || displayName;
-          document.getElementById("dashTHBadge").innerText = u.townHallLevel || "TH 16";
-          document.getElementById("dashClanInfo").innerText = `Clan: ${u.clanName || 'Solo'} | Tag: ${u.tag || '---'}`;
+          document.getElementById("dashTHBadge").innerText = u.townHallLevel || "TH --";
+          document.getElementById("dashClanInfo").innerText = `Clan: ${u.clanName || 'No Clan'} | Tag: ${u.tag || '---'}`;
           document.getElementById("dashTrophies").innerText = `🏆 ${u.trophies || 0}`;
+          document.getElementById("dashWarStars").innerText = `⭐ ${u.warStars || 0}`;
         } else {
           document.getElementById("dashPlayerName").innerText = displayName;
         }
       } catch (e) {
-        console.warn("User doc read fallback:", e);
+        console.warn("User profile fetch error:", e);
       }
     }
 
   } else {
     if (headerAuth) {
       headerAuth.innerHTML = `
-        <button onclick="window.openModal('authModal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-400 px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1.5 transition">
+        <button onclick="window.openModal('authModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-amber-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-md">
           <i class="fa-solid fa-user-lock"></i>
-          <span>Login / Sign Up</span>
+          <span>Login / Register</span>
         </button>
+      `;
+    }
+    if (navProfileBtn) {
+      navProfileBtn.innerHTML = `
+        <i class="fa-solid fa-user text-lg"></i>
+        <span>Account</span>
       `;
     }
     if (userProfileStrip) userProfileStrip.classList.add("hidden");
@@ -97,13 +112,14 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ==========================================
-// 3. COC PLAYER TAG SYNC (FAIL-SAFE MULTI-PROXY ENGINE)
+// 3. REAL COC PLAYER TAG SYNC (NO DUMMY FALLBACK)
 // ==========================================
 window.handleSyncCoCProfile = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
   if (!user) {
     alert("Pehle Login karein!");
+    window.openModal('authModal');
     return;
   }
 
@@ -114,66 +130,50 @@ window.handleSyncCoCProfile = async function(e) {
     return;
   }
 
-  // Letter O ko 0 (Zero) me convert aur clean karna
+  // Convert letter O to number 0 and sanitize
   let cleanTag = rawTag.replace(/O/g, "0").replace(/[^A-Z0-9]/g, "");
   const formattedTag = "#" + cleanTag;
   const encodedTag = encodeURIComponent(formattedTag);
 
   const syncBtn = document.getElementById("btnSyncProfile");
   syncBtn.disabled = true;
-  syncBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fetching Live CoC Data...`;
+  syncBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Contacting Supercell Server...`;
 
   let responseData = null;
 
-  // Multi-tier Proxy Endpoints for zero-downtime fetch
-  const targetApiUrl = `https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`;
-  const proxyEndpoints = [
-    targetApiUrl,
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetApiUrl)}`,
-    `https://corsproxy.io/?url=${encodeURIComponent(targetApiUrl)}`,
-    `/api/player?tag=${encodedTag}`
+  // Endpoint order: 1. Serverless API Route -> 2. Public RoyaleAPI Proxy
+  const endpoints = [
+    `/api/player?tag=${encodedTag}`,
+    `https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`
   ];
 
-  for (const url of proxyEndpoints) {
+  for (const url of endpoints) {
     try {
-      const res = await fetch(url, {
-        method: "GET",
-        headers: { "Accept": "application/json" }
-      });
-      
+      const res = await fetch(url);
       if (res.ok) {
-        const text = await res.text();
-        try {
-          const json = JSON.parse(text);
-          if (json && (json.name || json.tag || json.townHallLevel)) {
-            responseData = json;
-            break;
-          }
-        } catch (parseErr) {
-          console.warn("JSON Parse Retry on:", url);
+        const json = await res.json();
+        if (json && json.name) {
+          responseData = json;
+          break;
         }
       }
-    } catch (fetchErr) {
-      console.warn("Proxy attempt error:", url, fetchErr);
+    } catch (err) {
+      console.warn("Sync fetch attempt failed on:", url, err);
     }
   }
 
-  // If external Supercell proxies are throttled, generate structured verified profile
-  if (!responseData) {
-    responseData = {
-      tag: formattedTag,
-      name: "Chief " + (cleanTag.slice(0, 5) || "Player"),
-      townHallLevel: 16,
-      clan: { name: "ClashZone Verified" },
-      trophies: 5000,
-      warStars: 1200
-    };
+  // If real player data is NOT found, throw an error. No fake dummy data.
+  if (!responseData || !responseData.name) {
+    syncBtn.disabled = false;
+    syncBtn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Fetch & Sync Live Stats`;
+    alert("❌ Player Tag nahi mila! Kripya sahi Clash of Clans Player Tag dalein (jaise #P9L80YQ2). Letter O ki jagah 0 (Zero) use karein.");
+    return;
   }
 
   try {
     const cocProfile = {
       tag: responseData.tag || formattedTag,
-      name: responseData.name || "Chief Player",
+      name: responseData.name,
       townHallLevel: responseData.townHallLevel ? `TH ${responseData.townHallLevel}` : "TH 16",
       clanName: responseData.clan ? responseData.clan.name : "No Clan",
       trophies: responseData.trophies || 0,
@@ -181,29 +181,25 @@ window.handleSyncCoCProfile = async function(e) {
       syncedAt: serverTimestamp()
     };
 
-    // Save profile to Firestore Database
+    // Save authentic player data to Firestore
     await setDoc(doc(db, "users", user.uid), cocProfile, { merge: true });
-    
-    // Update Firebase Auth Display Name
-    if (responseData.name) {
-      await updateProfile(user, { displayName: responseData.name });
-    }
+    await updateProfile(user, { displayName: cocProfile.name });
 
     window.closeModal('profileSyncModal');
-    alert(`🎉 CoC ID Linked Successfully!\nChief: ${cocProfile.name}\nTown Hall: ${cocProfile.townHallLevel}\nClan: ${cocProfile.clanName}\nTrophies: ${cocProfile.trophies}`);
+    alert(`🎉 Account Linked!\nChief: ${cocProfile.name}\nTown Hall: ${cocProfile.townHallLevel}\nClan: ${cocProfile.clanName}\nTrophies: ${cocProfile.trophies}`);
     location.reload();
 
   } catch (err) {
-    console.error("Firestore Sync Error:", err);
+    console.error("Firestore sync error:", err);
     alert("❌ Error: " + err.message);
   } finally {
     syncBtn.disabled = false;
-    syncBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Fetch & Sync Profile`;
+    syncBtn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Fetch & Sync Live Stats`;
   }
 };
 
 // ==========================================
-// 4. FETCH & DISPLAY BASES (0 DUMMY DATA)
+// 4. FETCH & DISPLAY BASES (COMMUNITY ONLY)
 // ==========================================
 async function loadBasesFromFirestore() {
   const container = document.getElementById("basesContainer");
@@ -220,7 +216,7 @@ async function loadBasesFromFirestore() {
 
     renderBasesUI();
   } catch (error) {
-    console.warn("Firestore access error, loading local:", error);
+    console.warn("Firestore read error, fallback to local:", error);
     allFetchedBases = JSON.parse(localStorage.getItem("cz_user_uploaded_bases")) || [];
     renderBasesUI();
   }
@@ -242,13 +238,13 @@ function renderBasesUI() {
     return matchTH && matchType && matchSearch;
   });
 
-  if (countText) countText.innerText = `${filtered.length} Real Layouts`;
+  if (countText) countText.innerText = `${filtered.length} Layouts`;
 
   if (filtered.length === 0) {
     container.innerHTML = `
       <div class="col-span-full py-16 text-center text-slate-500">
-        <i class="fa-solid fa-shield-cat text-4xl mb-2 text-slate-600"></i>
-        <h3 class="text-lg font-bold text-slate-300">Abhi koi base upload nahi hua hai</h3>
+        <i class="fa-solid fa-shield-cat text-4xl mb-3 text-slate-600"></i>
+        <h3 class="text-base font-bold text-slate-300">Abhi koi base upload nahi hua hai</h3>
         <p class="text-xs text-slate-500 mt-1">Pehle login karein aur apna real base upload karein!</p>
       </div>
     `;
@@ -256,27 +252,27 @@ function renderBasesUI() {
   }
 
   container.innerHTML = filtered.map(base => `
-    <div class="bg-czCard border border-slate-800 hover:border-amber-400/60 rounded-2xl overflow-hidden transition duration-300 flex flex-col group shadow-xl">
-      <div class="h-48 relative overflow-hidden bg-slate-900">
+    <div class="glass-card rounded-2xl overflow-hidden transition-all duration-300 flex flex-col group shadow-xl hover:border-amber-400/60 hover:-translate-y-1">
+      <div class="h-48 relative overflow-hidden bg-czDark">
         <img src="${base.image}" alt="${base.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80'" />
-        <span class="absolute top-2.5 left-2.5 bg-czDark/90 text-amber-400 border border-amber-400/40 text-[11px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-md">
+        <span class="absolute top-2.5 left-2.5 bg-czDark/90 text-amber-400 border border-amber-400/40 text-[11px] font-black px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-md">
           ${base.th}
         </span>
-        <span class="absolute top-2.5 right-2.5 bg-black/80 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md">
+        <span class="absolute top-2.5 right-2.5 bg-black/85 text-white text-[11px] font-bold px-2 py-0.5 rounded-lg border border-slate-700">
           ${base.type}
         </span>
       </div>
 
       <div class="p-4 flex flex-col flex-grow justify-between">
         <div>
-          <div class="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-            <span class="text-amber-400 font-semibold"><i class="fa-solid fa-circle-user mr-1"></i> ${base.uploaderName || 'Verified Player'}</span>
-            <span><i class="fa-solid fa-shield-check text-emerald-400"></i> Verified</span>
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span class="text-amber-400 font-bold truncate max-w-[150px]"><i class="fa-solid fa-circle-user mr-1"></i> ${base.uploaderName || 'Verified Player'}</span>
+            <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-shield-check mr-1"></i>Verified</span>
           </div>
-          <h3 class="font-bold text-sm sm:text-base text-white line-clamp-1 mb-4">${base.title}</h3>
+          <h3 class="font-bold text-sm text-white line-clamp-2 mb-4 leading-snug">${base.title}</h3>
         </div>
 
-        <button onclick="window.copyBaseLink('${base.link}')" class="w-full bg-slate-800 hover:bg-amber-500 hover:text-black text-amber-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700 hover:border-amber-400 transition">
+        <button onclick="window.copyBaseLink('${base.link}')" class="w-full bg-czPanel hover:bg-amber-500 hover:text-black text-amber-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700 hover:border-amber-400 transition shadow-md">
           <i class="fa-solid fa-copy"></i>
           <span>Copy In-Game Link</span>
         </button>
@@ -430,7 +426,7 @@ window.handleLogout = function() {
 };
 
 // ==========================================
-// 7. FILTERS & MODAL HELPERS
+// 7. FILTERS & NAVIGATION HELPERS
 // ==========================================
 window.setTHFilter = function(th) {
   currentTH = th;
@@ -452,11 +448,19 @@ window.filterBases = function() {
 window.copyBaseLink = function(link) {
   if (!link) return;
   navigator.clipboard.writeText(link).then(() => {
-    alert("✅ Base Link Copied! Opening in Clash of Clans layout editor...");
+    alert("✅ Base Link Copied! Opening in Clash of Clans...");
     window.open(link, "_blank");
   }).catch(() => {
     window.open(link, "_blank");
   });
+};
+
+window.handleBottomNavAuthClick = function() {
+  if (auth.currentUser) {
+    window.openModal('profileSyncModal');
+  } else {
+    window.openModal('authModal');
+  }
 };
 
 window.openModal = function(id) {
@@ -486,12 +490,12 @@ window.switchAuthTab = function(type) {
   if (type === 'login') {
     loginForm.classList.remove("hidden");
     signupForm.classList.add("hidden");
-    tabLoginBtn.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-amber-500 text-black";
-    tabSignupBtn.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-400";
+    tabLoginBtn.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-amber-500 text-black";
+    tabSignupBtn.className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-400";
   } else {
     loginForm.classList.add("hidden");
     signupForm.classList.remove("hidden");
-    tabSignupBtn.className = "flex-1 py-2 rounded-lg text-xs font-bold bg-amber-500 text-black";
+    tabSignupBtn.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-amber-500 text-black";
     tabLoginBtn.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-400";
   }
 };
