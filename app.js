@@ -132,7 +132,6 @@ onAuthStateChanged(auth, async (user) => {
             leagueBadge.className = `${league.color} text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 border`;
           }
 
-          // Check if user is Pro Builder (3+ uploads)
           const userBasesCount = allFetchedBases.filter(b => b.uploaderUid === user.uid).length;
           const builderBadge = document.getElementById("dashBuilderBadge");
           if (builderBadge) {
@@ -1082,23 +1081,56 @@ window.switchAuthTab = function(type) {
 };
 
 // ==========================================
-// 15. PWA SERVICE WORKER & INSTALL PROMPT
+// 15. PWA SERVICE WORKER & MOBILE INSTALL ENGINE
 // ==========================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
-      console.warn('Service Worker registration failed:', err);
-    });
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log("SW Registered successfully"))
+      .catch((err) => console.warn("SW Registration failed:", err));
   });
 }
 
-let deferredPrompt;
+let deferredPrompt = null;
+const installBtn = document.getElementById("pwaInstallBtn");
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  if (window.showToast) {
-    window.showToast("📱 Install ClashZone app on your home screen!");
+
+  if (installBtn) {
+    installBtn.classList.remove("hidden");
+    installBtn.classList.add("flex");
   }
+
+  if (window.showToast) {
+    window.showToast("📱 Tap 'Install App' at top to add to Home Screen!");
+  }
+});
+
+window.triggerAppInstall = async function() {
+  if (!deferredPrompt) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      alert("iPhone me install karne ke liye:\n1. Neeche Share (📤) button par tap karein.\n2. 'Add to Home Screen' (+) select karein.");
+      return;
+    }
+    alert("App pehle se installed hai ya browser support nahi karta. Chrome menu (⋮) me jaakar 'Install app' choose karein.");
+    return;
+  }
+
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    window.showToast("🎉 ClashZone successfully installed!");
+    if (installBtn) installBtn.classList.add("hidden");
+  }
+  deferredPrompt = null;
+};
+
+window.addEventListener('appinstalled', () => {
+  if (installBtn) installBtn.classList.add("hidden");
+  deferredPrompt = null;
 });
 
 document.addEventListener("DOMContentLoaded", () => {

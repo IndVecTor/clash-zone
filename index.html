@@ -119,12 +119,19 @@
         </button>
       </div>
 
-      <!-- Header Actions -->
-      <div class="flex items-center gap-2 shrink-0" id="headerAuthArea">
-        <button onclick="window.openModal('authModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-amber-400 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-md">
-          <i class="fa-solid fa-user-lock"></i>
-          <span>Login</span>
+      <!-- Header Actions: Install Button + Login Area -->
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="pwaInstallBtn" onclick="window.triggerAppInstall()" class="hidden bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-3 py-1.5 rounded-xl text-xs font-black items-center gap-1.5 transition shadow-cyber-gold animate-pulse">
+          <i class="fa-solid fa-download"></i>
+          <span>Install App</span>
         </button>
+        
+        <div id="headerAuthArea">
+          <button onclick="window.openModal('authModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-amber-400 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-md">
+            <i class="fa-solid fa-user-lock"></i>
+            <span>Login</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -328,13 +335,11 @@
       </h3>
       <p id="reviewModalBaseTitle" class="text-xs text-slate-300 font-bold mt-1 truncate">Base Title</p>
 
-      <!-- Defense Proof Screenshot View (If Available) -->
       <div id="defenseProofWrapper" class="hidden mt-3 p-3 bg-czDark rounded-2xl border border-slate-800">
         <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block mb-1.5"><i class="fa-solid fa-circle-check mr-1"></i> Verified Defense Log</span>
         <img id="defenseProofImg" src="" alt="Defense Log Proof" class="w-full h-36 object-cover rounded-xl cursor-pointer" onclick="window.openLightbox(this.src)" />
       </div>
 
-      <!-- Add Review Form -->
       <form onsubmit="window.handleAddReview(event)" class="mt-4 pt-3 border-t border-slate-800 space-y-3">
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Rate this Layout</label>
@@ -358,7 +363,6 @@
         </button>
       </form>
 
-      <!-- Existing Reviews List -->
       <div class="mt-5 pt-3 border-t border-slate-800">
         <h4 class="text-xs font-black uppercase text-slate-400 mb-2">Clasher Feedback</h4>
         <div id="reviewsListContainer" class="space-y-2 max-h-40 overflow-y-auto pr-1">
@@ -475,7 +479,7 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Defense Proof (Opt.)</label>
-            <input type="file" id="uploadProofFile" accept="image/*" class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:font-bold hover:file:bg-slate-600" />
+            <input type="file" id="uploadProofFile" accept="image/*" class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:font-bold hover:file:bg-slate-600" />
           </div>
         </div>
 
