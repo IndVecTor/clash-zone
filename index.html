@@ -50,9 +50,23 @@
     }
     .scrollbar-none::-webkit-scrollbar { display: none; }
     .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Skeleton Shimmer Animation */
+    .skeleton-box {
+      background: linear-gradient(90deg, #0e1626 25%, #1b2844 50%, #0e1626 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
   </style>
 </head>
 <body class="text-slate-100 min-h-screen pb-28 selection:bg-amber-500 selection:text-black overflow-x-hidden">
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- TOP HEADER -->
   <header class="sticky top-0 z-40 bg-czDark/90 backdrop-blur-xl border-b border-czBorder w-full">
@@ -178,12 +192,29 @@
       </div>
     </section>
 
-    <!-- MAIN BASE GRID -->
+    <!-- MAIN BASE GRID (WITH SKELETON PLACEHOLDERS) -->
     <main class="py-2 w-full">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 w-full" id="basesContainer">
-        <div class="col-span-full py-16 text-center text-slate-500">
-          <i class="fa-solid fa-spinner fa-spin text-3xl mb-2 text-amber-400"></i>
-          <p class="text-xs font-semibold">Loading verified community layouts...</p>
+        <!-- 4 Skeleton Shimmer Cards Initially -->
+        <div class="glass-card rounded-2xl overflow-hidden p-3 space-y-3">
+          <div class="h-44 rounded-xl skeleton-box"></div>
+          <div class="h-4 w-3/4 rounded skeleton-box"></div>
+          <div class="h-8 rounded-xl skeleton-box"></div>
+        </div>
+        <div class="glass-card rounded-2xl overflow-hidden p-3 space-y-3">
+          <div class="h-44 rounded-xl skeleton-box"></div>
+          <div class="h-4 w-3/4 rounded skeleton-box"></div>
+          <div class="h-8 rounded-xl skeleton-box"></div>
+        </div>
+        <div class="glass-card rounded-2xl overflow-hidden p-3 space-y-3">
+          <div class="h-44 rounded-xl skeleton-box"></div>
+          <div class="h-4 w-3/4 rounded skeleton-box"></div>
+          <div class="h-8 rounded-xl skeleton-box"></div>
+        </div>
+        <div class="glass-card rounded-2xl overflow-hidden p-3 space-y-3">
+          <div class="h-44 rounded-xl skeleton-box"></div>
+          <div class="h-4 w-3/4 rounded skeleton-box"></div>
+          <div class="h-8 rounded-xl skeleton-box"></div>
         </div>
       </div>
     </main>
@@ -269,7 +300,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">In-Game Copy Link</label>
+          <label class="block text-xs font-bold text-slate-300 mb-1">In-Game Copy Link (clashofclans.com)</label>
           <input type="url" id="uploadLink" placeholder="https://link.clashofclans.com/en?action=OpenLayout..." required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
         </div>
 

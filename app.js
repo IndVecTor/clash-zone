@@ -50,7 +50,35 @@ let currentUserProfile = null;
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases")) || [];
 
 // ==========================================
-// 2. AUTH STATE LISTENER & USER DASHBOARD
+// 2. CYBER TOAST NOTIFICATION
+// ==========================================
+window.showToast = function(message, type = "success") {
+  const container = document.getElementById("toastContainer");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  const isSuccess = type === "success";
+  toast.className = `glass-card pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border ${isSuccess ? 'border-amber-400/80 shadow-amber-500/20' : 'border-rose-500/80 shadow-rose-500/20'} shadow-2xl transition-all duration-300 transform translate-x-10 opacity-0 text-xs font-bold`;
+  
+  toast.innerHTML = `
+    <i class="fa-solid ${isSuccess ? 'fa-circle-check text-amber-400 text-base' : 'fa-triangle-exclamation text-rose-400 text-base'}"></i>
+    <span class="text-white">${message}</span>
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.remove("translate-x-10", "opacity-0");
+  }, 10);
+
+  setTimeout(() => {
+    toast.classList.add("translate-x-10", "opacity-0");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+};
+
+// ==========================================
+// 3. AUTH STATE LISTENER & USER DASHBOARD
 // ==========================================
 onAuthStateChanged(auth, async (user) => {
   const headerAuth = document.getElementById("headerAuthArea");
@@ -112,7 +140,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ==========================================
-// 3. EDIT PROFILE & MANAGE USER'S BASES
+// 4. EDIT PROFILE & MANAGE USER'S BASES
 // ==========================================
 window.openEditProfileModal = function() {
   const user = auth.currentUser;
@@ -160,12 +188,12 @@ window.handleDeleteBase = async function(baseId) {
 
   try {
     await deleteDoc(doc(db, "bases", baseId));
-    alert("✅ Base successfully delete ho gaya!");
+    window.showToast("Base successfully delete ho gaya!");
     await loadBasesFromFirestore();
     renderMyBasesList();
   } catch (err) {
     console.error("Delete error:", err);
-    alert("❌ Error: " + err.message);
+    window.showToast("Delete Error: " + err.message, "error");
   }
 };
 
@@ -196,11 +224,11 @@ window.handleSaveProfile = async function(e) {
 
     currentUserProfile = profileData;
     window.closeModal('editProfileModal');
-    alert("✅ Profile updated successfully!");
-    location.reload();
+    window.showToast("Profile details successfully update ho gayi!");
+    setTimeout(() => location.reload(), 1000);
   } catch (err) {
     console.error("Save profile error:", err);
-    alert("❌ Error: " + err.message);
+    window.showToast("Error: " + err.message, "error");
   } finally {
     saveBtn.disabled = false;
     saveBtn.innerHTML = `Save Changes`;
@@ -208,7 +236,7 @@ window.handleSaveProfile = async function(e) {
 };
 
 // ==========================================
-// 4. FETCH, SORT & DISPLAY BASES
+// 5. FETCH, SORT & DISPLAY BASES
 // ==========================================
 async function loadBasesFromFirestore() {
   const container = document.getElementById("basesContainer");
@@ -313,16 +341,22 @@ function renderBasesUI() {
           </div>
 
           <div>
-            <!-- Stats: Likes & Downloads -->
+            <!-- Stats: Likes, Downloads & WhatsApp Share -->
             <div class="flex items-center justify-between text-xs text-slate-400 mb-3 bg-czDark/60 p-2 rounded-xl border border-slate-800">
               <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1.5 ${isLiked ? 'text-rose-500 font-bold' : 'text-slate-400 hover:text-rose-400'} transition">
                 <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart text-sm"></i>
                 <span id="likeCount-${base.id}">${base.likesCount || 0}</span>
               </button>
+              
               <div class="flex items-center gap-1.5 text-slate-400">
                 <i class="fa-solid fa-download text-emerald-400"></i>
                 <span id="dlCount-${base.id}">${base.downloadsCount || 0} copied</span>
               </div>
+
+              <!-- WhatsApp Direct Share -->
+              <button onclick="window.shareOnWhatsApp('${base.title}', '${base.link}')" class="text-emerald-400 hover:text-emerald-300 transition" title="Share on WhatsApp">
+                <i class="fa-brands fa-whatsapp text-sm"></i>
+              </button>
             </div>
 
             <!-- Copy Link Button -->
@@ -338,7 +372,7 @@ function renderBasesUI() {
 }
 
 // ==========================================
-// 5. LIKE & DOWNLOAD LOGIC
+// 6. LIKE, DOWNLOAD & WHATSAPP SHARE LOGIC
 // ==========================================
 window.handleLikeBase = async function(baseId) {
   const isLiked = userLikedBases.includes(baseId);
@@ -354,6 +388,7 @@ window.handleLikeBase = async function(baseId) {
       userLikedBases.push(baseId);
       await updateDoc(baseRef, { likesCount: increment(1) });
       if (countSpan) countSpan.innerText = parseInt(countSpan.innerText) + 1;
+      window.showToast("Layout liked! ❤️");
     }
     localStorage.setItem("cz_liked_bases", JSON.stringify(userLikedBases));
     renderBasesUI();
@@ -365,7 +400,6 @@ window.handleLikeBase = async function(baseId) {
 window.copyBaseLink = async function(baseId, link) {
   if (!link) return;
 
-  // Increment download/copy counter in Firestore
   try {
     await updateDoc(doc(db, "bases", baseId), { downloadsCount: increment(1) });
     const dlSpan = document.getElementById(`dlCount-${baseId}`);
@@ -375,15 +409,22 @@ window.copyBaseLink = async function(baseId, link) {
   }
 
   navigator.clipboard.writeText(link).then(() => {
-    alert("✅ Base Link Copied! Clash of Clans app khul raha hai...");
-    window.open(link, "_blank");
+    window.showToast("🎉 Base link copied! Opening Clash of Clans...");
+    setTimeout(() => {
+      window.open(link, "_blank");
+    }, 600);
   }).catch(() => {
     window.open(link, "_blank");
   });
 };
 
+window.shareOnWhatsApp = function(title, link) {
+  const text = encodeURIComponent(`🔥 Check out this verified Clash of Clans layout on ClashZone:\n\n*${title}*\n\nDirect In-Game Link: ${link}`);
+  window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
+};
+
 // ==========================================
-// 6. IMAGE LIGHTBOX
+// 7. IMAGE LIGHTBOX
 // ==========================================
 window.openLightbox = function(imageSrc) {
   const lb = document.getElementById("imageLightbox");
@@ -404,7 +445,7 @@ window.closeLightbox = function() {
 };
 
 // ==========================================
-// 7. IMAGE COMPRESSION & BASE UPLOAD
+// 8. IMAGE COMPRESSION & BASE UPLOAD (WITH VALIDATION)
 // ==========================================
 function compressImage(file, maxWidth = 900, quality = 0.7) {
   return new Promise((resolve, reject) => {
@@ -439,15 +480,21 @@ window.handleBaseUpload = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
   if (!user) {
-    alert("Pehle Login karein base upload karne ke liye!");
+    window.showToast("Pehle Login karein base upload karne ke liye!", "error");
     window.openModal('authModal');
+    return;
+  }
+
+  const rawLink = document.getElementById("uploadLink").value.trim();
+  if (!rawLink.includes("link.clashofclans.com")) {
+    window.showToast("❌ Sirf official 'link.clashofclans.com' base links allowed hain!", "error");
     return;
   }
 
   const fileInput = document.getElementById("uploadImageFile");
   const file = fileInput?.files[0];
   if (!file) {
-    alert("Base screenshot upload karna zaroori hai!");
+    window.showToast("Base screenshot upload karna zaroori hai!", "error");
     return;
   }
 
@@ -461,7 +508,7 @@ window.handleBaseUpload = async function(e) {
       th: document.getElementById("uploadTH").value,
       type: document.getElementById("uploadType").value,
       title: document.getElementById("uploadTitle").value.trim(),
-      link: document.getElementById("uploadLink").value.trim(),
+      link: rawLink,
       image: base64Image,
       uploaderUid: user.uid,
       uploaderName: currentUserProfile?.name || user.displayName || user.email.split('@')[0],
@@ -477,17 +524,17 @@ window.handleBaseUpload = async function(e) {
     window.closeModal('uploadModal');
     e.target.reset();
     await loadBasesFromFirestore();
-    alert("✅ Base layout successfully publish ho gaya!");
+    window.showToast("✅ Base layout successfully publish ho gaya!");
   } catch (error) {
     console.error("Upload error:", error);
     submitBtn.disabled = false;
     submitBtn.innerHTML = `Publish Base Layout`;
-    alert("❌ Error: " + error.message);
+    window.showToast("Error: " + error.message, "error");
   }
 };
 
 // ==========================================
-// 8. SIGNUP & LOGIN HANDLERS
+// 9. SIGNUP & LOGIN HANDLERS
 // ==========================================
 window.handleEmailSignup = async function(e) {
   e.preventDefault();
@@ -499,7 +546,7 @@ window.handleEmailSignup = async function(e) {
   if (tag && !tag.startsWith("#")) tag = "#" + tag;
 
   if (pass.length < 6) {
-    alert("Password kam se kam 6 characters ka hona chahiye!");
+    window.showToast("Password kam se kam 6 characters ka hona chahiye!", "error");
     return;
   }
 
@@ -517,15 +564,15 @@ window.handleEmailSignup = async function(e) {
     });
 
     window.closeModal('authModal');
-    alert(`🎉 Welcome Chief ${name}! Account ban gaya.`);
-    location.reload();
+    window.showToast(`🎉 Welcome Chief ${name}! Account ban gaya.`);
+    setTimeout(() => location.reload(), 1000);
   } catch (error) {
     console.error("Signup error:", error);
     if (error.code === 'auth/email-already-in-use') {
-      alert("❌ Yeh Email pehle se registered hai! Kripya Login karein.");
+      window.showToast("Yeh Email pehle se registered hai! Kripya Login karein.", "error");
       window.switchAuthTab('login');
     } else {
-      alert("❌ Signup Error: " + error.message);
+      window.showToast("Signup Error: " + error.message, "error");
     }
   }
 };
@@ -538,23 +585,23 @@ window.handleEmailLogin = async function(e) {
   try {
     await signInWithEmailAndPassword(auth, email, pass);
     window.closeModal('authModal');
-    alert("✅ Login successful!");
-    location.reload();
+    window.showToast("✅ Login successful!");
+    setTimeout(() => location.reload(), 800);
   } catch (error) {
     console.error("Login error:", error);
-    alert("❌ Login Error: " + error.message);
+    window.showToast("Login Error: " + error.message, "error");
   }
 };
 
 window.handleLogout = function() {
   signOut(auth).then(() => {
-    alert("Logged out successfully!");
-    location.reload();
+    window.showToast("Logged out successfully!");
+    setTimeout(() => location.reload(), 800);
   });
 };
 
 // ==========================================
-// 9. FILTERS & NAVIGATION HELPERS
+// 10. FILTERS & NAVIGATION HELPERS
 // ==========================================
 window.setTHFilter = function(th) {
   currentTH = th;
