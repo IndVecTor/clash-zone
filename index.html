@@ -215,7 +215,7 @@
     </div>
   </div>
 
-  <!-- AUTH MODAL (CLEAN & FAST SIGNUP/LOGIN) -->
+  <!-- AUTH MODAL -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden justify-center items-center p-4 z-50" id="authModal">
     <div class="bg-czPanel border border-amber-500/50 rounded-2xl w-full max-w-md p-6 relative shadow-2xl">
       <button onclick="window.closeModal('authModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
@@ -240,10 +240,10 @@
         </button>
       </form>
 
-      <!-- Clean Signup Form -->
+      <!-- Signup Form -->
       <form id="signupForm" onsubmit="window.handleEmailSignup(event)" class="space-y-3 hidden">
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Username / In-Game Name</label>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Username</label>
           <input type="text" id="signupName" placeholder="e.g. Chief Aman" required class="w-full bg-czDark border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-amber-400" />
         </div>
         <div>
@@ -261,27 +261,22 @@
     </div>
   </div>
 
-  <!-- PROFILE COC DATA SYNC MODAL -->
+  <!-- PROFILE COC DATA SYNC MODAL (ONLY TAG INPUT) -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden justify-center items-center p-4 z-50" id="profileSyncModal">
     <div class="bg-czPanel border border-amber-500/50 rounded-2xl w-full max-w-md p-6 relative shadow-2xl">
       <button onclick="window.closeModal('profileSyncModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
       
-      <h3 class="gaming-title text-2xl text-amber-400"><i class="fa-solid fa-arrows-rotate"></i> Sync Clash of Clans Profile</h3>
-      <p class="text-xs text-slate-400 mb-4">Enter your CoC Player Tag & Developer API Token to automatically fetch stats.</p>
+      <h3 class="gaming-title text-2xl text-amber-400"><i class="fa-solid fa-arrows-rotate"></i> Link Clash of Clans ID</h3>
+      <p class="text-xs text-slate-400 mb-4">Enter your CoC Player Tag (e.g. #P9L80YQ2) to auto-fetch your live stats.</p>
 
       <form onsubmit="window.handleSyncCoCProfile(event)" class="space-y-3">
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Player Tag</label>
-          <input type="text" id="syncPlayerTag" placeholder="#P9L80YQ2" required class="w-full bg-czDark border border-slate-700 rounded-lg p-2.5 text-sm text-white uppercase outline-none focus:border-amber-400 font-mono" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Supercell API Token (Optional / Developer Key)</label>
-          <input type="password" id="syncApiToken" placeholder="Paste API token or leave blank for open proxy" class="w-full bg-czDark border border-slate-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-amber-400 font-mono text-xs" />
+          <input type="text" id="syncPlayerTag" placeholder="#P9L80YQ2" required class="w-full bg-czDark border border-slate-700 rounded-lg p-2.5 text-sm text-white uppercase outline-none focus:border-amber-400 font-mono tracking-wider" />
         </div>
 
         <button type="submit" id="btnSyncProfile" class="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 rounded-lg font-bold text-sm transition">
-          <i class="fa-solid fa-bolt"></i> Fetch & Link Game Profile
+          <i class="fa-solid fa-bolt"></i> Fetch & Sync Profile
         </button>
       </form>
     </div>

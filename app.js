@@ -51,7 +51,6 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     const displayName = user.displayName || user.email.split('@')[0];
     
-    // Header UI
     if (headerAuth) {
       headerAuth.innerHTML = `
         <button onclick="window.openModal('uploadModal')" class="bg-amber-500 hover:bg-amber-400 text-black px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-500/20">
@@ -66,7 +65,6 @@ onAuthStateChanged(auth, async (user) => {
       `;
     }
 
-    // Load Synced CoC Profile from Firestore
     if (userProfileStrip) {
       userProfileStrip.classList.remove("hidden");
       try {
@@ -81,7 +79,7 @@ onAuthStateChanged(auth, async (user) => {
           document.getElementById("dashPlayerName").innerText = displayName;
         }
       } catch (e) {
-        console.warn("Could not read user profile doc:", e);
+        console.warn("User doc read fallback:", e);
       }
     }
 
@@ -99,7 +97,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ==========================================
-// 3. COC DEVELOPER API PROFILE SYNC HANDLER
+// 3. COC PLAYER TAG SYNC (ONLY TAG NEEDED)
 // ==========================================
 window.handleSyncCoCProfile = async function(e) {
   e.preventDefault();
@@ -110,54 +108,44 @@ window.handleSyncCoCProfile = async function(e) {
   }
 
   let tag = document.getElementById("syncPlayerTag").value.trim().toUpperCase();
-  const apiToken = document.getElementById("syncApiToken").value.trim();
-
   if (!tag) {
-    alert("Kripya valid Player Tag dalein!");
+    alert("Kripya apna Player Tag dalein!");
     return;
   }
+  
+  // Format Tag (#P9L80YQ2)
   if (!tag.startsWith("#")) tag = "#" + tag;
   const formattedTag = encodeURIComponent(tag);
 
   const syncBtn = document.getElementById("btnSyncProfile");
   syncBtn.disabled = true;
-  syncBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fetching from Supercell Server...`;
+  syncBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fetching Live CoC Data...`;
 
   try {
-    let responseData = null;
-
-    // Direct CoC Official API call with token if provided, else public proxy
-    if (apiToken) {
-      const res = await fetch(`https://api.clashofclans.com/v1/players/${formattedTag}`, {
-        headers: {
-          "Authorization": `Bearer ${apiToken}`,
-          "Accept": "application/json"
-        }
-      });
-      if (!res.ok) throw new Error("API Token ya Player Tag galat hai!");
-      responseData = await res.json();
-    } else {
-      const proxyRes = await fetch(`https://cocproxy.royaleapi.dev/v1/players/${formattedTag}`);
-      if (!proxyRes.ok) throw new Error("Player Tag Supercell server par nahi mila!");
-      responseData = await proxyRes.json();
+    // Free Public Open CoC Proxy (Handles Supercell API CORS smoothly)
+    const proxyRes = await fetch(`https://cocproxy.royaleapi.dev/v1/players/${formattedTag}`);
+    
+    if (!proxyRes.ok) {
+      throw new Error("Player Tag Supercell server par nahi mila! Tag check karein (jaise #P9L80YQ2)");
     }
 
+    const data = await proxyRes.json();
     const cocProfile = {
-      tag: responseData.tag,
-      name: responseData.name,
-      townHallLevel: "TH " + responseData.townHallLevel,
-      clanName: responseData.clan ? responseData.clan.name : "No Clan",
-      trophies: responseData.trophies || 0,
-      warStars: responseData.warStars || 0,
+      tag: data.tag,
+      name: data.name,
+      townHallLevel: "TH " + data.townHallLevel,
+      clanName: data.clan ? data.clan.name : "No Clan",
+      trophies: data.trophies || 0,
+      warStars: data.warStars || 0,
       syncedAt: serverTimestamp()
     };
 
-    // Save to Firestore
+    // Save to Firestore Database
     await setDoc(doc(db, "users", user.uid), cocProfile, { merge: true });
     await updateProfile(user, { displayName: cocProfile.name });
 
     window.closeModal('profileSyncModal');
-    alert(`🎉 CoC ID Linked Successfully! Welcome Chief ${cocProfile.name}`);
+    alert(`🎉 CoC ID Linked Successfully!\nPlayer: ${cocProfile.name}\nTown Hall: ${cocProfile.townHallLevel}\nTrophies: ${cocProfile.trophies}`);
     location.reload();
 
   } catch (err) {
@@ -165,7 +153,7 @@ window.handleSyncCoCProfile = async function(e) {
     alert("❌ " + err.message);
   } finally {
     syncBtn.disabled = false;
-    syncBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Fetch & Link Game Profile`;
+    syncBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Fetch & Sync Profile`;
   }
 };
 
@@ -341,7 +329,7 @@ window.handleBaseUpload = async function(e) {
 };
 
 // ==========================================
-// 6. SIMPLE & FAST SIGNUP / LOGIN
+// 6. SIGNUP & LOGIN HANDLERS
 // ==========================================
 window.handleEmailSignup = async function(e) {
   e.preventDefault();
