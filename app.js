@@ -24,6 +24,9 @@ import {
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
+// ==========================================
+// 1. FIREBASE CONFIGURATION
+// ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyAV0YgGeolSq8FQ3P7jRJEwF5VNjSDWsmA",
   authDomain: "clash-zone-d82d8.firebaseapp.com",
@@ -72,7 +75,6 @@ window.showToast = function(message, type = "success") {
   setTimeout(() => { toast.classList.add("translate-x-10", "opacity-0"); setTimeout(() => toast.remove(), 300); }, 3000);
 };
 
-// Helper for converting file to base64
 function convertFileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -113,15 +115,15 @@ function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 900, 
   });
 }
 
-// BULLETPROOF LIVE SUPERCELL API SYNC WITH MULTI-PROXY FALLBACK
+// ==========================================
+// 2. LIVE SUPERCELL API SYNC
+// ==========================================
 async function fetchLiveSupercellPlayer(rawTag) {
   let tag = rawTag.trim().toUpperCase().replace(/O/g, '0');
   if (!tag.startsWith('#')) tag = '#' + tag;
 
   const cleanTag = encodeURIComponent(tag);
   const targetUrl = `https://cocproxy.royaleapi.dev/v1/players/${cleanTag}`;
-  
-  // Try multiple CORS proxies if one fails
   const proxies = [
     `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
     `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
@@ -138,9 +140,7 @@ async function fetchLiveSupercellPlayer(rawTag) {
     } catch (e) { continue; }
   }
 
-  if (!data) {
-    throw new Error("Supercell servers busy or invalid tag format.");
-  }
+  if (!data) throw new Error("Supercell servers busy or invalid tag format.");
 
   return {
     name: data.name,
@@ -181,6 +181,9 @@ window.handleLiveSupercellSync = async function() {
   }
 };
 
+// ==========================================
+// 3. AUTH STATE & PROFILE RENDER
+// ==========================================
 onAuthStateChanged(auth, async (user) => {
   const profileLoggedOut = document.getElementById("profileLoggedOutView");
   const profileLoggedIn = document.getElementById("profileLoggedInView");
@@ -248,7 +251,7 @@ function renderUserProfilePosts(posts) {
   container.innerHTML = posts.map(b => `
     <div class="glass-panel rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-3">
       <img src="${b.image}" class="w-14 h-14 rounded-xl object-cover border border-slate-700 shrink-0" />
-      <div class="min-w-0 flex-1">
+      <div class="min-w-0 flex-1 cursor-pointer" onclick="window.openBaseDetailsModal('${b.id}')">
         <span class="bg-amber-500/20 text-amber-400 font-bold px-2 py-0.5 rounded text-[10px]">${b.th}</span>
         <h4 class="text-xs font-bold text-white truncate mt-1">${b.title}</h4>
       </div>
@@ -268,7 +271,7 @@ function renderUserSavedVault() {
   container.innerHTML = savedList.map(b => `
     <div class="glass-panel rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-3">
       <img src="${b.image}" class="w-14 h-14 rounded-xl object-cover border border-slate-700 shrink-0" />
-      <div class="min-w-0 flex-1">
+      <div class="min-w-0 flex-1 cursor-pointer" onclick="window.openBaseDetailsModal('${b.id}')">
         <span class="bg-amber-500/20 text-amber-400 font-bold px-2 py-0.5 rounded text-[10px]">${b.th}</span>
         <h4 class="text-xs font-bold text-white truncate mt-1">${b.title}</h4>
       </div>
@@ -277,6 +280,9 @@ function renderUserSavedVault() {
   `).join('');
 }
 
+// ==========================================
+// 4. ZONE & LEVEL SELECTORS
+// ==========================================
 window.switchZone = function(zone) {
   currentZone = zone;
   currentTH = "ALL";
@@ -301,6 +307,9 @@ window.updateUploadLevelOptions = function() {
   thSelect.innerHTML = levels.map(l => `<option value="${l}">${l}</option>`).join('');
 };
 
+// ==========================================
+// 5. NAVIGATION SWITCHER
+// ==========================================
 window.switchMainHubView = function(viewName) {
   ['Feed', 'Vault', 'Clans', 'Profile'].forEach(tab => {
     document.getElementById(`bnav${tab}`)?.classList.remove('active');
@@ -328,11 +337,11 @@ function renderDirectVaultUI() {
   }
   container.innerHTML = savedList.map(b => `
     <div class="glass-panel rounded-2xl p-4 flex items-center justify-between gap-3 border-slate-800">
-      <div class="flex items-center gap-3 min-w-0 flex-1">
+      <div class="flex items-center gap-3 min-w-0 cursor-pointer flex-1" onclick="window.openBaseDetailsModal('${b.id}')">
         <img src="${b.image}" class="w-14 h-14 rounded-xl object-cover border border-slate-800 shrink-0" />
         <div class="min-w-0">
           <span class="bg-amber-500/20 text-amber-400 font-bold px-2 py-0.5 rounded text-[10px]">${b.th}</span>
-          <h4 class="text-xs font-bold text-white truncate mt-1">${b.title}</h4>
+          <h4 class="text-xs sm:text-sm font-bold text-white truncate mt-1">${b.title}</h4>
         </div>
       </div>
       <button onclick="window.copyBaseLink('${b.id}', '${b.link}')" class="bg-amber-500 text-black px-4 py-2 rounded-xl text-xs font-bold">Copy</button>
@@ -351,6 +360,49 @@ function populateProfileFormModal() {
   document.getElementById("editClan").value = currentUserProfile?.clanName || "Solo";
   document.getElementById("editBio").value = currentUserProfile?.bio || "";
 }
+
+// ==========================================
+// 6. BASE DETAILS POPUP MODAL (FIXED)
+// ==========================================
+window.openBaseDetailsModal = function(baseId) {
+  const base = allFetchedBases.find(b => b.id === baseId);
+  if (!base) return;
+
+  let modal = document.getElementById("baseDetailsModal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "baseDetailsModal";
+    modal.className = "fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto";
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-xl p-6 relative shadow-cyber-card my-auto space-y-4">
+      <button onclick="window.closeModal('baseDetailsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      
+      <div class="flex items-center justify-between">
+        <span class="bg-amber-500/20 text-amber-400 font-black px-3 py-1 rounded-lg text-xs border border-amber-500/30">${base.th} • ${(base.zone || 'home').toUpperCase()}</span>
+        <span class="text-xs text-slate-400">By <b class="text-white">${base.uploaderName || 'Chief'}</b></span>
+      </div>
+
+      <h3 class="text-lg font-black text-white">${base.title}</h3>
+
+      <div class="w-full h-64 sm:h-80 rounded-2xl overflow-hidden bg-czDark border border-slate-800">
+        <img src="${base.image}" class="w-full h-full object-cover" />
+      </div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <button onclick="window.copyBaseLink('${base.id}', '${base.link}')" class="flex-1 bg-amber-500 text-black py-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-neon-gold">
+          <i data-lucide="copy" class="w-4 h-4"></i> Copy In-Game Link
+        </button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+  renderAllIcons();
+};
 
 function renderRankingsUI() {
   const container = document.getElementById("rankingsListContainer");
@@ -387,6 +439,9 @@ window.closeModal = function(id) {
   document.getElementById(id)?.classList.remove("flex"); 
 };
 
+// ==========================================
+// 7. BASES LOADERS
+// ==========================================
 async function loadBasesFromFirestore() {
   const container = document.getElementById("basesContainer");
   if (!container) return;
@@ -436,7 +491,7 @@ function renderBasesUI() {
           <span class="absolute top-2.5 right-2.5 bg-black/85 text-white text-[11px] font-bold px-2 py-0.5 rounded-lg">${base.type}</span>
         </div>
         <div class="p-4 flex flex-col flex-grow justify-between">
-          <div>
+          <div class="cursor-pointer" onclick="window.openBaseDetailsModal('${base.id}')">
             <span class="text-amber-400 font-bold text-xs">${base.uploaderName || 'Chief'}</span>
             <h3 class="font-bold text-sm text-white line-clamp-2 my-1">${base.title}</h3>
           </div>
