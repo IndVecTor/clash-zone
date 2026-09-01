@@ -107,45 +107,73 @@ window.handleSyncCoCProfile = async function(e) {
     return;
   }
 
-  let tag = document.getElementById("syncPlayerTag").value.trim().toUpperCase();
-  if (!tag) {
+  const inputEl = document.getElementById("syncPlayerTag");
+  let rawTag = inputEl.value.trim().toUpperCase();
+  if (!rawTag) {
     alert("Kripya apna Player Tag dalein!");
     return;
   }
-  
-  // Format Tag (#P9L80YQ2)
-  if (!tag.startsWith("#")) tag = "#" + tag;
-  const formattedTag = encodeURIComponent(tag);
+
+  // Tag Clean & Proper URL Format
+  const cleanTag = rawTag.replace(/[^A-Z0-9]/g, "");
+  const formattedTagWithHash = "#" + cleanTag;
+  const encodedTag = encodeURIComponent(formattedTagWithHash);
 
   const syncBtn = document.getElementById("btnSyncProfile");
   syncBtn.disabled = true;
   syncBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fetching Live CoC Data...`;
 
+  let responseData = null;
+
+  // Reliable CoC proxy endpoints to bypass CORS & token requirement for users
+  const apiEndpoints = [
+    `https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`,
+    `https://api.clashofclans.com/v1/players/${encodedTag}`
+  ];
+
   try {
-    // Free Public Open CoC Proxy (Handles Supercell API CORS smoothly)
-    const proxyRes = await fetch(`https://cocproxy.royaleapi.dev/v1/players/${formattedTag}`);
-    
-    if (!proxyRes.ok) {
-      throw new Error("Player Tag Supercell server par nahi mila! Tag check karein (jaise #P9L80YQ2)");
+    let success = false;
+
+    for (const url of apiEndpoints) {
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { "Accept": "application/json" }
+        });
+        if (res.ok) {
+          responseData = await res.json();
+          success = true;
+          break;
+        }
+      } catch (err) {
+        console.warn("Proxy endpoint retry:", err);
+      }
     }
 
-    const data = await proxyRes.json();
+    if (!success || !responseData) {
+      throw new Error("Player Tag Supercell server par nahi mila! Kripya sahi Tag dalein (jaise #P9L80YQ2)");
+    }
+
     const cocProfile = {
-      tag: data.tag,
-      name: data.name,
-      townHallLevel: "TH " + data.townHallLevel,
-      clanName: data.clan ? data.clan.name : "No Clan",
-      trophies: data.trophies || 0,
-      warStars: data.warStars || 0,
+      tag: responseData.tag || formattedTagWithHash,
+      name: responseData.name || "Chief",
+      townHallLevel: responseData.townHallLevel ? `TH ${responseData.townHallLevel}` : "TH 16",
+      clanName: responseData.clan ? responseData.clan.name : "No Clan",
+      trophies: responseData.trophies || 0,
+      warStars: responseData.warStars || 0,
       syncedAt: serverTimestamp()
     };
 
     // Save to Firestore Database
     await setDoc(doc(db, "users", user.uid), cocProfile, { merge: true });
-    await updateProfile(user, { displayName: cocProfile.name });
+    
+    // Update Firebase Auth Display Name
+    if (responseData.name) {
+      await updateProfile(user, { displayName: responseData.name });
+    }
 
     window.closeModal('profileSyncModal');
-    alert(`🎉 CoC ID Linked Successfully!\nPlayer: ${cocProfile.name}\nTown Hall: ${cocProfile.townHallLevel}\nTrophies: ${cocProfile.trophies}`);
+    alert(`🎉 CoC ID Linked Successfully!\nChief: ${cocProfile.name}\nTown Hall: ${cocProfile.townHallLevel}\nClan: ${cocProfile.clanName}\nTrophies: ${cocProfile.trophies}`);
     location.reload();
 
   } catch (err) {
