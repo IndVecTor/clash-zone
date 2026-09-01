@@ -48,13 +48,10 @@ let currentSort = "latest";
 let allFetchedBases = [];
 let allFetchedClans = [];
 let currentUserProfile = null;
-let currentActiveBase = null;
 
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases")) || [];
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases")) || [];
-let userFollowedCreators = JSON.parse(localStorage.getItem("cz_followed_creators")) || [];
 
-// Expanded Town Hall Levels: TH 5 to TH 18
 const ZONE_LEVELS = {
   home: ["ALL", "TH 18", "TH 17", "TH 16", "TH 15", "TH 14", "TH 13", "TH 12", "TH 11", "TH 10", "TH 9", "TH 8", "TH 7", "TH 6", "TH 5"],
   builder: ["ALL", "BH 10", "BH 9", "BH 8", "BH 7", "BH 6", "BH 5", "BH 4"],
@@ -65,14 +62,6 @@ function renderAllIcons() {
   if (typeof lucide !== 'undefined') {
     lucide.createIcons();
   }
-}
-
-function getLeagueRank(trophies = 0) {
-  if (trophies >= 5000) return { name: "Legend League", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" };
-  if (trophies >= 4100) return { name: "Titan League", color: "bg-rose-500/20 text-rose-300 border-rose-500/40" };
-  if (trophies >= 3200) return { name: "Champions League", color: "bg-amber-500/20 text-amber-300 border-amber-500/40" };
-  if (trophies >= 2600) return { name: "Masters League", color: "bg-slate-500/20 text-slate-300 border-slate-500/40" };
-  return { name: "Challenger", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" };
 }
 
 // ==========================================
@@ -101,45 +90,7 @@ window.showToast = function(message, type = "success") {
 };
 
 // ==========================================
-// 3. SMART LINK VALIDATION
-// ==========================================
-window.handleSmartLinkValidation = function(rawLink) {
-  const badge = document.getElementById("linkValidationBadge");
-  const linkInput = document.getElementById("uploadLink");
-
-  if (!rawLink || rawLink.trim() === '') {
-    if (badge) badge.className = "hidden";
-    if (linkInput) linkInput.classList.remove("border-emerald-500", "border-rose-500");
-    return;
-  }
-
-  const cleanLink = rawLink.trim();
-  const isOfficial = cleanLink.startsWith("https://link.clashofclans.com/") || cleanLink.startsWith("http://link.clashofclans.com/");
-  const isLayoutAction = cleanLink.includes("action=OpenLayout");
-
-  if (isOfficial && isLayoutAction) {
-    if (badge) {
-      badge.innerText = "✓ Valid Link";
-      badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
-    }
-    if (linkInput) {
-      linkInput.classList.remove("border-rose-500");
-      linkInput.classList.add("border-emerald-500");
-    }
-  } else {
-    if (badge) {
-      badge.innerText = "Invalid Link Format";
-      badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40";
-    }
-    if (linkInput) {
-      linkInput.classList.remove("border-emerald-500");
-      linkInput.classList.add("border-rose-500");
-    }
-  }
-};
-
-// ==========================================
-// 4. CREATOR WATERMARK ENGINE
+// 3. CREATOR WATERMARK ENGINE
 // ==========================================
 function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 900, quality = 0.72) {
   return new Promise((resolve, reject) => {
@@ -197,27 +148,20 @@ function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 900, 
 }
 
 // ==========================================
-// 5. LIVE SUPERCELL API SYNC
+// 4. REAL LIVE SUPERCELL API SYNC (CORS BYPASS)
 // ==========================================
 async function fetchLiveSupercellPlayer(rawTag) {
   let tag = rawTag.trim().toUpperCase().replace(/O/g, '0');
   if (!tag.startsWith('#')) tag = '#' + tag;
 
   const cleanTag = encodeURIComponent(tag);
-  const apiUrl = `https://cocproxy.royaleapi.dev/v1/players/${cleanTag}`;
+  // Using public CORS proxy to securely access Supercell official developer API from browser
+  const targetUrl = `https://cocproxy.royaleapi.dev/v1/players/${cleanTag}`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
 
-  const response = await fetch(apiUrl, { headers: { 'Accept': 'application/json' } });
-
+  const response = await fetch(proxyUrl);
   if (!response.ok) {
-    return {
-      name: "Chief " + tag.replace('#', ''),
-      tag: tag,
-      townHallLevel: 16,
-      trophies: 5200,
-      warStars: 1450,
-      clan: { name: "Indian Tigers" },
-      isSupercellVerified: true
-    };
+    throw new Error("Unable to fetch data from Supercell servers. Please check your player tag.");
   }
 
   const data = await response.json();
@@ -227,8 +171,7 @@ async function fetchLiveSupercellPlayer(rawTag) {
     townHallLevel: data.townHallLevel,
     trophies: data.trophies,
     warStars: data.warStars || 0,
-    clan: data.clan || { name: "Solo" },
-    isSupercellVerified: true
+    clan: data.clan || { name: "Solo" }
   };
 }
 
@@ -251,7 +194,9 @@ window.handleLiveSupercellSync = async function() {
     document.getElementById("editName").value = liveData.name;
     document.getElementById("editTH").value = "TH " + liveData.townHallLevel;
     document.getElementById("editTrophies").value = liveData.trophies;
-    window.showToast(`⚡ Live API Sync: ${liveData.name}!`);
+    document.getElementById("editClan").value = liveData.clan.name;
+    document.getElementById("editWarStars").value = liveData.warStars;
+    window.showToast(`⚡ Live API Sync Success: ${liveData.name} (TH ${liveData.townHallLevel})!`);
   } catch (err) {
     window.showToast("Sync Error: " + err.message, "error");
   } finally {
@@ -262,7 +207,7 @@ window.handleLiveSupercellSync = async function() {
 };
 
 // ==========================================
-// 6. AUTH STATE & PROFILE DASHBOARD RENDER
+// 5. AUTH STATE & PROFILE RENDER
 // ==========================================
 onAuthStateChanged(auth, async (user) => {
   const profileLoggedOut = document.getElementById("profileLoggedOutView");
@@ -285,53 +230,31 @@ onAuthStateChanged(auth, async (user) => {
           tag: "#CLASH",
           clanName: "Solo",
           trophies: 5000,
-          followersCount: 0,
-          youtubeUrl: "",
-          discordUrl: "",
-          instagramUrl: ""
+          bio: "ClashZone Pro Builder & War Strategist",
+          followersCount: 0
         };
       }
 
-      // Populate Instagram-Style Profile Dashboard
+      // Populate Profile Details
       document.getElementById("profileIGN").innerText = currentUserProfile.name || defaultName;
       document.getElementById("profileAvatarInitial").innerText = (currentUserProfile.name || defaultName).charAt(0).toUpperCase();
       document.getElementById("profileTHBadge").innerText = currentUserProfile.townHallLevel || "TH 16";
-      document.getElementById("profileTagClan").innerText = `Clan: ${currentUserProfile.clanName || 'Solo'} | Tag: ${currentUserProfile.tag || '#CLASH'}`;
+      document.getElementById("profileTagClan").innerText = `Clan: ${currentUserProfile.clanName || 'Solo'} | ${currentUserProfile.tag || '#CLASH'}`;
       document.getElementById("statTrophiesCount").innerText = `🏆 ${currentUserProfile.trophies || 5000}`;
       document.getElementById("statFollowersCount").innerText = currentUserProfile.followersCount || 0;
+      
+      const bioEl = document.getElementById("profileBioText");
+      if (bioEl) bioEl.innerText = currentUserProfile.bio || "No description added yet.";
 
       // User Posts Count & Render
       const userPosts = allFetchedBases.filter(b => b.uploaderUid === user.uid);
       document.getElementById("statPostsCount").innerText = userPosts.length;
       document.getElementById("tabPostNum").innerText = userPosts.length;
 
-      // FEATURE 1: PRO BUILDER BADGE PROGRESS BAR
+      // Pro Builder Badge Progress
       const progressPercent = Math.min(100, (userPosts.length / 10) * 100);
       document.getElementById("proBadgeProgressText").innerText = `${userPosts.length} / 10 Uploads`;
       document.getElementById("proBadgeProgressBar").style.width = `${progressPercent}%`;
-
-      // FEATURE 3: CREATOR SOCIAL LINKS RENDER
-      const ytLink = document.getElementById("socialYtLink");
-      const dcLink = document.getElementById("socialDcLink");
-      const igLink = document.getElementById("socialIgLink");
-
-      if (currentUserProfile.youtubeUrl) {
-        ytLink.href = currentUserProfile.youtubeUrl;
-        ytLink.classList.remove("hidden");
-        ytLink.classList.add("inline-flex");
-      } else { ytLink.classList.add("hidden"); }
-
-      if (currentUserProfile.discordUrl) {
-        dcLink.href = currentUserProfile.discordUrl;
-        dcLink.classList.remove("hidden");
-        dcLink.classList.add("inline-flex");
-      } else { dcLink.classList.add("hidden"); }
-
-      if (currentUserProfile.instagramUrl) {
-        igLink.href = currentUserProfile.instagramUrl;
-        igLink.classList.remove("hidden");
-        igLink.classList.add("inline-flex");
-      } else { igLink.classList.add("hidden"); }
 
       renderUserProfilePosts(userPosts);
       renderUserSavedVault();
@@ -349,12 +272,12 @@ function renderUserProfilePosts(posts) {
   if (!container) return;
 
   if (posts.length === 0) {
-    container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-500 text-xs">No layouts published yet. Click the + button to upload your first base!</div>`;
+    container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-500 text-xs">No layouts published yet. Click the + button at the bottom to upload your first base!</div>`;
     return;
   }
 
   container.innerHTML = posts.map(b => `
-    <div class="bg-czDark rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-3">
+    <div class="glass-panel rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-3">
       <img src="${b.image}" class="w-14 h-14 rounded-xl object-cover border border-slate-700 shrink-0" />
       <div class="min-w-0 flex-1">
         <span class="bg-amber-500/20 text-amber-400 font-bold px-2 py-0.5 rounded text-[10px]">${b.th}</span>
@@ -376,7 +299,7 @@ function renderUserSavedVault() {
   }
 
   container.innerHTML = savedList.map(b => `
-    <div class="bg-czDark rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-3">
+    <div class="glass-panel rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-3">
       <img src="${b.image}" class="w-14 h-14 rounded-xl object-cover border border-slate-700 shrink-0" />
       <div class="min-w-0 flex-1">
         <span class="bg-amber-500/20 text-amber-400 font-bold px-2 py-0.5 rounded text-[10px]">${b.th}</span>
@@ -388,7 +311,7 @@ function renderUserSavedVault() {
 }
 
 // ==========================================
-// 7. ZONE & LEVEL SELECTOR
+// 6. ZONE & LEVEL SELECTORS
 // ==========================================
 window.switchZone = function(zone) {
   currentZone = zone;
@@ -403,7 +326,7 @@ function renderLevelFilters() {
 
   const levels = ZONE_LEVELS[currentZone] || ZONE_LEVELS.home;
   container.innerHTML = levels.map(lvl => `
-    <button onclick="window.setTHFilter('${lvl}')" class="base-filter-btn ${lvl === currentTH ? 'active' : ''} px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">
+    <button onclick="window.setTHFilter('${lvl}')" class="base-filter-btn ${lvl === currentTH ? 'active' : ''} px-3.5 py-1.5 bg-czPanel border border-slate-700/85 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">
       ${lvl}
     </button>
   `).join('');
@@ -420,7 +343,7 @@ window.updateUploadLevelOptions = function() {
 };
 
 // ==========================================
-// 8. NAVIGATION SWITCHER
+// 7. NAVIGATION SWITCHER
 // ==========================================
 window.switchMainHubView = function(viewName) {
   const vFeed = document.getElementById("viewFeedSection");
@@ -489,14 +412,13 @@ function populateProfileFormModal() {
   document.getElementById("editTH").value = currentUserProfile?.townHallLevel || "TH 16";
   document.getElementById("editTag").value = currentUserProfile?.tag || "";
   document.getElementById("editTrophies").value = currentUserProfile?.trophies || 5000;
-  
-  if (document.getElementById("editYtLink")) document.getElementById("editYtLink").value = currentUserProfile?.youtubeUrl || "";
-  if (document.getElementById("editDcLink")) document.getElementById("editDcLink").value = currentUserProfile?.discordUrl || "";
-  if (document.getElementById("editIgLink")) document.getElementById("editIgLink").value = currentUserProfile?.instagramUrl || "";
+  document.getElementById("editClan").value = currentUserProfile?.clanName || "Solo";
+  document.getElementById("editWarStars").value = currentUserProfile?.warStars || 0;
+  document.getElementById("editBio").value = currentUserProfile?.bio || "";
 }
 
 // ==========================================
-// 9. PRO BUILDERS RANKINGS
+// 8. CREATOR RANKINGS
 // ==========================================
 function renderRankingsUI() {
   const container = document.getElementById("rankingsListContainer");
@@ -517,7 +439,7 @@ function renderRankingsUI() {
 
   const ranked = Object.values(creatorsMap).sort((a, b) => b.uploads - a.uploads);
   if (ranked.length === 0) {
-    container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No builders ranked yet.</p>`;
+    container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No creators ranked yet.</p>`;
     return;
   }
 
@@ -536,7 +458,6 @@ function renderRankingsUI() {
   renderAllIcons();
 }
 
-const originalOpenModal = window.openModal;
 window.openModal = function(id) {
   if (id === 'rankingsModal') { renderRankingsUI(); }
   const m = document.getElementById(id); 
@@ -550,7 +471,7 @@ window.closeModal = function(id) {
 };
 
 // ==========================================
-// 10. CLANS & BASES LOADERS
+// 9. CLANS & BASES LOADERS
 // ==========================================
 async function loadClansFromFirestore() {
   const container = document.getElementById("clansContainer");
@@ -562,7 +483,7 @@ async function loadClansFromFirestore() {
     querySnapshot.forEach(docSnap => allFetchedClans.push({ id: docSnap.id, ...docSnap.data() }));
     renderClansUI();
   } catch (error) {
-    allFetchedClans = JSON.parse(localStorage.getItem("cz_clans_data")) || [];
+    allFetchedClans = [];
     renderClansUI();
   }
 }
@@ -597,8 +518,16 @@ async function loadBasesFromFirestore() {
     allFetchedBases = [];
     querySnapshot.forEach(docSnap => allFetchedBases.push({ id: docSnap.id, ...docSnap.data() }));
     renderBasesUI();
+    // Refresh profile posts count if logged in
+    if (auth.currentUser) {
+      const userPosts = allFetchedBases.filter(b => b.uploaderUid === auth.currentUser.uid);
+      document.getElementById("statPostsCount").innerText = userPosts.length;
+      document.getElementById("tabPostNum").innerText = userPosts.length;
+      renderUserProfilePosts(userPosts);
+      renderUserSavedVault();
+    }
   } catch (error) {
-    allFetchedBases = JSON.parse(localStorage.getItem("cz_user_uploaded_bases")) || [];
+    allFetchedBases = [];
     renderBasesUI();
   }
 }
@@ -677,7 +606,7 @@ window.copyBaseLink = async function(baseId, link) {
 };
 
 // ==========================================
-// 11. BASE UPLOAD & PROFILE SAVE
+// 10. BASE UPLOAD & PROFILE SAVE
 // ==========================================
 window.handleBaseUpload = async function(e) {
   e.preventDefault();
@@ -727,9 +656,9 @@ window.handleSaveProfile = async function(e) {
     townHallLevel: document.getElementById("editTH").value,
     tag: document.getElementById("editTag").value.trim() || "#CLASH",
     trophies: parseInt(document.getElementById("editTrophies").value) || 5000,
-    youtubeUrl: document.getElementById("editYtLink")?.value.trim() || "",
-    discordUrl: document.getElementById("editDcLink")?.value.trim() || "",
-    instagramUrl: document.getElementById("editIgLink")?.value.trim() || "",
+    clanName: document.getElementById("editClan").value.trim() || "Solo",
+    warStars: parseInt(document.getElementById("editWarStars").value) || 0,
+    bio: document.getElementById("editBio").value.trim(),
     updatedAt: serverTimestamp()
   };
 
@@ -754,7 +683,7 @@ window.handleEmailSignup = async function(e) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(userCredential.user, { displayName: name });
     await setDoc(doc(db, "users", userCredential.user.uid), {
-      name, townHallLevel: "TH 16", tag: tag || "#CLASH", clanName: "Solo", trophies: 5000, followersCount: 0, createdAt: serverTimestamp()
+      name, townHallLevel: "TH 16", tag: tag || "#CLASH", clanName: "Solo", trophies: 5000, bio: "ClashZone Pro Builder", followersCount: 0, createdAt: serverTimestamp()
     });
     window.closeModal('authModal');
     window.showToast(`🎉 Welcome Chief ${name}!`);
