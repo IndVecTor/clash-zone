@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>ClashZone | Esports Base Layouts, Capital & Community Hub</title>
+  <title>ClashZone | Esports Base Layouts, Live Supercell Sync & Clan Hub</title>
   
   <!-- PWA & Mobile Optimization -->
   <link rel="manifest" href="/manifest.json" />
@@ -102,7 +102,7 @@
         </div>
         <div class="truncate">
           <span class="gaming-title text-lg sm:text-xl font-black gold-gradient tracking-wider block leading-none">CLASHZONE</span>
-          <span class="text-[8px] sm:text-[9px] uppercase tracking-widest text-slate-400 font-bold block">Community Base Hub</span>
+          <span class="text-[8px] sm:text-[9px] uppercase tracking-widest text-slate-400 font-bold block">Supercell Verified Hub</span>
         </div>
       </a>
 
@@ -152,23 +152,38 @@
   <!-- MAIN CONTAINER -->
   <div class="max-w-7xl mx-auto px-4 pt-4 w-full overflow-hidden">
 
-    <!-- USER PROFILE HUD -->
+    <!-- USER PROFILE HUD WITH LIVE SYNC BADGES -->
     <div id="userProfileStrip" class="hidden mb-5 glass-card rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-cyber-card w-full border-amber-500/25">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         <div class="flex items-center gap-3.5 min-w-0">
-          <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-amber-500/30 to-yellow-400/10 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-cyber-gold shrink-0">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500/30 to-yellow-400/10 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-cyber-gold shrink-0">
             <i class="fa-solid fa-crown"></i>
           </div>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 flex-wrap">
               <h2 id="dashPlayerName" class="text-base sm:text-xl font-black text-white tracking-wide truncate">Chief Player</h2>
               <span id="dashTHBadge" class="bg-amber-500 text-black text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">TH 16</span>
-              <span id="dashBuilderBadge" class="hidden bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">
-                <i class="fa-solid fa-certificate mr-1"></i>Pro Builder
+              
+              <span id="dashVerifiedBadge" class="hidden bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 flex items-center gap-1">
+                <i class="fa-solid fa-circle-check text-emerald-400"></i> Verified API
               </span>
+
               <span id="dashLeagueBadge" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">Legend League</span>
             </div>
-            <p id="dashClanInfo" class="text-xs text-slate-400 mt-0.5 font-medium truncate">Clan: Solo | Tag: #P9L80YQ2</p>
+
+            <div class="flex items-center gap-2 text-xs text-slate-400 mt-1 flex-wrap">
+              <span id="dashClanInfo" class="truncate font-medium">Clan: Solo</span>
+              <span>•</span>
+              <span id="dashWarStars" class="text-yellow-400 font-bold"><i class="fa-solid fa-star text-[10px]"></i> 1200 War Stars</span>
+            </div>
+
+            <!-- Hero Levels Live Ribbon -->
+            <div id="dashHeroRibbon" class="flex items-center gap-2 mt-2 overflow-x-auto scrollbar-none text-[10px] font-bold text-slate-300">
+              <span class="bg-czDark px-2 py-0.5 rounded-lg border border-slate-800">👑 King: <b id="heroBK" class="text-amber-400">95</b></span>
+              <span class="bg-czDark px-2 py-0.5 rounded-lg border border-slate-800">🏹 Queen: <b id="heroAQ" class="text-amber-400">95</b></span>
+              <span class="bg-czDark px-2 py-0.5 rounded-lg border border-slate-800">📖 Warden: <b id="heroGW" class="text-amber-400">70</b></span>
+              <span class="bg-czDark px-2 py-0.5 rounded-lg border border-slate-800">🛡️ Champ: <b id="heroRC" class="text-amber-400">45</b></span>
+            </div>
           </div>
         </div>
 
@@ -178,8 +193,8 @@
             <b id="dashTrophies" class="text-amber-400 text-xs sm:text-sm font-black">🏆 5000</b>
           </div>
           <button onclick="window.openEditProfileModal()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-4 py-2 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition flex-1 sm:flex-initial shadow-cyber-gold shrink-0">
-            <i class="fa-solid fa-user-gear"></i>
-            <span>Profile & Vault</span>
+            <i class="fa-solid fa-arrows-rotate"></i>
+            <span>Sync Profile</span>
           </button>
         </div>
       </div>
@@ -187,7 +202,6 @@
 
     <!-- VIEW 1: BASES SECTION -->
     <div id="viewBasesSection">
-      <!-- HERO & SEARCH BAR -->
       <section class="py-2 sm:py-4 text-center w-full">
         <h1 class="gaming-title text-2xl sm:text-5xl font-black text-white uppercase tracking-wider leading-tight">
           Meta Defense <span class="gold-gradient">& Capital Maps</span>
@@ -196,14 +210,13 @@
           Verified Town Hall, Builder Base 2.0 & Clan Capital Districts with CC setups & Army Copy links.
         </p>
 
-        <!-- Search Box -->
         <div class="max-w-xl mx-auto glass-card rounded-2xl p-2 flex items-center gap-2 shadow-cyber-card focus-within:border-amber-400/60 transition w-full">
           <i class="fa-solid fa-magnifying-glass text-slate-400 ml-2.5 text-xs sm:text-sm shrink-0"></i>
-          <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall, Capital District, Creator, Army..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
+          <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall, Capital District, Creator, Tag..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
         </div>
       </section>
 
-      <!-- ZONE SELECTOR (VILLAGE / BUILDER BASE / CLAN CAPITAL) -->
+      <!-- ZONE SELECTOR -->
       <section class="py-2 w-full">
         <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           <button onclick="window.switchZone('home')" id="zoneTabHome" class="zone-tab-btn active px-3.5 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold shrink-0 transition flex items-center gap-1.5">
@@ -220,7 +233,6 @@
 
       <!-- STICKY FILTER BAR -->
       <div class="sticky top-16 z-30 bg-czDark/95 backdrop-blur-xl py-2 -mx-4 px-4 border-b border-czBorder/60 shadow-md">
-        <!-- SORTING -->
         <div class="flex items-center justify-between gap-2 overflow-x-auto pb-2 scrollbar-none mb-1">
           <div class="flex items-center gap-2">
             <span class="text-[10px] sm:text-[11px] font-black uppercase text-amber-400 shrink-0">
@@ -239,13 +251,10 @@
           <span class="text-[11px] font-bold text-slate-400 shrink-0" id="baseCountText">0 Layouts</span>
         </div>
 
-        <!-- DYNAMIC LEVEL/DISTRICT SELECTOR -->
-        <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full max-w-full" id="levelFilterContainer">
-          <!-- Populated dynamically based on Zone -->
-        </div>
+        <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full max-w-full" id="levelFilterContainer"></div>
       </div>
 
-      <!-- CATEGORY & STRATEGY TAGS -->
+      <!-- CATEGORY TAGS -->
       <section class="py-3 w-full">
         <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full max-w-full">
           <button onclick="window.setTypeFilter('ALL')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">All Layouts</button>
@@ -343,7 +352,6 @@
       </h3>
       <p id="reviewModalBaseTitle" class="text-xs text-slate-300 font-bold mt-1 truncate">Base Title</p>
 
-      <!-- CC Troops & Army Link Quick View -->
       <div id="modalStrategyInfo" class="mt-3 p-3 bg-czDark rounded-2xl border border-slate-800 space-y-2 text-xs">
         <div id="modalCCWrapper" class="flex items-center gap-2 text-slate-300">
           <span class="text-amber-400 font-bold"><i class="fa-solid fa-castle mr-1"></i> Recommended CC:</span>
@@ -357,13 +365,11 @@
         </div>
       </div>
 
-      <!-- Defense Proof Screenshot View (If Available) -->
       <div id="defenseProofWrapper" class="hidden mt-3 p-3 bg-czDark rounded-2xl border border-slate-800">
         <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block mb-1.5"><i class="fa-solid fa-circle-check mr-1"></i> Verified Defense Log</span>
         <img id="defenseProofImg" src="" alt="Defense Log Proof" class="w-full h-36 object-cover rounded-xl cursor-pointer" onclick="window.openLightbox(this.src)" />
       </div>
 
-      <!-- Add Review / Strategy Tip Form -->
       <form onsubmit="window.handleAddReview(event)" class="mt-4 pt-3 border-t border-slate-800 space-y-3">
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Rate this Layout</label>
@@ -387,7 +393,6 @@
         </button>
       </form>
 
-      <!-- Existing Reviews / Comments List -->
       <div class="mt-5 pt-3 border-t border-slate-800">
         <h4 class="text-xs font-black uppercase text-slate-400 mb-2">Community Discussion</h4>
         <div id="reviewsListContainer" class="space-y-2 max-h-40 overflow-y-auto pr-1">
@@ -455,7 +460,7 @@
     </div>
   </div>
 
-  <!-- UPLOAD BASE MODAL (WITH CC TROOPS & ARMY LINK) -->
+  <!-- UPLOAD BASE MODAL -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="uploadModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('uploadModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
@@ -465,7 +470,6 @@
       <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Publish bases across Home Village, Builder Base 2.0, or Clan Capital.</p>
 
       <form onsubmit="window.handleBaseUpload(event)" class="space-y-3">
-        <!-- Zone Selection inside upload -->
         <div class="grid grid-cols-2 gap-2.5">
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Village Zone</label>
@@ -477,9 +481,7 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Level / District</label>
-            <select id="uploadTH" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400">
-              <!-- Dynamically populated -->
-            </select>
+            <select id="uploadTH" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400"></select>
           </div>
         </div>
 
@@ -524,7 +526,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Army Copy Link (Optional - for strategy)</label>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Army Copy Link (Optional)</label>
           <input type="url" id="uploadArmyLink" placeholder="https://link.clashofclans.com/en?action=CopyArmy..." class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
         </div>
 
@@ -561,28 +563,20 @@
 
       <form id="signupForm" onsubmit="window.handleEmailSignup(event)" class="space-y-3 hidden">
         <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Player Tag (With #)</label>
+          <div class="flex gap-2">
+            <input type="text" id="signupTag" placeholder="#P9L80YQ2" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white uppercase outline-none focus:border-amber-400 font-mono" />
+            <button type="button" onclick="window.syncTagInSignup()" class="bg-amber-500 text-black px-3 rounded-xl text-xs font-black shrink-0 hover:bg-amber-400">
+              <i class="fa-solid fa-bolt"></i> Sync
+            </button>
+          </div>
+        </div>
+
+        <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">In-Game Name (IGN)</label>
-          <input type="text" id="signupName" placeholder="e.g. Chief Aman" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
+          <input type="text" id="signupName" placeholder="Auto-fetched via Tag" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
         </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Town Hall</label>
-            <select id="signupTH" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400">
-              <option>TH 18</option>
-              <option>TH 17</option>
-              <option selected>TH 16</option>
-              <option>TH 15</option>
-              <option>TH 14</option>
-              <option>TH 13</option>
-              <option>TH 12</option>
-              <option>TH 11</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Tag (Optional)</label>
-            <input type="text" id="signupTag" placeholder="#P9L80YQ2" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white uppercase outline-none focus:border-amber-400" />
-          </div>
-        </div>
+
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Email Address</label>
           <input type="email" id="signupEmail" placeholder="yourname@gmail.com" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
@@ -592,32 +586,46 @@
           <input type="password" id="signupPass" placeholder="Min 6 characters" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
         </div>
         <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition">
-          Create Account
+          Create Verified Account
         </button>
       </form>
     </div>
   </div>
 
-  <!-- PROFILE, SAVED BASES, FOLLOWING & MY UPLOADS MODAL -->
+  <!-- PROFILE, SAVED BASES, FOLLOWING & LIVE SYNC MODAL -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="editProfileModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto max-h-[90vh] overflow-y-auto">
       <button onclick="window.closeModal('editProfileModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
       
       <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2">
-        <i class="fa-solid fa-id-badge"></i> Chief Profile & Vault
+        <i class="fa-solid fa-id-badge"></i> Chief Profile & Live API Sync
       </h3>
-      <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Manage credentials, bookmarks, and followed creators.</p>
+      <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Verify your Player Tag with Supercell API to unlock verified badges.</p>
 
-      <!-- Sub Navigation in Profile -->
       <div class="flex gap-2 mb-4 bg-czDark p-1 rounded-2xl overflow-x-auto scrollbar-none">
-        <button onclick="window.switchProfileSubTab('details')" id="pSubTabDetails" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0">Details</button>
+        <button onclick="window.switchProfileSubTab('details')" id="pSubTabDetails" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0">Live Sync</button>
         <button onclick="window.switchProfileSubTab('saved')" id="pSubTabSaved" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-400 transition shrink-0">Vault (Saved)</button>
         <button onclick="window.switchProfileSubTab('following')" id="pSubTabFollowing" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-400 transition shrink-0">Following</button>
         <button onclick="window.switchProfileSubTab('uploads')" id="pSubTabUploads" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-400 transition shrink-0">My Uploads</button>
       </div>
 
-      <!-- Tab 1: Profile Details Form -->
+      <!-- Tab 1: Live API Sync & Profile Form -->
       <form id="profileDetailsForm" onsubmit="window.handleSaveProfile(event)" class="space-y-3">
+        <!-- Live Tag Sync Bar -->
+        <div class="bg-czDark p-3 rounded-2xl border border-amber-500/30">
+          <label class="block text-xs font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt"></i> Live Supercell Player Tag
+          </label>
+          <div class="flex gap-2">
+            <input type="text" id="editTag" placeholder="#P9L80YQ2" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white uppercase outline-none focus:border-amber-400 font-mono font-bold" />
+            <button type="button" id="btnSyncPlayerTag" onclick="window.handleLiveSupercellSync()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-4 py-2 rounded-xl text-xs font-black shrink-0 transition flex items-center gap-1.5 shadow-cyber-gold">
+              <i class="fa-solid fa-arrows-rotate"></i>
+              <span>Sync Live</span>
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1">Tap 'Sync Live' to automatically verify Town Hall, Trophies, War Stars & Heroes.</p>
+        </div>
+
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">In-Game Name (IGN)</label>
           <input type="text" id="editName" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400 font-bold" />
@@ -625,37 +633,28 @@
 
         <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Town Hall</label>
-            <select id="editTH" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400">
-              <option>TH 18</option>
-              <option>TH 17</option>
-              <option>TH 16</option>
-              <option>TH 15</option>
-              <option>TH 14</option>
-              <option>TH 13</option>
-              <option>TH 12</option>
-              <option>TH 11</option>
-            </select>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Town Hall Level</label>
+            <input type="text" id="editTH" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-amber-400 font-bold outline-none" />
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Player Tag</label>
-            <input type="text" id="editTag" placeholder="#P9L80YQ2" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white uppercase outline-none focus:border-amber-400 font-mono" />
+            <label class="block text-xs font-bold text-slate-300 mb-1">Trophies 🏆</label>
+            <input type="number" id="editTrophies" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-amber-400 font-bold outline-none" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Clan Name</label>
-            <input type="text" id="editClan" placeholder="e.g. Indian Tigers" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
+            <label class="block text-xs font-bold text-slate-300 mb-1">Clan</label>
+            <input type="text" id="editClan" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold outline-none" />
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Trophies 🏆</label>
-            <input type="number" id="editTrophies" placeholder="e.g. 5000" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
+            <label class="block text-xs font-bold text-slate-300 mb-1">War Stars ⭐</label>
+            <input type="number" id="editWarStars" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-yellow-400 font-bold outline-none" />
           </div>
         </div>
 
-        <button type="submit" id="btnSaveProfile" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold">
-          Save Changes
+        <button type="submit" id="btnSaveProfile" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold mt-2">
+          Save Verified Details
         </button>
       </form>
 
