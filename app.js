@@ -112,7 +112,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ==========================================
-// 3. REAL COC PLAYER TAG SYNC
+// 3. COC PLAYER TAG SYNC
 // ==========================================
 window.handleSyncCoCProfile = async function(e) {
   e.preventDefault();
@@ -130,10 +130,10 @@ window.handleSyncCoCProfile = async function(e) {
     return;
   }
 
-  // Tag cleanup: letter O ko number 0 me badalna aur extra symbols hatana
+  // Sanitize: Letter O -> Number 0
   let cleanTag = rawTag.replace(/O/g, "0").replace(/[^A-Z0-9]/g, "");
   if (!cleanTag) {
-    alert("Kripya valid Tag format dalein (jaise #P9L80YQ2)");
+    alert("Invalid Tag format. Sahi Player Tag dalein (e.g. #P9L80YQ2)");
     return;
   }
 
@@ -142,37 +142,35 @@ window.handleSyncCoCProfile = async function(e) {
 
   const syncBtn = document.getElementById("btnSyncProfile");
   syncBtn.disabled = true;
-  syncBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Contacting Supercell Server...`;
+  syncBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fetching from Supercell...`;
 
   let responseData = null;
 
-  // Direct and proxy endpoints
-  const endpoints = [
-    `/api/player?tag=${encodedTag}`,
-    `https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`,
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`)}`
-  ];
-
-  for (const url of endpoints) {
+  // Direct Vercel Serverless Route Call
+  try {
+    const res = await fetch(`/api/player?tag=${encodedTag}`);
+    if (res.ok) {
+      responseData = await res.json();
+    } else {
+      const errJson = await res.json().catch(() => ({}));
+      throw new Error(errJson.error || "Player details nahi mili.");
+    }
+  } catch (err) {
+    console.warn("Backend API error, trying direct gateway fallback...", err);
     try {
-      const res = await fetch(url);
-      if (res.ok) {
-        const json = await res.json();
-        if (json && (json.name || json.tag)) {
-          responseData = json;
-          break;
-        }
+      const fallbackRes = await fetch(`https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`);
+      if (fallbackRes.ok) {
+        responseData = await fallbackRes.json();
       }
-    } catch (err) {
-      console.warn("Fetch attempt failed on URL:", url, err);
+    } catch (fbErr) {
+      console.error("Gateway fallback failed:", fbErr);
     }
   }
 
-  // Strict check: No fake data fallback
   if (!responseData || !responseData.name) {
     syncBtn.disabled = false;
     syncBtn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Fetch & Sync Live Stats`;
-    alert("❌ Supercell server par yeh Player Tag nahi mila!\n\nKripya in-game profile se direct Tag copy karke dalein (Letter O nahi, 0 number hona chahiye).");
+    alert(`❌ Tag '${formattedTag}' ka data nahi mil saka.\n\nTips:\n1. Game mein Profile par jaakar Tag copy karein.\n2. Letter 'O' ki jagah number '0' check karein.`);
     return;
   }
 
@@ -197,7 +195,7 @@ window.handleSyncCoCProfile = async function(e) {
 
   } catch (err) {
     console.error("Firestore sync error:", err);
-    alert("❌ Error: " + err.message);
+    alert("❌ Firestore Error: " + err.message);
   } finally {
     syncBtn.disabled = false;
     syncBtn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Fetch & Sync Live Stats`;
