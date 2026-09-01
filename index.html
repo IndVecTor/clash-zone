@@ -75,26 +75,11 @@
     .scrollbar-none::-webkit-scrollbar { display: none; }
     .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Bottom Nav Active State & Micro Animations */
-    .bnav-btn {
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .bnav-btn.active {
-      color: #fbbf24;
-      transform: translateY(-2px);
-    }
-    .bnav-btn.active .bnav-dot {
-      opacity: 1;
-      transform: scale(1);
-    }
-    .bnav-dot {
-      opacity: 0;
-      transform: scale(0);
-      transition: all 0.25s ease;
-    }
-    .bnav-btn:active {
-      transform: scale(0.88);
-    }
+    .bnav-btn { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+    .bnav-btn.active { color: #fbbf24; transform: translateY(-2px); }
+    .bnav-btn.active .bnav-dot { opacity: 1; transform: scale(1); }
+    .bnav-dot { opacity: 0; transform: scale(0); transition: all 0.25s ease; }
+    .bnav-btn:active { transform: scale(0.88); }
 
     .skeleton-box {
       background: linear-gradient(90deg, #0a101d 25%, #162238 50%, #0a101d 75%);
@@ -112,9 +97,11 @@
   <!-- TOAST NOTIFICATION -->
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- TOP HEADER -->
+  <!-- POWER-PACKED TOP HEADER -->
   <header class="sticky top-0 z-40 bg-czDark/95 backdrop-blur-xl border-b border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
+      
+      <!-- Brand Logo -->
       <a href="index.html" class="flex items-center gap-2.5 shrink-0">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-yellow-400 p-[1.5px] shadow-cyber-gold shrink-0">
           <div class="w-full h-full bg-czDark rounded-[10px] flex items-center justify-center">
@@ -127,15 +114,46 @@
         </div>
       </a>
 
-      <!-- Header Actions -->
+      <!-- Quick Zone Switcher & Live CWL Timer (Desktop & Tablet) -->
+      <div class="hidden lg:flex items-center gap-3">
+        <!-- Zone Quick Pill Toggle -->
+        <div class="bg-czPanel border border-slate-800 p-1 rounded-xl flex items-center gap-1 text-xs">
+          <button onclick="window.switchZone('home')" id="headerZoneHome" class="px-3 py-1 rounded-lg font-bold bg-amber-500 text-black transition">Home</button>
+          <button onclick="window.switchZone('builder')" id="headerZoneBuilder" class="px-3 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition">Builder</button>
+          <button onclick="window.switchZone('capital')" id="headerZoneCapital" class="px-3 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition">Capital</button>
+        </div>
+
+        <!-- Live CWL Season Countdown Badge -->
+        <div class="bg-czPanel border border-amber-500/30 px-3 py-1 rounded-xl text-[11px] font-bold text-amber-400 flex items-center gap-1.5 shadow-md">
+          <i class="fa-solid fa-hourglass-half text-amber-400 animate-spin text-[10px]" style="animation-duration: 6s;"></i>
+          <span>CWL Ends: <b class="text-white font-mono">5d 12h</b></span>
+        </div>
+      </div>
+
+      <!-- Header Action Controls -->
       <div class="flex items-center gap-2 shrink-0">
-        <button id="pwaInstallBtn" onclick="window.triggerAppInstall()" class="hidden bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-3 py-1.5 rounded-xl text-xs font-black items-center gap-1.5 transition shadow-cyber-gold animate-pulse">
+        
+        <!-- Rankings Button -->
+        <button onclick="window.openModal('rankingsModal')" class="bg-czPanel hover:bg-slate-800 border border-amber-500/40 text-amber-400 p-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-cyber-gold" title="Pro Builders Rankings">
+          <i class="fa-solid fa-trophy text-amber-400 text-sm"></i>
+          <span class="hidden sm:inline">Rankings</span>
+        </button>
+
+        <!-- Notification Alert Bell -->
+        <button onclick="window.openModal('notificationsModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-slate-300 p-2.5 rounded-xl text-xs transition relative" title="Notifications">
+          <i class="fa-solid fa-bell text-sm"></i>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 shadow-cyber-gold animate-pulse"></span>
+        </button>
+
+        <!-- PWA Install Button -->
+        <button id="pwaInstallBtn" onclick="window.triggerAppInstall()" class="hidden bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-3 py-1.5 rounded-xl text-xs font-black items-center gap-1.5 transition shadow-cyber-gold animate-pulse">
           <i class="fa-solid fa-download"></i>
-          <span>Install App</span>
+          <span>Install</span>
         </button>
         
+        <!-- User Auth Button -->
         <div id="headerAuthArea">
-          <button onclick="window.openModal('authModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-amber-400 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-md">
+          <button onclick="window.openModal('authModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-amber-400 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
             <i class="fa-solid fa-user-lock"></i>
             <span>Login</span>
           </button>
@@ -143,6 +161,18 @@
       </div>
     </div>
   </header>
+
+  <!-- MOBILE QUICK ZONE BAR -->
+  <div class="lg:hidden flex items-center justify-between bg-czPanel/90 border-b border-czBorder/60 px-4 py-2 text-xs">
+    <div class="flex items-center gap-1.5">
+      <button onclick="window.switchZone('home')" id="mHeaderZoneHome" class="px-3 py-1 rounded-lg font-bold bg-amber-500 text-black text-[11px] transition">Home</button>
+      <button onclick="window.switchZone('builder')" id="mHeaderZoneBuilder" class="px-3 py-1 rounded-lg font-bold text-slate-400 text-[11px] transition">Builder</button>
+      <button onclick="window.switchZone('capital')" id="mHeaderZoneCapital" class="px-3 py-1 rounded-lg font-bold text-slate-400 text-[11px] transition">Capital</button>
+    </div>
+    <div class="text-[10px] text-amber-400 font-bold font-mono">
+      ⏳ CWL: 5d 12h
+    </div>
+  </div>
 
   <!-- MAIN CONTAINER -->
   <div class="max-w-7xl mx-auto px-4 pt-4 w-full overflow-hidden">
@@ -192,7 +222,7 @@
             <span class="text-[9px] text-slate-400 font-bold uppercase block leading-none mb-0.5">Trophies</span>
             <b id="dashTrophies" class="text-amber-400 text-xs sm:text-sm font-black">🏆 5000</b>
           </div>
-          <button onclick="window.switchMainHubView('profile')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-4 py-2 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition flex-1 sm:flex-initial shadow-cyber-gold shrink-0">
+          <button onclick="window.switchMainHubView('profile')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-4 py-2 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition flex-1 sm:flex-initial shadow-cyber-gold shrink-0">
             <i class="fa-solid fa-arrows-rotate"></i>
             <span>Sync Stats</span>
           </button>
@@ -213,21 +243,6 @@
         <div class="max-w-xl mx-auto glass-card rounded-2xl p-2 flex items-center gap-2 shadow-cyber-card focus-within:border-amber-400/60 transition w-full">
           <i class="fa-solid fa-magnifying-glass text-slate-400 ml-2.5 text-xs sm:text-sm shrink-0"></i>
           <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall, Capital District, Creator, Tag..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
-        </div>
-      </section>
-
-      <!-- ZONE SELECTOR -->
-      <section class="py-2 w-full">
-        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          <button onclick="window.switchZone('home')" id="zoneTabHome" class="zone-tab-btn active px-3.5 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold shrink-0 transition flex items-center gap-1.5">
-            <i class="fa-solid fa-house-laptop text-amber-400"></i> Home Village
-          </button>
-          <button onclick="window.switchZone('builder')" id="zoneTabBuilder" class="zone-tab-btn px-3.5 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition flex items-center gap-1.5">
-            <i class="fa-solid fa-hammer text-cyan-400"></i> Builder Base 2.0
-          </button>
-          <button onclick="window.switchZone('capital')" id="zoneTabCapital" class="zone-tab-btn px-3.5 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition flex items-center gap-1.5">
-            <i class="fa-solid fa-mountain-city text-emerald-400"></i> Clan Capital
-          </button>
         </div>
       </section>
 
@@ -284,7 +299,7 @@
       </main>
     </div>
 
-    <!-- VIEW 2: SAVED VAULT SECTION (1-TAP DIRECT ACCESS) -->
+    <!-- VIEW 2: SAVED VAULT SECTION -->
     <div id="viewVaultSection" class="hidden py-4">
       <div class="text-center mb-6">
         <h2 class="gaming-title text-2xl sm:text-4xl font-black text-white gold-gradient">Saved Layouts Vault</h2>
@@ -303,7 +318,7 @@
           <h2 class="gaming-title text-2xl sm:text-4xl font-black text-white gold-gradient">Clan Showcase Hub</h2>
           <p class="text-xs sm:text-sm text-slate-400 mt-1">Recruit top-tier clashers or find your dream competitive clan.</p>
         </div>
-        <button onclick="window.openModal('postClanModal')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold shrink-0">
+        <button onclick="window.openModal('postClanModal')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold shrink-0">
           <i class="fa-solid fa-plus mr-1"></i> Register Your Clan
         </button>
       </div>
@@ -363,7 +378,7 @@
             </div>
           </div>
 
-          <button type="submit" id="btnSaveProfile" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold mt-2">
+          <button type="submit" id="btnSaveProfile" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold mt-2">
             Save Verified Details
           </button>
         </form>
@@ -377,6 +392,50 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- PRO BUILDERS RANKINGS MODAL -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="rankingsModal">
+    <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto max-h-[85vh] overflow-y-auto">
+      <button onclick="window.closeModal('rankingsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
+      
+      <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2 mb-1">
+        <i class="fa-solid fa-trophy"></i> Pro Builders Rankings
+      </h3>
+      <p class="text-xs text-slate-400 mb-4">Top verified layout architects ranked by follower count & uploads.</p>
+
+      <div class="space-y-3" id="rankingsListContainer">
+        <p class="text-xs text-slate-500 text-center py-6">Calculating global builder rankings...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS MODAL -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="notificationsModal">
+    <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-md p-5 sm:p-6 relative shadow-cyber-card my-auto">
+      <button onclick="window.closeModal('notificationsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
+      
+      <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2 mb-3">
+        <i class="fa-solid fa-bell"></i> Latest Updates & Alerts
+      </h3>
+
+      <div class="space-y-2.5 text-xs">
+        <div class="bg-czDark p-3 rounded-2xl border border-slate-800 flex items-start gap-2.5">
+          <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
+          <div>
+            <b class="text-white block">CWL Season Active</b>
+            <span class="text-slate-400">Make sure your war base is up to date before prep day locks!</span>
+          </div>
+        </div>
+        <div class="bg-czDark p-3 rounded-2xl border border-slate-800 flex items-start gap-2.5">
+          <i class="fa-solid fa-fire text-amber-400 mt-0.5"></i>
+          <div>
+            <b class="text-white block">New Town Hall 17 Meta</b>
+            <span class="text-slate-400">Over 45+ anti-root rider layouts added by verified creators today.</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- FULL-WIDTH EDGE-TO-EDGE CYBER GAMING BOTTOM NAVIGATION BAR -->
@@ -426,14 +485,12 @@
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-2xl p-5 sm:p-6 relative shadow-cyber-card my-auto max-h-[92vh] overflow-y-auto">
       <button onclick="window.closeModal('baseDetailsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center z-10">✕</button>
 
-      <!-- Base Image -->
       <div class="relative h-64 sm:h-80 rounded-2xl overflow-hidden bg-czDark border border-slate-800 mb-4 group">
         <img id="modalBaseImg" src="" alt="Base Map Layout" class="w-full h-full object-cover" />
         <span id="modalBaseTH" class="absolute top-3 left-3 bg-czDark/95 text-amber-400 border border-amber-400/40 text-xs font-black px-3 py-1 rounded-lg backdrop-blur-md shadow-cyber-gold"></span>
         <span id="modalBaseType" class="absolute top-3 right-3 bg-black/85 text-white text-xs font-bold px-3 py-1 rounded-lg border border-slate-700"></span>
       </div>
 
-      <!-- Title & Creator Info Strip -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-800">
         <div>
           <h2 id="modalBaseTitle" class="text-base sm:text-xl font-black text-white leading-snug"></h2>
@@ -456,7 +513,6 @@
         </div>
       </div>
 
-      <!-- Strategy & Tactical Setup -->
       <div class="space-y-3 mb-5">
         <div id="modalCCBox" class="bg-czDark p-3 rounded-2xl border border-slate-800 text-xs flex items-center gap-2">
           <span class="text-amber-400 font-bold shrink-0"><i class="fa-solid fa-castle mr-1"></i> Recommended CC:</span>
@@ -469,9 +525,8 @@
         </div>
       </div>
 
-      <!-- Copy Action Buttons -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6">
-        <button id="modalCopyBaseBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black font-black py-3 rounded-xl text-xs flex items-center justify-center gap-2 uppercase tracking-wider transition shadow-cyber-gold">
+        <button id="modalCopyBaseBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black font-black py-3 rounded-xl text-xs flex items-center justify-center gap-2 uppercase tracking-wider transition shadow-cyber-gold">
           <i class="fa-solid fa-copy text-sm"></i>
           <span>Copy In-Game Layout</span>
         </button>
@@ -482,7 +537,6 @@
         </button>
       </div>
 
-      <!-- Community Strategy Discussion -->
       <div class="pt-4 border-t border-slate-800">
         <h4 class="gaming-title text-sm text-amber-400 mb-3 flex items-center gap-2">
           <i class="fa-solid fa-comments"></i> Clasher Discussion & Tips
@@ -568,7 +622,7 @@
           <input type="url" id="clanLinkInput" placeholder="https://link.clashofclans.com/en?action=OpenClanProfile..." required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
         </div>
 
-        <button type="submit" id="submitClanBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold">
+        <button type="submit" id="submitClanBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold">
           Showcase Clan
         </button>
       </form>
@@ -650,7 +704,7 @@
           <input type="url" id="uploadArmyLink" placeholder="https://link.clashofclans.com/en?action=CopyArmy..." class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
         </div>
 
-        <button type="submit" id="submitBaseBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition mt-2 shadow-cyber-gold">
+        <button type="submit" id="submitBaseBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition mt-2 shadow-cyber-gold">
           Publish Base & Strategy
         </button>
       </form>

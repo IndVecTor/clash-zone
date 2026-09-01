@@ -69,7 +69,7 @@ function getLeagueRank(trophies = 0) {
 }
 
 // ==========================================
-// 2. CYBER TOAST NOTIFICATION
+// 2. TOAST NOTIFICATION
 // ==========================================
 window.showToast = function(message, type = "success") {
   const container = document.getElementById("toastContainer");
@@ -85,7 +85,6 @@ window.showToast = function(message, type = "success") {
   `;
 
   container.appendChild(toast);
-
   setTimeout(() => toast.classList.remove("translate-x-10", "opacity-0"), 10);
   setTimeout(() => {
     toast.classList.add("translate-x-10", "opacity-0");
@@ -182,7 +181,6 @@ function compressAndWatermarkImage(file, creatorName = "Chief", isVerified = fal
         elem.width = width;
         elem.height = height;
         const ctx = elem.getContext('2d');
-
         ctx.drawImage(img, 0, 0, width, height);
 
         const padding = 16;
@@ -234,9 +232,7 @@ async function fetchLiveSupercellPlayer(rawTag) {
   const cleanTag = encodeURIComponent(tag);
   const apiUrl = `https://cocproxy.royaleapi.dev/v1/players/${cleanTag}`;
 
-  const response = await fetch(apiUrl, {
-    headers: { 'Accept': 'application/json' }
-  });
+  const response = await fetch(apiUrl, { headers: { 'Accept': 'application/json' } });
 
   if (!response.ok) {
     return {
@@ -319,7 +315,7 @@ window.syncTagInSignup = async function() {
 };
 
 // ==========================================
-// 6. AUTH STATE & USER DASHBOARD
+// 6. AUTH STATE & DASHBOARD
 // ==========================================
 onAuthStateChanged(auth, async (user) => {
   const headerAuth = document.getElementById("headerAuthArea");
@@ -356,9 +352,7 @@ onAuthStateChanged(auth, async (user) => {
           document.getElementById("dashFollowersCount").innerHTML = `<i class="fa-solid fa-users text-[10px]"></i> ${followers} Followers`;
 
           const verifiedBadge = document.getElementById("dashVerifiedBadge");
-          if (currentUserProfile.isSupercellVerified) {
-            verifiedBadge.classList.remove("hidden");
-          }
+          if (currentUserProfile.isSupercellVerified) verifiedBadge.classList.remove("hidden");
 
           const userBasesCount = allFetchedBases.filter(b => b.uploaderUid === user.uid).length;
           const builderBadge = document.getElementById("dashBuilderBadge");
@@ -381,24 +375,9 @@ onAuthStateChanged(auth, async (user) => {
               if (h.name.includes("Champion")) document.getElementById("heroRC").innerText = h.level;
             });
           }
-
-        } else {
-          currentUserProfile = {
-            name: defaultName,
-            townHallLevel: "TH 16",
-            clanName: "Solo",
-            tag: "#CLASH",
-            trophies: 5000,
-            warStars: 0,
-            followersCount: 0
-          };
-          document.getElementById("dashPlayerName").innerText = defaultName;
         }
-      } catch (e) {
-        console.warn("Profile fetch error:", e);
-      }
+      } catch (e) {}
     }
-
   } else {
     currentUserProfile = null;
     if (headerAuth) {
@@ -420,16 +399,16 @@ window.switchZone = function(zone) {
   currentZone = zone;
   currentTH = "ALL";
 
-  document.querySelectorAll(".zone-tab-btn").forEach(btn => {
-    btn.classList.remove("active", "text-black");
-    btn.classList.add("text-slate-300");
+  ['Home', 'Builder', 'Capital'].forEach(z => {
+    const btn = document.getElementById(`headerZone${z}`);
+    const mBtn = document.getElementById(`mHeaderZone${z}`);
+    if (btn) {
+      btn.className = z.toLowerCase() === zone ? "px-3 py-1 rounded-lg font-bold bg-amber-500 text-black transition" : "px-3 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition";
+    }
+    if (mBtn) {
+      mBtn.className = z.toLowerCase() === zone ? "px-3 py-1 rounded-lg font-bold bg-amber-500 text-black text-[11px] transition" : "px-3 py-1 rounded-lg font-bold text-slate-400 text-[11px] transition";
+    }
   });
-
-  const activeZoneBtn = document.getElementById(`zoneTab${zone.charAt(0).toUpperCase() + zone.slice(1)}`);
-  if (activeZoneBtn) {
-    activeZoneBtn.classList.add("active");
-    activeZoneBtn.classList.remove("text-slate-300");
-  }
 
   renderLevelFilters();
   renderBasesUI();
@@ -454,12 +433,11 @@ window.updateUploadLevelOptions = function() {
 
   const zone = zoneSelect.value;
   const levels = ZONE_LEVELS[zone].filter(l => l !== "ALL");
-
   thSelect.innerHTML = levels.map(l => `<option value="${l}">${l}</option>`).join('');
 };
 
 // ==========================================
-// 8. MINIMAL UTILITY HUB NAVIGATION SWITCHER
+// 8. NAVIGATION SWITCHER
 // ==========================================
 window.switchMainHubView = function(viewName) {
   const vFeed = document.getElementById("viewFeedSection");
@@ -467,9 +445,7 @@ window.switchMainHubView = function(viewName) {
   const vClans = document.getElementById("viewClansSection");
   const vProfile = document.getElementById("viewProfileSection");
 
-  // Reset Bottom Nav Button States
-  const navTabs = ['Feed', 'Vault', 'Clans', 'Profile'];
-  navTabs.forEach(tab => {
+  ['Feed', 'Vault', 'Clans', 'Profile'].forEach(tab => {
     const btn = document.getElementById(`bnav${tab}`);
     if (btn) btn.classList.remove('active');
   });
@@ -477,13 +453,11 @@ window.switchMainHubView = function(viewName) {
   const activeBtn = document.getElementById(`bnav${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`);
   if (activeBtn) activeBtn.classList.add('active');
 
-  // Hide all sections
   if (vFeed) vFeed.classList.add("hidden");
   if (vVault) vVault.classList.add("hidden");
   if (vClans) vClans.classList.add("hidden");
   if (vProfile) vProfile.classList.add("hidden");
 
-  // Show selected section
   if (viewName === 'feed') {
     vFeed.classList.remove("hidden");
   } else if (viewName === 'vault') {
@@ -499,14 +473,93 @@ window.switchMainHubView = function(viewName) {
 };
 
 // ==========================================
-// 9. DIRECT SAVED VAULT VIEW ENGINE
+// 9. PRO BUILDERS RANKINGS RENDERER
+// ==========================================
+function renderRankingsUI() {
+  const container = document.getElementById("rankingsListContainer");
+  if (!container) return;
+
+  const creatorsMap = {};
+  allFetchedBases.forEach(base => {
+    const key = base.uploaderUid || base.uploaderName;
+    if (!creatorsMap[key]) {
+      creatorsMap[key] = {
+        key: key,
+        uid: base.uploaderUid || null,
+        name: base.uploaderName || 'Chief',
+        uploads: 0,
+        thLevel: base.th || "TH 16",
+        isVerified: base.isSupercellVerified || false,
+        followers: userFollowedCreators.filter(f => f.key === key).length * 12 + 3
+      };
+    }
+    creatorsMap[key].uploads += 1;
+  });
+
+  const ranked = Object.values(creatorsMap).sort((a, b) => (b.followers * 3 + b.uploads) - (a.followers * 3 + a.uploads));
+
+  if (ranked.length === 0) {
+    container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No builders ranked yet.</p>`;
+    return;
+  }
+
+  container.innerHTML = ranked.map((c, idx) => {
+    let rankBadge = `<span class="font-bold text-slate-400 text-xs w-6">#${idx + 1}</span>`;
+    if (idx === 0) rankBadge = `<span class="text-amber-400 text-base w-6"><i class="fa-solid fa-trophy"></i></span>`;
+    if (idx === 1) rankBadge = `<span class="text-slate-300 text-base w-6"><i class="fa-solid fa-medal"></i></span>`;
+    if (idx === 2) rankBadge = `<span class="text-amber-600 text-base w-6"><i class="fa-solid fa-award"></i></span>`;
+
+    const isPro = c.uploads >= 10;
+    const isFollowing = userFollowedCreators.some(f => f.key === c.key);
+
+    return `
+      <div class="flex items-center justify-between bg-czDark p-3 rounded-2xl border border-slate-800 text-xs shadow-md">
+        <div class="flex items-center gap-3 min-w-0">
+          ${rankBadge}
+          <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold shrink-0">
+            ${c.name.charAt(0).toUpperCase()}
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-white font-bold truncate">${c.name}</span>
+              ${c.isVerified ? '<span class="text-emerald-400 text-[10px]"><i class="fa-solid fa-circle-check"></i></span>' : ''}
+              ${isPro ? '<span class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 text-[9px] font-black px-1.5 py-0.2 rounded uppercase">Pro</span>' : ''}
+            </div>
+            <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+              <span><b>${c.thLevel}</b></span>
+              <span>•</span>
+              <span>${c.uploads} Layouts</span>
+              <span>•</span>
+              <span class="text-cyan-400 font-bold"><i class="fa-solid fa-users text-[9px]"></i> ${c.followers}</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="window.handleFollowCreator('${c.name}', '${c.uid}'); renderRankingsUI();" class="px-3 py-1 rounded-xl text-xs font-bold transition ${isFollowing ? 'bg-slate-800 text-slate-300' : 'bg-amber-500 text-black shadow-cyber-gold'}">
+          ${isFollowing ? 'Following' : '+ Follow'}
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+// Intercept openModal for rankings to render fresh
+const originalOpenModal = window.openModal;
+window.openModal = function(id) {
+  if (id === 'rankingsModal') {
+    renderRankingsUI();
+  }
+  if (originalOpenModal) originalOpenModal(id);
+};
+
+// ==========================================
+// 10. SAVED VAULT & PROFILE HELPERS
 // ==========================================
 function renderDirectVaultUI() {
   const container = document.getElementById("directVaultContainer");
   if (!container) return;
 
   const savedList = allFetchedBases.filter(b => userBookmarkedBases.includes(b.id));
-  
   if (savedList.length === 0) {
     container.innerHTML = `
       <div class="glass-card rounded-3xl p-10 text-center text-slate-500">
@@ -536,7 +589,7 @@ function renderDirectVaultUI() {
           <i class="fa-solid fa-copy"></i>
           <span class="hidden sm:inline">Copy Link</span>
         </button>
-        <button onclick="window.handleBookmarkBase('${b.id}'); renderDirectVaultUI();" class="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition text-xs" title="Remove from Vault">
+        <button onclick="window.handleBookmarkBase('${b.id}'); renderDirectVaultUI();" class="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition text-xs" title="Remove">
           <i class="fa-solid fa-trash-can"></i>
         </button>
       </div>
@@ -556,7 +609,7 @@ function populateProfileForm() {
 }
 
 // ==========================================
-// 10. FULL BASE DETAILS MODAL (ON CARD CLICK)
+// 11. BASE DETAILS MODAL
 // ==========================================
 window.openBaseDetailsModal = function(baseId) {
   const base = allFetchedBases.find(b => b.id === baseId);
@@ -571,7 +624,6 @@ window.openBaseDetailsModal = function(baseId) {
 
   const verifiedTag = document.getElementById("modalUploaderVerified");
   const proTag = document.getElementById("modalUploaderPro");
-  
   if (base.isSupercellVerified) verifiedTag.classList.remove("hidden");
   else verifiedTag.classList.add("hidden");
 
@@ -598,9 +650,7 @@ window.openBaseDetailsModal = function(baseId) {
     window.openBaseDetailsModal(baseId);
   };
 
-  const ccText = document.getElementById("modalCCText");
-  ccText.innerText = base.ccTroops || "No specific CC required";
-
+  document.getElementById("modalCCText").innerText = base.ccTroops || "No specific CC required";
   const proofBox = document.getElementById("modalProofBox");
   const proofImg = document.getElementById("modalProofImg");
   if (base.defenseProof) {
@@ -610,9 +660,7 @@ window.openBaseDetailsModal = function(baseId) {
     proofBox.classList.add("hidden");
   }
 
-  const copyBaseBtn = document.getElementById("modalCopyBaseBtn");
-  copyBaseBtn.onclick = () => window.copyBaseLink(base.id, base.link);
-
+  document.getElementById("modalCopyBaseBtn").onclick = () => window.copyBaseLink(base.id, base.link);
   const copyArmyBtn = document.getElementById("modalCopyArmyBtn");
   if (base.armyLink) {
     copyArmyBtn.classList.remove("hidden");
@@ -626,9 +674,6 @@ window.openBaseDetailsModal = function(baseId) {
   window.openModal('baseDetailsModal');
 };
 
-// ==========================================
-// 11. FOLLOW & BOOKMARK LOGIC
-// ==========================================
 window.handleFollowCreator = async function(creatorName, creatorUid) {
   const key = creatorUid || creatorName;
   const isFollowing = userFollowedCreators.some(c => c.key === key);
@@ -637,17 +682,13 @@ window.handleFollowCreator = async function(creatorName, creatorUid) {
     userFollowedCreators = userFollowedCreators.filter(c => c.key !== key);
     window.showToast(`Unfollowed ${creatorName}`);
     if (creatorUid) {
-      try {
-        await updateDoc(doc(db, "users", creatorUid), { followersCount: increment(-1) });
-      } catch (e) {}
+      try { await updateDoc(doc(db, "users", creatorUid), { followersCount: increment(-1) }); } catch (e) {}
     }
   } else {
     userFollowedCreators.push({ key, name: creatorName, uid: creatorUid || null });
     window.showToast(`Now following ${creatorName}! 🏆`);
     if (creatorUid) {
-      try {
-        await updateDoc(doc(db, "users", creatorUid), { followersCount: increment(1) });
-      } catch (e) {}
+      try { await updateDoc(doc(db, "users", creatorUid), { followersCount: increment(1) }); } catch (e) {}
     }
   }
 
@@ -667,18 +708,13 @@ window.handleBookmarkBase = function(baseId) {
   renderBasesUI();
 };
 
-// ==========================================
-// 12. RATING & REVIEWS DISCUSSION
-// ==========================================
 function renderReviewsList(reviews) {
   const container = document.getElementById("reviewsListContainer");
   if (!container) return;
-
   if (reviews.length === 0) {
     container.innerHTML = `<p class="text-xs text-slate-500 italic">No comments yet. Start the strategy discussion!</p>`;
     return;
   }
-
   container.innerHTML = reviews.map(r => `
     <div class="bg-czDark p-2.5 rounded-xl border border-slate-800 text-xs">
       <div class="flex items-center justify-between mb-1">
@@ -693,10 +729,8 @@ function renderReviewsList(reviews) {
 window.setStarRating = function(stars) {
   document.getElementById("reviewStarValue").value = stars;
   const starsContainer = document.getElementById("starRatingSelect");
-  const starIcons = starsContainer.querySelectorAll("i");
-  starIcons.forEach((icon, idx) => {
-    if (idx < stars) icon.className = "fa-solid fa-star";
-    else icon.className = "fa-regular fa-star text-slate-600";
+  starsContainer.querySelectorAll("i").forEach((icon, idx) => {
+    icon.className = idx < stars ? "fa-solid fa-star" : "fa-regular fa-star text-slate-600";
   });
 };
 
@@ -708,27 +742,17 @@ window.handleAddReview = async function(e) {
     window.openModal('authModal');
     return;
   }
-
   if (!currentActiveBase) return;
 
   const stars = parseInt(document.getElementById("reviewStarValue").value) || 5;
   const text = document.getElementById("reviewTextInput").value.trim();
-
-  const newReview = {
-    author: currentUserProfile?.name || user.displayName || 'Chief',
-    stars: stars,
-    text: text,
-    createdAt: Date.now()
-  };
+  const newReview = { author: currentUserProfile?.name || user.displayName || 'Chief', stars, text, createdAt: Date.now() };
 
   try {
-    const baseRef = doc(db, "bases", currentActiveBase.id);
-    await updateDoc(baseRef, { reviews: arrayUnion(newReview) });
-
+    await updateDoc(doc(db, "bases", currentActiveBase.id), { reviews: arrayUnion(newReview) });
     if (!currentActiveBase.reviews) currentActiveBase.reviews = [];
     currentActiveBase.reviews.push(newReview);
     renderReviewsList(currentActiveBase.reviews);
-
     document.getElementById("reviewTextInput").value = "";
     window.showToast("Strategy comment posted! ⭐");
   } catch (err) {
@@ -737,21 +761,16 @@ window.handleAddReview = async function(e) {
 };
 
 // ==========================================
-// 13. CLAN RECRUITMENT HUB LOGIC
+// 12. CLANS & BASES RENDERERS
 // ==========================================
 async function loadClansFromFirestore() {
   const container = document.getElementById("clansContainer");
   if (!container) return;
-
   try {
     const q = query(collection(db, "clans"), orderBy("createdAt", "desc"));
     const querySnapshot = await getDocs(q);
-    
     allFetchedClans = [];
-    querySnapshot.forEach((docSnap) => {
-      allFetchedClans.push({ id: docSnap.id, ...docSnap.data() });
-    });
-
+    querySnapshot.forEach(docSnap => allFetchedClans.push({ id: docSnap.id, ...docSnap.data() }));
     renderClansUI();
   } catch (error) {
     allFetchedClans = JSON.parse(localStorage.getItem("cz_clans_data")) || [];
@@ -762,46 +781,26 @@ async function loadClansFromFirestore() {
 function renderClansUI() {
   const container = document.getElementById("clansContainer");
   if (!container) return;
-
   if (allFetchedClans.length === 0) {
-    container.innerHTML = `
-      <div class="col-span-full py-16 text-center text-slate-500">
-        <i class="fa-solid fa-flag-checkered text-4xl mb-3 text-slate-600"></i>
-        <h3 class="text-base font-bold text-slate-300">No clans listed yet</h3>
-        <p class="text-xs text-slate-500 mt-1">Be the first clan leader to register your clan!</p>
-      </div>
-    `;
+    container.innerHTML = `<div class="col-span-full py-16 text-center text-slate-500"><i class="fa-solid fa-flag-checkered text-4xl mb-3 text-slate-600"></i><h3 class="text-base font-bold text-slate-300">No clans listed yet</h3></div>`;
     return;
   }
-
   container.innerHTML = allFetchedClans.map(clan => `
     <div class="glass-card rounded-2xl p-4 flex flex-col justify-between shadow-cyber-card border-slate-800 hover:border-amber-400/50 transition">
       <div>
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-2">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white text-lg font-bold shadow-md">
-              <i class="fa-solid fa-shield"></i>
-            </div>
-            <div>
-              <h3 class="font-bold text-white text-base tracking-wide leading-tight">${clan.name}</h3>
-              <span class="text-[10px] text-amber-400 font-mono">${clan.tag}</span>
-            </div>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white text-lg font-bold shadow-md"><i class="fa-solid fa-shield"></i></div>
+            <div><h3 class="font-bold text-white text-base tracking-wide leading-tight">${clan.name}</h3><span class="text-[10px] text-amber-400 font-mono">${clan.tag}</span></div>
           </div>
           <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-700">Req: ${clan.minTH}</span>
         </div>
-
         <p class="text-xs text-slate-300 my-3 line-clamp-2">${clan.desc}</p>
-        
         <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-3 bg-czDark p-2 rounded-xl border border-slate-800/80">
-          <span><i class="fa-solid fa-trophy text-amber-400 mr-1"></i>${clan.minTrophies || 0}+</span>
-          <span>•</span>
-          <span class="truncate">Leader: ${clan.leaderName}</span>
+          <span><i class="fa-solid fa-trophy text-amber-400 mr-1"></i>${clan.minTrophies || 0}+</span><span>•</span><span class="truncate">Leader: ${clan.leaderName}</span>
         </div>
       </div>
-
-      <a href="${clan.link}" target="_blank" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black font-black py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 uppercase tracking-wider transition shadow-cyber-gold">
-        <i class="fa-solid fa-door-open"></i> Join In-Game
-      </a>
+      <a href="${clan.link}" target="_blank" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black font-black py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 uppercase tracking-wider transition shadow-cyber-gold"><i class="fa-solid fa-door-open"></i> Join In-Game</a>
     </div>
   `).join('');
 }
@@ -809,17 +808,10 @@ function renderClansUI() {
 window.handleRegisterClan = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
-  if (!user) {
-    window.showToast("Please login to register your clan!", "error");
-    window.openModal('authModal');
-    return;
-  }
+  if (!user) { window.showToast("Please login!", "error"); window.openModal('authModal'); return; }
 
   const rawLink = document.getElementById("clanLinkInput").value.trim();
-  if (!rawLink.includes("link.clashofclans.com")) {
-    window.showToast("Invalid in-game clan link!", "error");
-    return;
-  }
+  if (!rawLink.includes("link.clashofclans.com")) { window.showToast("Invalid clan link!", "error"); return; }
 
   let tag = document.getElementById("clanTagInput").value.trim().toUpperCase();
   if (!tag.startsWith("#")) tag = "#" + tag;
@@ -840,29 +832,19 @@ window.handleRegisterClan = async function(e) {
     await addDoc(collection(db, "clans"), clanData);
     window.closeModal('postClanModal');
     e.target.reset();
-    window.showToast("Clan successfully registered on Hub! 🛡️");
+    window.showToast("Clan registered successfully! 🛡️");
     await loadClansFromFirestore();
-  } catch (err) {
-    window.showToast("Error: " + err.message, "error");
-  }
+  } catch (err) { window.showToast("Error: " + err.message, "error"); }
 };
 
-// ==========================================
-// 14. FETCH, SORT & DISPLAY BASES (WITH FOLLOWER & PRO TAG)
-// ==========================================
 async function loadBasesFromFirestore() {
   const container = document.getElementById("basesContainer");
   if (!container) return;
-
   try {
     const q = query(collection(db, "bases"), orderBy("createdAt", "desc"));
     const querySnapshot = await getDocs(q);
-    
     allFetchedBases = [];
-    querySnapshot.forEach((docSnap) => {
-      allFetchedBases.push({ id: docSnap.id, ...docSnap.data() });
-    });
-
+    querySnapshot.forEach(docSnap => allFetchedBases.push({ id: docSnap.id, ...docSnap.data() }));
     renderBasesUI();
   } catch (error) {
     allFetchedBases = JSON.parse(localStorage.getItem("cz_user_uploaded_bases")) || [];
@@ -872,54 +854,35 @@ async function loadBasesFromFirestore() {
 
 window.setSortOption = function(sortType) {
   currentSort = sortType;
-  document.querySelectorAll(".sort-btn").forEach(btn => btn.classList.remove("active", "text-black"));
+  document.querySelectorAll(".sort-btn").forEach(btn => btn.classList.remove("active", "text-black", "text-slate-300"));
   document.querySelectorAll(".sort-btn").forEach(btn => btn.classList.add("text-slate-300"));
-
   const activeBtn = document.getElementById(`sort${sortType.charAt(0).toUpperCase() + sortType.slice(1)}`);
-  if (activeBtn) {
-    activeBtn.classList.add("active");
-    activeBtn.classList.remove("text-slate-300");
-  }
-
+  if (activeBtn) activeBtn.classList.add("active");
   renderBasesUI();
 };
 
 function renderBasesUI() {
   const container = document.getElementById("basesContainer");
   if (!container) return;
-
   const countText = document.getElementById("baseCountText");
   const search = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
 
   let filtered = allFetchedBases.filter(base => {
     const baseZone = base.zone || (base.th && base.th.startsWith("BH") ? "builder" : (base.th && !base.th.startsWith("TH") ? "capital" : "home"));
     const matchZone = baseZone === currentZone;
-
     const matchTH = currentTH === "ALL" || base.th === currentTH;
     const matchType = currentType === "ALL" || (base.type && base.type.toLowerCase().includes(currentType.toLowerCase()));
-    const matchSearch = (base.title || "").toLowerCase().includes(search) || 
-                        (base.th || "").toLowerCase().includes(search) || 
-                        (base.ccTroops || "").toLowerCase().includes(search) || 
-                        (base.uploaderName || "").toLowerCase().includes(search);
+    const matchSearch = (base.title || "").toLowerCase().includes(search) || (base.th || "").toLowerCase().includes(search) || (base.uploaderName || "").toLowerCase().includes(search);
     return matchZone && matchTH && matchType && matchSearch;
   });
 
-  if (currentSort === "likes") {
-    filtered.sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
-  } else if (currentSort === "downloads") {
-    filtered.sort((a, b) => (b.downloadsCount || 0) - (a.downloadsCount || 0));
-  }
+  if (currentSort === "likes") filtered.sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
+  else if (currentSort === "downloads") filtered.sort((a, b) => (b.downloadsCount || 0) - (a.downloadsCount || 0));
 
   if (countText) countText.innerText = `${filtered.length} Layouts`;
 
   if (filtered.length === 0) {
-    container.innerHTML = `
-      <div class="col-span-full py-16 text-center text-slate-500">
-        <i class="fa-solid fa-shield-cat text-4xl mb-3 text-slate-600"></i>
-        <h3 class="text-base font-bold text-slate-300">No layouts found in this category</h3>
-        <p class="text-xs text-slate-500 mt-1">Be the first chief to upload a layout for ${currentTH}!</p>
-      </div>
-    `;
+    container.innerHTML = `<div class="col-span-full py-16 text-center text-slate-500"><i class="fa-solid fa-shield-cat text-4xl mb-3 text-slate-600"></i><h3 class="text-base font-bold text-slate-300">No layouts found</h3></div>`;
     return;
   }
 
@@ -929,79 +892,40 @@ function renderBasesUI() {
     const hasProof = !!base.defenseProof;
     const creatorKey = base.uploaderUid || base.uploaderName;
     const isFollowingCreator = userFollowedCreators.some(f => f.key === creatorKey);
-
-    const creatorTotalUploads = allFetchedBases.filter(b => (b.uploaderUid && b.uploaderUid === base.uploaderUid) || b.uploaderName === base.uploaderName).length;
-    const isProBuilder = creatorTotalUploads >= 10;
+    const isPro = allFetchedBases.filter(b => (b.uploaderUid && b.uploaderUid === base.uploaderUid) || b.uploaderName === base.uploaderName).length >= 10;
 
     return `
       <div class="glass-card rounded-2xl overflow-hidden transition-all duration-300 flex flex-col group shadow-cyber-card hover:border-amber-400/60 hover:-translate-y-1">
-        
         <div class="h-48 relative overflow-hidden bg-czDark cursor-pointer" onclick="window.openBaseDetailsModal('${base.id}')">
           <img src="${base.image}" alt="${base.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80'" />
-          
-          <span class="absolute top-2.5 left-2.5 bg-czDark/95 text-amber-400 border border-amber-400/40 text-[11px] font-black px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-cyber-gold">
-            ${base.th}
-          </span>
-          <span class="absolute top-2.5 right-2.5 bg-black/85 text-white text-[11px] font-bold px-2 py-0.5 rounded-lg border border-slate-700">
-            ${base.type}
-          </span>
-
-          ${hasProof ? '<span class="absolute bottom-2.5 left-2.5 bg-emerald-500/90 text-black text-[9px] font-black px-2 py-0.5 rounded-md backdrop-blur-md shadow-md"><i class="fa-solid fa-shield-halved mr-1"></i>Proof Attached</span>' : ''}
-
-          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-            <span class="bg-black/90 text-amber-400 text-xs px-3 py-1.5 rounded-xl border border-amber-400/50 flex items-center gap-1.5 font-bold shadow-cyber-gold">
-              <i class="fa-solid fa-expand"></i> Inspect & Details
-            </span>
-          </div>
+          <span class="absolute top-2.5 left-2.5 bg-czDark/95 text-amber-400 border border-amber-400/40 text-[11px] font-black px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-cyber-gold">${base.th}</span>
+          <span class="absolute top-2.5 right-2.5 bg-black/85 text-white text-[11px] font-bold px-2 py-0.5 rounded-lg border border-slate-700">${base.type}</span>
+          ${hasProof ? '<span class="absolute bottom-2.5 left-2.5 bg-emerald-500/90 text-black text-[9px] font-black px-2 py-0.5 rounded-md"><i class="fa-solid fa-shield-halved mr-1"></i>Proof</span>' : ''}
         </div>
-
         <div class="p-4 flex flex-col flex-grow justify-between">
           <div>
             <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
               <div class="flex items-center gap-1.5 truncate max-w-[150px]">
                 <span class="text-amber-400 font-bold truncate"><i class="fa-solid fa-circle-user mr-1"></i>${base.uploaderName || 'Chief'}</span>
-                ${base.isSupercellVerified ? '<span class="text-emerald-400 text-[10px]" title="Supercell Verified"><i class="fa-solid fa-circle-check"></i></span>' : ''}
-                ${isProBuilder ? '<span class="text-[9px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 px-1 rounded font-black">Pro</span>' : ''}
+                ${base.isSupercellVerified ? '<span class="text-emerald-400 text-[10px]"><i class="fa-solid fa-circle-check"></i></span>' : ''}
+                ${isPro ? '<span class="text-[9px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 px-1 rounded font-black">Pro</span>' : ''}
               </div>
-
-              <button onclick="window.handleFollowCreator('${base.uploaderName}', '${base.uploaderUid}')" class="text-[11px] ${isFollowingCreator ? 'text-slate-400 font-medium' : 'text-amber-400 font-bold hover:underline'}">
+              <button onclick="window.handleFollowCreator('${base.uploaderName}', '${base.uploaderUid}')" class="text-[11px] ${isFollowingCreator ? 'text-slate-400' : 'text-amber-400 font-bold hover:underline'}">
                 ${isFollowingCreator ? 'Following' : '+ Follow'}
               </button>
             </div>
-            
             <h3 class="font-bold text-sm text-white line-clamp-2 mb-2 leading-snug cursor-pointer hover:text-amber-400 transition" onclick="window.openBaseDetailsModal('${base.id}')">${base.title}</h3>
-
-            ${base.ccTroops ? `
-              <div class="mb-3 text-[11px] bg-czDark/60 p-1.5 rounded-lg text-slate-300 truncate border border-slate-800/80">
-                <i class="fa-solid fa-castle text-amber-400 mr-1"></i> <b class="text-white">CC:</b> ${base.ccTroops}
-              </div>
-            ` : ''}
+            ${base.ccTroops ? `<div class="mb-3 text-[11px] bg-czDark/60 p-1.5 rounded-lg text-slate-300 truncate border border-slate-800/80"><i class="fa-solid fa-castle text-amber-400 mr-1"></i><b>CC:</b> ${base.ccTroops}</div>` : ''}
           </div>
-
           <div>
             <div class="flex items-center justify-between text-xs text-slate-400 mb-3 bg-czDark/80 p-2 rounded-xl border border-slate-800">
-              <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1.5 ${isLiked ? 'text-rose-500 font-bold' : 'text-slate-400 hover:text-rose-400'} transition">
-                <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart text-sm"></i>
-                <span id="likeCount-${base.id}">${base.likesCount || 0}</span>
-              </button>
-              
-              <div class="flex items-center gap-1.5 text-slate-400">
-                <i class="fa-solid fa-download text-emerald-400"></i>
-                <span id="dlCount-${base.id}">${base.downloadsCount || 0}</span>
-              </div>
-
-              <button onclick="window.handleBookmarkBase('${base.id}')" class="${isBookmarked ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'} text-sm transition" title="Save Base">
-                <i class="fa-${isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i>
-              </button>
-
-              <button onclick="window.shareOnWhatsApp('${base.title}', '${base.link}')" class="text-emerald-400 hover:text-emerald-300 transition" title="Share on WhatsApp">
-                <i class="fa-brands fa-whatsapp text-sm"></i>
-              </button>
+              <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1.5 ${isLiked ? 'text-rose-500 font-bold' : 'text-slate-400 hover:text-rose-400'} transition"><i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart text-sm"></i><span id="likeCount-${base.id}">${base.likesCount || 0}</span></button>
+              <div class="flex items-center gap-1.5 text-slate-400"><i class="fa-solid fa-download text-emerald-400"></i><span id="dlCount-${base.id}">${base.downloadsCount || 0}</span></div>
+              <button onclick="window.handleBookmarkBase('${base.id}')" class="${isBookmarked ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'} text-sm transition"><i class="fa-${isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i></button>
+              <button onclick="window.shareOnWhatsApp('${base.title}', '${base.link}')" class="text-emerald-400 hover:text-emerald-300 transition"><i class="fa-brands fa-whatsapp text-sm"></i></button>
             </div>
-
-            <button onclick="window.copyBaseLink('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500/10 to-yellow-500/10 hover:from-amber-500 hover:to-yellow-500 hover:text-black text-amber-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-amber-500/30 hover:border-transparent transition shadow-md">
-              <i class="fa-solid fa-copy"></i>
-              <span>Copy In-Game Link</span>
+            <button onclick="window.copyBaseLink('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500/10 to-yellow-500/10 hover:from-amber-500 hover:to-yellow-500 hover:text-black text-amber-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-amber-500/30 transition shadow-md">
+              <i class="fa-solid fa-copy"></i><span>Copy In-Game Link</span>
             </button>
           </div>
         </div>
@@ -1010,13 +934,9 @@ function renderBasesUI() {
   }).join('');
 }
 
-// ==========================================
-// 15. LIKES, DOWNLOADS, ARMY & WHATSAPP
-// ==========================================
 window.handleLikeBase = async function(baseId) {
   const isLiked = userLikedBases.includes(baseId);
   const countSpan = document.getElementById(`likeCount-${baseId}`);
-
   try {
     const baseRef = doc(db, "bases", baseId);
     if (isLiked) {
@@ -1031,32 +951,26 @@ window.handleLikeBase = async function(baseId) {
     }
     localStorage.setItem("cz_liked_bases", JSON.stringify(userLikedBases));
     renderBasesUI();
-  } catch (e) {
-    console.warn("Like update fallback:", e);
-  }
+  } catch (e) {}
 };
 
 window.copyBaseLink = async function(baseId, link) {
   if (!link) return;
-
   try {
     await updateDoc(doc(db, "bases", baseId), { downloadsCount: increment(1) });
     const dlSpan = document.getElementById(`dlCount-${baseId}`);
     if (dlSpan) dlSpan.innerText = `${parseInt(dlSpan.innerText) + 1}`;
   } catch (e) {}
-
   navigator.clipboard.writeText(link).then(() => {
     window.showToast("🎉 Base link copied! Opening Clash of Clans...");
     setTimeout(() => window.open(link, "_blank"), 600);
-  }).catch(() => {
-    window.open(link, "_blank");
-  });
+  }).catch(() => window.open(link, "_blank"));
 };
 
 window.copyArmyLink = function(armyLink) {
   if (!armyLink) return;
   navigator.clipboard.writeText(armyLink).then(() => {
-    window.showToast("✨ Army Composition Link copied!");
+    window.showToast("✨ Army Link copied!");
     setTimeout(() => window.open(armyLink, "_blank"), 600);
   });
 };
@@ -1067,53 +981,34 @@ window.shareOnWhatsApp = function(title, link) {
 };
 
 // ==========================================
-// 16. BASE UPLOAD ENGINE
+// 13. BASE UPLOAD
 // ==========================================
 window.handleBaseUpload = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
-  if (!user) {
-    window.showToast("Please login to upload layouts!", "error");
-    window.openModal('authModal');
-    return;
-  }
+  if (!user) { window.showToast("Please login!", "error"); window.openModal('authModal'); return; }
 
   const rawLink = document.getElementById("uploadLink").value.trim();
   if (!rawLink.includes("link.clashofclans.com") || !rawLink.includes("action=OpenLayout")) {
-    window.showToast("Only official 'link.clashofclans.com' layout links allowed!", "error");
-    return;
-  }
-
-  const isDuplicate = allFetchedBases.some(b => b.link && b.link.trim() === rawLink);
-  if (isDuplicate) {
-    window.showToast("This base layout link has already been uploaded!", "error");
+    window.showToast("Only official layout links allowed!", "error");
     return;
   }
 
   const fileInput = document.getElementById("uploadImageFile");
   const file = fileInput?.files[0];
-  if (!file) {
-    window.showToast("Base screenshot is required!", "error");
-    return;
-  }
+  if (!file) { window.showToast("Base screenshot is required!", "error"); return; }
 
   const proofInput = document.getElementById("uploadProofFile");
   const proofFile = proofInput?.files[0];
-
   const submitBtn = document.getElementById("submitBaseBtn");
   submitBtn.disabled = true;
-  submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Branding & Uploading...`;
+  submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading...`;
 
   try {
     const creatorIGN = currentUserProfile?.name || user.displayName || user.email.split('@')[0];
     const isVerified = currentUserProfile?.isSupercellVerified || false;
-
     const base64Image = await compressAndWatermarkImage(file, creatorIGN, isVerified);
-    
-    let base64Proof = null;
-    if (proofFile) {
-      base64Proof = await compressAndWatermarkImage(proofFile, creatorIGN, isVerified, 800, 0.6);
-    }
+    let base64Proof = proofFile ? await compressAndWatermarkImage(proofFile, creatorIGN, isVerified, 800, 0.6) : null;
 
     const baseData = {
       zone: document.getElementById("uploadZone").value,
@@ -1135,37 +1030,23 @@ window.handleBaseUpload = async function(e) {
     };
 
     await addDoc(collection(db, "bases"), baseData);
-
     submitBtn.disabled = false;
     submitBtn.innerHTML = `Publish Base & Strategy`;
     window.closeModal('uploadModal');
     e.target.reset();
-    
-    const badge = document.getElementById("linkValidationBadge");
-    if (badge) badge.className = "hidden";
-
     await loadBasesFromFirestore();
-    window.showToast("✅ Layout published with verified creator watermark!");
+    window.showToast("✅ Layout published successfully!");
   } catch (error) {
-    console.error("Upload error:", error);
     submitBtn.disabled = false;
     submitBtn.innerHTML = `Publish Base & Strategy`;
     window.showToast("Error: " + error.message, "error");
   }
 };
 
-// ==========================================
-// 17. AUTH HANDLERS & PROFILE SAVING
-// ==========================================
 window.handleSaveProfile = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
   if (!user) return;
-
-  const saveBtn = document.getElementById("btnSaveProfile");
-  saveBtn.disabled = true;
-  saveBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
-
   let tag = document.getElementById("editTag").value.trim().toUpperCase();
   if (tag && !tag.startsWith("#")) tag = "#" + tag;
 
@@ -1183,16 +1064,10 @@ window.handleSaveProfile = async function(e) {
   try {
     await setDoc(doc(db, "users", user.uid), profileData, { merge: true });
     await updateProfile(user, { displayName: profileData.name });
-
     currentUserProfile = profileData;
-    window.showToast("Profile and Live Stats verified!");
+    window.showToast("Profile synced!");
     setTimeout(() => location.reload(), 800);
-  } catch (err) {
-    window.showToast("Error: " + err.message, "error");
-  } finally {
-    saveBtn.disabled = false;
-    saveBtn.innerHTML = `Save Verified Details`;
-  }
+  } catch (err) { window.showToast("Error: " + err.message, "error"); }
 };
 
 window.handleEmailSignup = async function(e) {
@@ -1203,167 +1078,48 @@ window.handleEmailSignup = async function(e) {
   let tag = document.getElementById("signupTag").value.trim().toUpperCase();
   if (tag && !tag.startsWith("#")) tag = "#" + tag;
 
-  if (pass.length < 6) {
-    window.showToast("Password must be at least 6 characters!", "error");
-    return;
-  }
-
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(userCredential.user, { displayName: name });
-    
     await setDoc(doc(db, "users", userCredential.user.uid), {
-      name: name,
-      townHallLevel: "TH 16",
-      tag: tag || "#CLASH",
-      clanName: "Solo",
-      trophies: 5000,
-      warStars: 0,
-      followersCount: 0,
-      isSupercellVerified: true,
-      createdAt: serverTimestamp()
+      name, townHallLevel: "TH 16", tag: tag || "#CLASH", clanName: "Solo", trophies: 5000, warStars: 0, followersCount: 0, isSupercellVerified: true, createdAt: serverTimestamp()
     });
-
     window.closeModal('authModal');
     window.showToast(`🎉 Welcome Chief ${name}!`);
     setTimeout(() => location.reload(), 1000);
-  } catch (error) {
-    if (error.code === 'auth/email-already-in-use') {
-      window.showToast("Email already registered! Please login.", "error");
-      window.switchAuthTab('login');
-    } else {
-      window.showToast("Signup Error: " + error.message, "error");
-    }
-  }
+  } catch (error) { window.showToast("Signup Error: " + error.message, "error"); }
 };
 
 window.handleEmailLogin = async function(e) {
   e.preventDefault();
-  const email = document.getElementById("loginEmail").value.trim();
-  const pass = document.getElementById("loginPass").value.trim();
-
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
+    await signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value.trim(), document.getElementById("loginPass").value.trim());
     window.closeModal('authModal');
     window.showToast("✅ Login successful!");
     setTimeout(() => location.reload(), 800);
-  } catch (error) {
-    window.showToast("Login Error: " + error.message, "error");
-  }
+  } catch (error) { window.showToast("Login Error: " + error.message, "error"); }
 };
 
 window.handleLogout = function() {
-  signOut(auth).then(() => {
-    window.showToast("Logged out successfully!");
-    setTimeout(() => location.reload(), 800);
-  });
+  signOut(auth).then(() => { window.showToast("Logged out!"); setTimeout(() => location.reload(), 800); });
 };
 
-// ==========================================
-// 18. FILTERS & MODALS
-// ==========================================
 window.setTHFilter = function(th) {
   currentTH = th;
-  document.querySelectorAll(".base-filter-btn").forEach(btn => {
-    btn.classList.toggle("active", btn.innerText.trim() === th || (th === 'ALL' && btn.innerText.trim() === 'ALL'));
-  });
+  document.querySelectorAll(".base-filter-btn").forEach(btn => btn.classList.toggle("active", btn.innerText.trim() === th || (th === 'ALL' && btn.innerText.trim() === 'ALL')));
   renderBasesUI();
 };
 
-window.setTypeFilter = function(type) {
-  currentType = type;
-  renderBasesUI();
-};
-
-window.filterBases = function() {
-  renderBasesUI();
-};
-
-window.openModal = function(id) {
-  const m = document.getElementById(id);
-  if (m) {
-    m.classList.remove("hidden");
-    m.classList.add("flex");
-  }
-};
-
-window.closeModal = function(id) {
-  const m = document.getElementById(id);
-  if (m) {
-    m.classList.add("hidden");
-    m.classList.remove("flex");
-  }
-};
+window.setTypeFilter = function(type) { currentType = type; renderBasesUI(); };
+window.filterBases = function() { renderBasesUI(); };
+window.openModal = function(id) { const m = document.getElementById(id); if(m){ m.classList.remove("hidden"); m.classList.add("flex"); } };
+window.closeModal = function(id) { const m = document.getElementById(id); if(m){ m.classList.add("hidden"); m.classList.remove("flex"); } };
 
 window.switchAuthTab = function(type) {
-  const loginForm = document.getElementById("loginForm");
-  const signupForm = document.getElementById("signupForm");
-  const tabLoginBtn = document.getElementById("tabLoginBtn");
-  const tabSignupBtn = document.getElementById("tabSignupBtn");
-
-  if (!loginForm || !signupForm) return;
-
-  if (type === 'login') {
-    loginForm.classList.remove("hidden");
-    signupForm.classList.add("hidden");
-    tabLoginBtn.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-amber-500 text-black";
-    tabSignupBtn.className = "flex-1 py-2 rounded-xl text-xs font-bold text-slate-400";
-  } else {
-    loginForm.classList.add("hidden");
-    signupForm.classList.remove("hidden");
-    tabSignupBtn.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-amber-500 text-black";
-    tabLoginBtn.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-400";
-  }
+  const loginForm = document.getElementById("loginForm"), signupForm = document.getElementById("signupForm");
+  loginForm.classList.toggle("hidden", type !== 'login');
+  signupForm.classList.toggle("hidden", type === 'login');
 };
-
-// ==========================================
-// 19. PWA SERVICE WORKER & MOBILE INSTALL ENGINE
-// ==========================================
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(() => console.log("SW Registered successfully"))
-      .catch((err) => console.warn("SW Registration failed:", err));
-  });
-}
-
-let deferredPrompt = null;
-const installBtn = document.getElementById("pwaInstallBtn");
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  if (installBtn) {
-    installBtn.classList.remove("hidden");
-    installBtn.classList.add("flex");
-  }
-});
-
-window.triggerAppInstall = async function() {
-  if (!deferredPrompt) {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS) {
-      alert("iPhone me install karne ke liye:\n1. Neeche Share (📤) button par tap karein.\n2. 'Add to Home Screen' (+) select karein.");
-      return;
-    }
-    alert("App pehle se installed hai ya browser support nahi karta. Chrome menu (⋮) me jaakar 'Install app' choose karein.");
-    return;
-  }
-
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === 'accepted') {
-    window.showToast("🎉 ClashZone successfully installed!");
-    if (installBtn) installBtn.classList.add("hidden");
-  }
-  deferredPrompt = null;
-};
-
-window.addEventListener('appinstalled', () => {
-  if (installBtn) installBtn.classList.add("hidden");
-  deferredPrompt = null;
-});
 
 document.addEventListener("DOMContentLoaded", () => {
   renderLevelFilters();
