@@ -40,6 +40,7 @@ const db = getFirestore(app);
 let currentTH = "ALL";
 let currentType = "ALL";
 let allFetchedBases = [];
+let currentUserProfile = null;
 
 // ==========================================
 // 2. AUTH STATE LISTENER & USER DASHBOARD
@@ -47,11 +48,12 @@ let allFetchedBases = [];
 onAuthStateChanged(auth, async (user) => {
   const headerAuth = document.getElementById("headerAuthArea");
   const userProfileStrip = document.getElementById("userProfileStrip");
-  const navProfileBtn = document.getElementById("navProfileBtn");
+  const navAuthBtn = document.getElementById("navAuthBtn");
 
   if (user) {
-    const displayName = user.displayName || user.email.split('@')[0];
+    const defaultName = user.displayName || user.email.split('@')[0];
     
+    // Header View
     if (headerAuth) {
       headerAuth.innerHTML = `
         <button onclick="window.openModal('uploadModal')" class="bg-amber-500 hover:bg-amber-400 text-black px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-500/20">
@@ -60,39 +62,48 @@ onAuthStateChanged(auth, async (user) => {
         </button>
         <div class="flex items-center gap-2 bg-czPanel border border-slate-700 px-3 py-1.5 rounded-xl text-xs">
           <i class="fa-solid fa-circle-check text-emerald-400"></i>
-          <span class="font-bold text-white max-w-[100px] truncate">${displayName}</span>
+          <span class="font-bold text-white max-w-[100px] truncate" id="headerUserName">${defaultName}</span>
           <button onclick="window.handleLogout()" class="text-rose-400 hover:text-rose-300 ml-1" title="Logout"><i class="fa-solid fa-power-off"></i></button>
         </div>
       `;
     }
 
-    if (navProfileBtn) {
-      navProfileBtn.innerHTML = `
+    if (navAuthBtn) {
+      navAuthBtn.innerHTML = `
         <i class="fa-solid fa-user-check text-emerald-400 text-lg"></i>
-        <span>${displayName.slice(0, 7)}</span>
+        <span>Logout</span>
       `;
+      navAuthBtn.setAttribute("onclick", "window.handleLogout()");
     }
 
+    // Load User Profile from Firestore
     if (userProfileStrip) {
       userProfileStrip.classList.remove("hidden");
       try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
-          const u = userDoc.data();
-          document.getElementById("dashPlayerName").innerText = u.name || displayName;
-          document.getElementById("dashTHBadge").innerText = u.townHallLevel || "TH --";
-          document.getElementById("dashClanInfo").innerText = `Clan: ${u.clanName || 'No Clan'} | Tag: ${u.tag || '---'}`;
-          document.getElementById("dashTrophies").innerText = `🏆 ${u.trophies ?? 0}`;
-          document.getElementById("dashWarStars").innerText = `⭐ ${u.warStars ?? 0}`;
+          currentUserProfile = userDoc.data();
+          document.getElementById("dashPlayerName").innerText = currentUserProfile.name || defaultName;
+          document.getElementById("dashTHBadge").innerText = currentUserProfile.townHallLevel || "TH 16";
+          document.getElementById("dashClanInfo").innerText = `Clan: ${currentUserProfile.clanName || 'Solo'} | Tag: ${currentUserProfile.tag || '#CLASH'}`;
+          document.getElementById("dashTrophies").innerText = `🏆 ${currentUserProfile.trophies || 5000}`;
         } else {
-          document.getElementById("dashPlayerName").innerText = displayName;
+          currentUserProfile = {
+            name: defaultName,
+            townHallLevel: "TH 16",
+            clanName: "Solo",
+            tag: "#CLASH",
+            trophies: 5000
+          };
+          document.getElementById("dashPlayerName").innerText = defaultName;
         }
       } catch (e) {
-        console.warn("User profile fetch error:", e);
+        console.warn("User doc read fallback:", e);
       }
     }
 
   } else {
+    currentUserProfile = null;
     if (headerAuth) {
       headerAuth.innerHTML = `
         <button onclick="window.openModal('authModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-amber-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-md">
@@ -101,109 +112,76 @@ onAuthStateChanged(auth, async (user) => {
         </button>
       `;
     }
-    if (navProfileBtn) {
-      navProfileBtn.innerHTML = `
+    if (navAuthBtn) {
+      navAuthBtn.innerHTML = `
         <i class="fa-solid fa-user text-lg"></i>
         <span>Account</span>
       `;
+      navAuthBtn.setAttribute("onclick", "window.openModal('authModal')");
     }
     if (userProfileStrip) userProfileStrip.classList.add("hidden");
   }
 });
 
 // ==========================================
-// 3. COC PLAYER TAG SYNC
+// 3. EDIT PROFILE FUNCTIONALITY
 // ==========================================
-window.handleSyncCoCProfile = async function(e) {
-  e.preventDefault();
+window.openEditProfileModal = function() {
   const user = auth.currentUser;
   if (!user) {
-    alert("Pehle Login karein!");
     window.openModal('authModal');
     return;
   }
 
-  const inputEl = document.getElementById("syncPlayerTag");
-  let rawTag = inputEl.value.trim().toUpperCase();
-  if (!rawTag) {
-    alert("Kripya apna Player Tag dalein!");
-    return;
-  }
+  document.getElementById("editName").value = currentUserProfile?.name || user.displayName || "";
+  document.getElementById("editTH").value = currentUserProfile?.townHallLevel || "TH 16";
+  document.getElementById("editTag").value = currentUserProfile?.tag || "";
+  document.getElementById("editClan").value = currentUserProfile?.clanName || "";
+  document.getElementById("editTrophies").value = currentUserProfile?.trophies || 5000;
 
-  // Sanitize: Letter O -> Number 0
-  let cleanTag = rawTag.replace(/O/g, "0").replace(/[^A-Z0-9]/g, "");
-  if (!cleanTag) {
-    alert("Invalid Tag format. Sahi Player Tag dalein (e.g. #P9L80YQ2)");
-    return;
-  }
+  window.openModal('editProfileModal');
+};
 
-  const formattedTag = "#" + cleanTag;
-  const encodedTag = encodeURIComponent(formattedTag);
+window.handleSaveProfile = async function(e) {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) return;
 
-  const syncBtn = document.getElementById("btnSyncProfile");
-  syncBtn.disabled = true;
-  syncBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fetching from Supercell...`;
+  const saveBtn = document.getElementById("btnSaveProfile");
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
 
-  let responseData = null;
+  let tag = document.getElementById("editTag").value.trim().toUpperCase();
+  if (tag && !tag.startsWith("#")) tag = "#" + tag;
 
-  // Direct Vercel Serverless Route Call
-  try {
-    const res = await fetch(`/api/player?tag=${encodedTag}`);
-    if (res.ok) {
-      responseData = await res.json();
-    } else {
-      const errJson = await res.json().catch(() => ({}));
-      throw new Error(errJson.error || "Player details nahi mili.");
-    }
-  } catch (err) {
-    console.warn("Backend API error, trying direct gateway fallback...", err);
-    try {
-      const fallbackRes = await fetch(`https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`);
-      if (fallbackRes.ok) {
-        responseData = await fallbackRes.json();
-      }
-    } catch (fbErr) {
-      console.error("Gateway fallback failed:", fbErr);
-    }
-  }
-
-  if (!responseData || !responseData.name) {
-    syncBtn.disabled = false;
-    syncBtn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Fetch & Sync Live Stats`;
-    alert(`❌ Tag '${formattedTag}' ka data nahi mil saka.\n\nTips:\n1. Game mein Profile par jaakar Tag copy karein.\n2. Letter 'O' ki jagah number '0' check karein.`);
-    return;
-  }
+  const profileData = {
+    name: document.getElementById("editName").value.trim(),
+    townHallLevel: document.getElementById("editTH").value,
+    tag: tag || "#CLASH",
+    clanName: document.getElementById("editClan").value.trim() || "Solo",
+    trophies: parseInt(document.getElementById("editTrophies").value) || 0,
+    updatedAt: serverTimestamp()
+  };
 
   try {
-    const cocProfile = {
-      tag: responseData.tag || formattedTag,
-      name: responseData.name,
-      townHallLevel: responseData.townHallLevel ? `TH ${responseData.townHallLevel}` : "TH --",
-      clanName: responseData.clan ? responseData.clan.name : "No Clan",
-      trophies: responseData.trophies ?? 0,
-      warStars: responseData.warStars ?? 0,
-      syncedAt: serverTimestamp()
-    };
+    await setDoc(doc(db, "users", user.uid), profileData, { merge: true });
+    await updateProfile(user, { displayName: profileData.name });
 
-    // Save accurate player data to Firestore
-    await setDoc(doc(db, "users", user.uid), cocProfile, { merge: true });
-    await updateProfile(user, { displayName: cocProfile.name });
-
-    window.closeModal('profileSyncModal');
-    alert(`🎉 Account Linked!\nChief: ${cocProfile.name}\nTown Hall: ${cocProfile.townHallLevel}\nClan: ${cocProfile.clanName}\nTrophies: ${cocProfile.trophies}\nWar Stars: ${cocProfile.warStars}`);
+    currentUserProfile = profileData;
+    window.closeModal('editProfileModal');
+    alert("✅ Profile updated successfully!");
     location.reload();
-
   } catch (err) {
-    console.error("Firestore sync error:", err);
-    alert("❌ Firestore Error: " + err.message);
+    console.error("Save profile error:", err);
+    alert("❌ Error: " + err.message);
   } finally {
-    syncBtn.disabled = false;
-    syncBtn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Fetch & Sync Live Stats`;
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = `Save Profile Details`;
   }
 };
 
 // ==========================================
-// 4. FETCH & DISPLAY BASES (COMMUNITY ONLY)
+// 4. FETCH & DISPLAY BASES (FIREBASE)
 // ==========================================
 async function loadBasesFromFirestore() {
   const container = document.getElementById("basesContainer");
@@ -220,7 +198,7 @@ async function loadBasesFromFirestore() {
 
     renderBasesUI();
   } catch (error) {
-    console.warn("Firestore read error, fallback to local:", error);
+    console.warn("Firestore access error, loading local:", error);
     allFetchedBases = JSON.parse(localStorage.getItem("cz_user_uploaded_bases")) || [];
     renderBasesUI();
   }
@@ -335,7 +313,7 @@ window.handleBaseUpload = async function(e) {
 
   const submitBtn = document.getElementById("submitBaseBtn");
   submitBtn.disabled = true;
-  submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing & Uploading...`;
+  submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading...`;
 
   try {
     const base64Image = await compressImage(file);
@@ -346,7 +324,7 @@ window.handleBaseUpload = async function(e) {
       link: document.getElementById("uploadLink").value.trim(),
       image: base64Image,
       uploaderUid: user.uid,
-      uploaderName: user.displayName || user.email.split('@')[0],
+      uploaderName: currentUserProfile?.name || user.displayName || user.email.split('@')[0],
       createdAt: serverTimestamp()
     };
 
@@ -360,7 +338,7 @@ window.handleBaseUpload = async function(e) {
     }
 
     submitBtn.disabled = false;
-    submitBtn.innerHTML = `Verify & Publish Base`;
+    submitBtn.innerHTML = `Publish Base Layout`;
     window.closeModal('uploadModal');
     e.target.reset();
     await loadBasesFromFirestore();
@@ -368,7 +346,7 @@ window.handleBaseUpload = async function(e) {
   } catch (error) {
     console.error("Upload error:", error);
     submitBtn.disabled = false;
-    submitBtn.innerHTML = `Verify & Publish Base`;
+    submitBtn.innerHTML = `Publish Base Layout`;
     alert("❌ Error: " + error.message);
   }
 };
@@ -381,6 +359,9 @@ window.handleEmailSignup = async function(e) {
   const name = document.getElementById("signupName").value.trim();
   const email = document.getElementById("signupEmail").value.trim();
   const pass = document.getElementById("signupPass").value.trim();
+  const th = document.getElementById("signupTH").value;
+  let tag = document.getElementById("signupTag").value.trim().toUpperCase();
+  if (tag && !tag.startsWith("#")) tag = "#" + tag;
 
   if (pass.length < 6) {
     alert("Password kam se kam 6 characters ka hona chahiye!");
@@ -390,6 +371,17 @@ window.handleEmailSignup = async function(e) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(userCredential.user, { displayName: name });
+    
+    // Save Initial Profile to Firestore
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      name: name,
+      townHallLevel: th,
+      tag: tag || "#CLASH",
+      clanName: "Solo",
+      trophies: 5000,
+      createdAt: serverTimestamp()
+    });
+
     window.closeModal('authModal');
     alert(`🎉 Welcome Chief ${name}! Account ban gaya.`);
     location.reload();
@@ -424,7 +416,7 @@ window.handleEmailLogin = async function(e) {
 
 window.handleLogout = function() {
   signOut(auth).then(() => {
-    alert("Logged out!");
+    alert("Logged out successfully!");
     location.reload();
   });
 };
@@ -459,9 +451,17 @@ window.copyBaseLink = function(link) {
   });
 };
 
+window.handleBottomNavProfileClick = function() {
+  if (auth.currentUser) {
+    window.openEditProfileModal();
+  } else {
+    window.openModal('authModal');
+  }
+};
+
 window.handleBottomNavAuthClick = function() {
   if (auth.currentUser) {
-    window.openModal('profileSyncModal');
+    window.handleLogout();
   } else {
     window.openModal('authModal');
   }
