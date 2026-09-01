@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ClashZone | Next-Gen Esports Base Layout & Clan Hub</title>
   
-  <!-- PWA & Mobile Optimization -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f59e0b" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -13,7 +12,6 @@
   <meta name="apple-mobile-web-app-title" content="ClashZone" />
   <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f6e1.png" />
 
-  <!-- Tailwind & Lucide Icons & Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
@@ -56,11 +54,7 @@
       background-size: 100% 100%, 36px 36px, 36px 36px;
       font-family: 'Rajdhani', sans-serif;
     }
-    .gaming-logo { 
-      font-family: 'Orbitron', sans-serif; 
-      letter-spacing: 2px;
-      text-shadow: 0 0 30px rgba(245, 158, 11, 0.45);
-    }
+    .gaming-logo { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; text-shadow: 0 0 30px rgba(245, 158, 11, 0.45); }
     .gold-gradient {
       background: linear-gradient(135deg, #ffffff 0%, #fbbf24 45%, #d97706 100%);
       -webkit-background-clip: text;
@@ -73,14 +67,9 @@
       border-color: #fde68a;
       box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
     }
-    .glass-panel {
-      background: rgba(7, 12, 24, 0.88);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(245, 158, 11, 0.2);
-    }
+    .glass-panel { background: rgba(7, 12, 24, 0.88); backdrop-filter: blur(20px); border: 1px solid rgba(245, 158, 11, 0.2); }
     .scrollbar-none::-webkit-scrollbar { display: none; }
     .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
-
     .bnav-btn { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
     .bnav-btn.active { color: #fbbf24; transform: translateY(-3px); }
     .bnav-dot { opacity: 0; transform: scale(0); transition: all 0.25s ease; }
@@ -89,14 +78,10 @@
 </head>
 <body class="text-slate-100 min-h-screen pb-32 selection:bg-amber-500 selection:text-black">
 
-  <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- ULTRA-MODERN HEADER WITH HAMBURGER MENU -->
   <header class="sticky top-0 z-40 bg-czDark/95 backdrop-blur-2xl border-b border-czBorder w-full shadow-2xl">
     <div class="max-w-7xl mx-auto px-4 h-18 flex items-center justify-between gap-3">
-      
-      <!-- Brand Logo -->
       <a href="index.html" class="flex items-center gap-3 shrink-0 group">
         <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 via-yellow-500 to-amber-300 p-[1.5px] shadow-neon-gold group-hover:scale-105 transition">
           <div class="w-full h-full bg-czDark rounded-[15px] flex items-center justify-center">
@@ -109,19 +94,11 @@
         </div>
       </a>
 
-      <!-- Header Right Controls -->
       <div class="flex items-center gap-2.5 shrink-0">
         <button id="permanentInstallBtn" onclick="window.triggerPermanentAppInstall()" class="hidden sm:flex bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-3.5 py-2 rounded-xl text-xs font-black items-center gap-1.5 transition shadow-neon-gold cursor-pointer">
           <i data-lucide="download" class="w-4 h-4"></i>
           <span>Install App</span>
         </button>
-
-        <button onclick="window.openModal('notificationsModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-slate-300 w-11 h-11 rounded-xl text-xs flex items-center justify-center transition relative shadow-md" title="Platform Alerts">
-          <i data-lucide="bell" class="text-amber-400 w-5 h-5"></i>
-          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-neon-gold"></span>
-        </button>
-
-        <!-- Hamburger Menu Button -->
         <button onclick="window.openModal('hamburgerMenuModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-slate-300 w-11 h-11 rounded-xl text-xs flex items-center justify-center transition shadow-md" title="Menu">
           <i data-lucide="menu" class="text-amber-400 w-5 h-5"></i>
         </button>
@@ -129,13 +106,9 @@
     </div>
   </header>
 
-  <!-- MAIN APP CONTAINER -->
   <div class="max-w-7xl mx-auto px-4 pt-4 w-full">
-
-    <!-- VIEW 1: FEED SECTION -->
+    <!-- VIEW 1: FEED -->
     <div id="viewFeedSection">
-      
-      <!-- COMPACT SEARCH BAR ONLY -->
       <section class="py-2.5 w-full mb-3">
         <div class="max-w-md mx-auto bg-czDark border border-amber-500/40 rounded-2xl px-3 py-2 flex items-center gap-2.5 shadow-sm">
           <i data-lucide="search" class="text-amber-400 w-4 h-4 shrink-0"></i>
@@ -143,116 +116,60 @@
         </div>
       </section>
 
-      <!-- ZONE SWITCHER BAR -->
       <section class="py-1.5 w-full mb-3">
         <div class="glass-panel rounded-2xl p-3 flex items-center justify-center shadow-md border-slate-800">
           <div class="flex items-center gap-2 overflow-x-auto w-full justify-center pb-1 sm:pb-0 scrollbar-none">
-            <button onclick="window.switchZone('home')" id="zoneTabHome" class="zone-tab-btn active px-4 py-2 bg-czDark border border-slate-700 rounded-xl text-xs font-bold shrink-0 transition flex items-center gap-2">
-              <i data-lucide="home" class="w-4 h-4 text-amber-400"></i> Home Village
-            </button>
-            <button onclick="window.switchZone('builder')" id="zoneTabBuilder" class="zone-tab-btn px-4 py-2 bg-czDark border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition flex items-center gap-2">
-              <i data-lucide="hammer" class="w-4 h-4 text-cyan-400"></i> Builder Base
-            </button>
-            <button onclick="window.switchZone('capital')" id="zoneTabCapital" class="zone-tab-btn px-4 py-2 bg-czDark border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition flex items-center gap-2">
-              <i data-lucide="mountain" class="w-4 h-4 text-emerald-400"></i> Clan Capital
-            </button>
+            <button onclick="window.switchZone('home')" id="zoneTabHome" class="zone-tab-btn active px-4 py-2 bg-czDark border border-slate-700 rounded-xl text-xs font-bold shrink-0 transition flex items-center gap-2">Home Village</button>
+            <button onclick="window.switchZone('builder')" id="zoneTabBuilder" class="zone-tab-btn px-4 py-2 bg-czDark border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition flex items-center gap-2">Builder Base</button>
+            <button onclick="window.switchZone('capital')" id="zoneTabCapital" class="zone-tab-btn px-4 py-2 bg-czDark border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition flex items-center gap-2">Clan Capital</button>
           </div>
         </div>
       </section>
 
-      <!-- STICKY LEVEL & SORT FILTER BAR (Layout count removed completely) -->
       <div class="sticky top-18 z-30 bg-czDark/95 backdrop-blur-2xl py-3 -mx-4 px-4 border-b border-czBorder/70 shadow-lg">
         <div class="flex items-center justify-between gap-3 overflow-x-auto pb-2 scrollbar-none mb-2">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-black uppercase text-amber-400 shrink-0 inline-flex items-center gap-1">
-              <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i> Sort:
-            </span>
-            <button onclick="window.setSortOption('latest')" id="sortLatest" class="sort-btn active px-3.5 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold shrink-0 transition inline-flex items-center gap-1">
-              <i data-lucide="clock" class="w-3.5 h-3.5"></i> Latest
-            </button>
-            <button onclick="window.setSortOption('likes')" id="sortLikes" class="sort-btn px-3.5 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1">
-              <i data-lucide="heart" class="w-3.5 h-3.5 text-rose-500"></i> Top Liked
-            </button>
-            <button onclick="window.setSortOption('downloads')" id="sortDownloads" class="sort-btn px-3.5 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1">
-              <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i> Most Copied
-            </button>
+            <span class="text-xs font-black uppercase text-amber-400 shrink-0 inline-flex items-center gap-1">Sort:</span>
+            <button onclick="window.setSortOption('latest')" id="sortLatest" class="sort-btn active px-3.5 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold shrink-0 transition">Latest</button>
+            <button onclick="window.setSortOption('likes')" id="sortLikes" class="sort-btn px-3.5 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">Top Liked</button>
+            <button onclick="window.setSortOption('downloads')" id="sortDownloads" class="sort-btn px-3.5 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">Most Copied</button>
           </div>
         </div>
-
         <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full max-w-full" id="levelFilterContainer"></div>
       </div>
 
-      <!-- CATEGORY PILL TAGS -->
-      <section class="py-3.5 w-full">
-        <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full max-w-full">
-          <button onclick="window.setTypeFilter('ALL')" class="type-filter-btn px-4 py-2 bg-czPanel border border-slate-700 rounded-2xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">All Layouts</button>
-          <button onclick="window.setTypeFilter('War')" class="type-filter-btn px-4 py-2 bg-czPanel border border-slate-700 rounded-2xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1.5"><i data-lucide="swords" class="w-3.5 h-3.5 text-rose-400"></i> War / CWL</button>
-          <button onclick="window.setTypeFilter('Anti 3-Star')" class="type-filter-btn px-4 py-2 bg-czPanel border border-slate-700 rounded-2xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1.5"><i data-lucide="shield" class="w-3.5 h-3.5 text-amber-400"></i> Anti 3-Star</button>
-          <button onclick="window.setTypeFilter('Anti-Edrag')" class="type-filter-btn px-4 py-2 bg-czPanel border border-slate-700 rounded-2xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1.5"><i data-lucide="zap" class="w-3.5 h-3.5 text-cyan-400"></i> Anti-Edrag</button>
-          <button onclick="window.setTypeFilter('Anti-Smash')" class="type-filter-btn px-4 py-2 bg-czPanel border border-slate-700 rounded-2xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1.5"><i data-lucide="skull" class="w-3.5 h-3.5 text-indigo-400"></i> Anti-Smash</button>
-          <button onclick="window.setTypeFilter('Trophy')" class="type-filter-btn px-4 py-2 bg-czPanel border border-slate-700 rounded-2xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1.5"><i data-lucide="trophy" class="w-3.5 h-3.5 text-blue-400"></i> Trophy</button>
-          <button onclick="window.setTypeFilter('Farming')" class="type-filter-btn px-4 py-2 bg-czPanel border border-slate-700 rounded-2xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1.5"><i data-lucide="coins" class="w-3.5 h-3.5 text-emerald-400"></i> Farming</button>
-        </div>
-      </section>
-
-      <!-- BASE GRID -->
       <main class="py-3 w-full">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 w-full" id="basesContainer">
           <div class="glass-panel rounded-3xl overflow-hidden p-4 space-y-3">
             <div class="h-48 rounded-2xl skeleton-box"></div>
-            <div class="h-4 w-3/4 rounded skeleton-box"></div>
-            <div class="h-10 rounded-2xl skeleton-box"></div>
           </div>
         </div>
       </main>
     </div>
 
-    <!-- VIEW 2: SAVED VAULT SECTION -->
+    <!-- VIEW 2: SAVED VAULT -->
     <div id="viewVaultSection" class="hidden py-6">
       <div class="text-center mb-8">
-        <h2 class="gaming-title text-3xl sm:text-5xl font-black text-white gold-gradient">Saved Layouts Vault</h2>
-        <p class="text-sm text-slate-400 mt-2">Your bookmarked defense maps ready for instant war preparation.</p>
+        <h2 class="gaming-title text-3xl font-black text-white gold-gradient">Saved Layouts Vault</h2>
       </div>
-      <div class="max-w-4xl mx-auto space-y-4" id="directVaultContainer">
-        <p class="text-xs text-slate-500 text-center py-12">Loading saved layouts...</p>
-      </div>
+      <div class="max-w-4xl mx-auto space-y-4" id="directVaultContainer"></div>
     </div>
 
-    <!-- VIEW 3: CLAN RECRUITMENT HUB -->
+    <!-- VIEW 3: CLANS -->
     <div id="viewClansSection" class="hidden py-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h2 class="gaming-title text-3xl sm:text-5xl font-black text-white gold-gradient">Clan Showcase Hub</h2>
-          <p class="text-sm text-slate-400 mt-2">Recruit top-tier war clashers or find your dream competitive clan.</p>
-        </div>
-        <button onclick="window.openModal('postClanModal')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-neon-gold shrink-0 inline-flex items-center gap-2">
-          <i data-lucide="plus" class="w-4 h-4"></i> Register Your Clan
-        </button>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="clansContainer">
-        <p class="text-xs text-slate-500 text-center py-12 col-span-full">Loading competitive clans...</p>
-      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="clansContainer"></div>
     </div>
 
-    <!-- VIEW 4: REDESIGNED PROFILE PAGE -->
+    <!-- VIEW 4: PROFILE -->
     <div id="viewProfileSection" class="hidden py-6 max-w-3xl mx-auto">
       <div id="profileLoggedOutView" class="hidden glass-panel rounded-3xl p-8 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-500/40">
-          <i data-lucide="user-lock" class="w-8 h-8"></i>
-        </div>
         <h3 class="text-xl font-bold text-white mb-2">Chief Account Required</h3>
-        <p class="text-xs text-slate-400 mb-6 max-w-sm mx-auto">Login karke apne uploads, saved layouts, followers aur live Supercell stats manage karein.</p>
-        <button onclick="window.openModal('authModal')" class="bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider shadow-neon-gold">
-          Login / Register Now
-        </button>
+        <button onclick="window.openModal('authModal')" class="bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider">Login / Register</button>
       </div>
 
       <div id="profileLoggedInView" class="space-y-6">
-        
-        <!-- Profile Header Card (Custom Photo Support Left Side) -->
         <div class="glass-panel rounded-3xl p-6 sm:p-7 shadow-cyber-card border-amber-500/30">
           <div class="flex items-center gap-5 sm:gap-8">
-            
             <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 p-[2px] shadow-neon-gold shrink-0">
               <div id="profileAvatarContainer" class="w-full h-full bg-czDark rounded-full flex items-center justify-center text-amber-400 text-3xl font-black overflow-hidden">
                 <span id="profileAvatarInitial">C</span>
@@ -268,96 +185,54 @@
               <p id="profileBioText" class="text-xs text-slate-300 italic mb-3">Loading description...</p>
 
               <div class="grid grid-cols-3 gap-2 bg-czDark/90 p-2.5 rounded-xl border border-slate-800 text-center">
-                <div>
-                  <b id="statPostsCount" class="text-white text-sm sm:text-base font-black block">0</b>
-                  <span class="text-[9px] text-slate-400 uppercase tracking-wider">Posts</span>
-                </div>
-                <div class="border-x border-slate-800">
-                  <b id="statFollowersCount" class="text-cyan-400 text-sm sm:text-base font-black block">0</b>
-                  <span class="text-[9px] text-slate-400 uppercase tracking-wider">Followers</span>
-                </div>
-                <div>
-                  <b id="statTrophiesCount" class="text-amber-400 text-sm sm:text-base font-black block">🏆 5K</b>
-                  <span class="text-[9px] text-slate-400 uppercase tracking-wider">Trophies</span>
-                </div>
+                <div><b id="statPostsCount" class="text-white text-sm font-black block">0</b><span class="text-[9px] text-slate-400 uppercase">Posts</span></div>
+                <div class="border-x border-slate-800"><b id="statFollowersCount" class="text-cyan-400 text-sm font-black block">0</b><span class="text-[9px] text-slate-400 uppercase">Followers</span></div>
+                <div><b id="statTrophiesCount" class="text-amber-400 text-sm font-black block">🏆 5K</b><span class="text-[9px] text-slate-400 uppercase">Trophies</span></div>
               </div>
             </div>
-
           </div>
 
-          <!-- Pro Builder Badge Progress Bar -->
-          <div class="bg-czDark p-3 rounded-2xl border border-slate-800 mt-5 text-xs">
-            <div class="flex items-center justify-between mb-1.5 font-bold">
-              <span class="text-amber-400 flex items-center gap-1.5"><i data-lucide="award" class="w-3.5 h-3.5"></i> Pro Builder Badge Progress</span>
-              <span id="proBadgeProgressText" class="text-slate-400">0 / 10 Uploads</span>
-            </div>
-            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-              <div id="proBadgeProgressBar" class="bg-gradient-to-r from-amber-500 to-yellow-400 h-full transition-all duration-500" style="width: 0%;"></div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3 mt-4">
-            <button onclick="window.openModal('editProfileModal')" class="flex-1 bg-czDark hover:bg-slate-800 border border-amber-500/40 text-amber-400 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-sm flex items-center justify-center gap-2">
-              <i data-lucide="user-pen" class="w-4 h-4"></i> Edit Profile & Sync
-            </button>
-            <button onclick="window.handleLogout()" class="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white rounded-xl transition text-xs font-bold">Logout</button>
+          <div class="flex items-center gap-3 mt-5">
+            <button onclick="window.openModal('editProfileModal')" class="flex-1 bg-czDark hover:bg-slate-800 border border-amber-500/40 text-amber-400 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2">Edit Profile & Sync</button>
+            <button onclick="window.handleLogout()" class="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500 text-rose-400 rounded-xl transition text-xs font-bold">Logout</button>
           </div>
         </div>
 
         <div class="flex items-center justify-center gap-2 bg-czDark p-1.5 rounded-2xl border border-slate-800">
-          <button onclick="window.switchProfileTab('posts')" id="pTabPosts" class="profile-tab-btn active flex-1 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">My Posts (<span id="tabPostNum">0</span>)</button>
-          <button onclick="window.switchProfileTab('saved')" id="pTabSaved" class="profile-tab-btn flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-400 transition flex items-center justify-center gap-2">Saved Vault</button>
+          <button onclick="window.switchProfileTab('posts')" id="pTabPosts" class="profile-tab-btn active flex-1 py-2.5 rounded-xl text-xs font-bold transition">My Posts (<span id="tabPostNum">0</span>)</button>
+          <button onclick="window.switchProfileTab('saved')" id="pTabSaved" class="profile-tab-btn flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-400 transition">Saved Vault</button>
         </div>
 
         <div id="profileTabContentPosts" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
         <div id="profileTabContentSaved" class="hidden space-y-3"></div>
       </div>
     </div>
-
   </div>
 
-  <!-- BOTTOM NAVIGATION BAR -->
+  <!-- BOTTOM NAV -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#03050b]/95 backdrop-blur-2xl border-t border-amber-500/30 px-3 py-2.5 w-full shadow-2xl">
     <div class="max-w-xl mx-auto flex items-center justify-between">
-      <button onclick="window.switchMainHubView('feed')" id="bnavFeed" class="bnav-btn active flex-1 flex flex-col items-center gap-1 text-slate-400 text-center cursor-pointer">
-        <i data-lucide="home" class="w-5 h-5"></i>
-        <span class="text-[10px] font-bold tracking-wider">Feed</span>
-        <span class="bnav-dot w-1.5 h-1.5 rounded-full bg-amber-400 shadow-neon-gold"></span>
-      </button>
-      <button onclick="window.switchMainHubView('vault')" id="bnavVault" class="bnav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 text-center cursor-pointer">
-        <i data-lucide="bookmark" class="w-5 h-5"></i>
-        <span class="text-[10px] font-bold tracking-wider">Saved</span>
-        <span class="bnav-dot w-1.5 h-1.5 rounded-full bg-amber-400 shadow-neon-gold"></span>
-      </button>
+      <button onclick="window.switchMainHubView('feed')" id="bnavFeed" class="bnav-btn active flex-1 flex flex-col items-center gap-1 text-slate-400 text-center"><i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] font-bold">Feed</span></button>
+      <button onclick="window.switchMainHubView('vault')" id="bnavVault" class="bnav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 text-center"><i data-lucide="bookmark" class="w-5 h-5"></i><span class="text-[10px] font-bold">Saved</span></button>
       <div class="flex-1 flex justify-center -mt-7">
-        <button onclick="window.openModal('uploadModal')" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-black flex items-center justify-center text-xl font-black shadow-neon-gold border border-yellow-200/60 hover:scale-110 active:scale-90 transition transform">
-          <i data-lucide="plus" class="w-7 h-7 stroke-[3]"></i>
-        </button>
+        <button onclick="window.openModal('uploadModal')" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-black flex items-center justify-center text-xl font-black shadow-neon-gold"><i data-lucide="plus" class="w-7 h-7"></i></button>
       </div>
-      <button onclick="window.switchMainHubView('clans')" id="bnavClans" class="bnav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 text-center cursor-pointer">
-        <i data-lucide="shield" class="w-5 h-5"></i>
-        <span class="text-[10px] font-bold tracking-wider">Clans</span>
-        <span class="bnav-dot w-1.5 h-1.5 rounded-full bg-amber-400 shadow-neon-gold"></span>
-      </button>
-      <button onclick="window.switchMainHubView('profile')" id="bnavProfile" class="bnav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 text-center cursor-pointer">
-        <i data-lucide="user" class="w-5 h-5"></i>
-        <span class="text-[10px] font-bold tracking-wider">Profile</span>
-        <span class="bnav-dot w-1.5 h-1.5 rounded-full bg-amber-400 shadow-neon-gold"></span>
-      </button>
+      <button onclick="window.switchMainHubView('clans')" id="bnavClans" class="bnav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 text-center"><i data-lucide="shield" class="w-5 h-5"></i><span class="text-[10px] font-bold">Clans</span></button>
+      <button onclick="window.switchMainHubView('profile')" id="bnavProfile" class="bnav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 text-center"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[10px] font-bold">Profile</span></button>
     </div>
   </nav>
 
-  <!-- EDIT PROFILE MODAL (Includes Profile Photo URL & Description) -->
-  <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="editProfileModal">
+  <!-- EDIT PROFILE MODAL (Supports Device Image File Selection) -->
+  <div class="fixed inset-0 bg-black/95 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="editProfileModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-md p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('editProfileModal')" class="absolute top-4 right-4 text-slate-400">✕</button>
-      <h3 class="text-xl text-amber-400 font-bold mb-4">Edit Profile & Sync</h3>
+      <h3 class="text-xl text-amber-400 font-bold mb-4">Edit Profile & Live Sync</h3>
       <form onsubmit="window.handleSaveProfile(event)" class="space-y-3">
         <div>
           <label class="text-[10px] text-slate-400 font-bold block mb-1">In-Game Player Tag (#...)</label>
           <div class="flex gap-2">
             <input type="text" id="editTag" placeholder="#2PP0Q8" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white font-mono" />
-            <button type="button" id="btnSyncPlayerTag" onclick="window.handleLiveSupercellSync()" class="bg-amber-500 text-black px-4 rounded-xl text-xs font-bold shrink-0 flex items-center gap-1">Sync Live</button>
+            <button type="button" id="btnSyncPlayerTag" onclick="window.handleLiveSupercellSync()" class="bg-amber-500 text-black px-4 rounded-xl text-xs font-bold shrink-0">Sync Live</button>
           </div>
         </div>
         <input type="text" id="editName" placeholder="IGN (Name)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
@@ -365,10 +240,9 @@
         <input type="text" id="editClan" placeholder="Clan Name" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
         <input type="number" id="editTrophies" placeholder="Trophies" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
         
-        <!-- Custom Profile Photo URL Input -->
         <div>
-          <label class="text-[10px] text-slate-400 font-bold block mb-1">Profile Photo Image URL</label>
-          <input type="url" id="editAvatarUrl" placeholder="https://... (Paste image link)" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
+          <label class="text-[10px] text-slate-400 font-bold block mb-1">Select Profile Photo from Device</label>
+          <input type="file" id="editAvatarFile" accept="image/*" class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300" />
         </div>
 
         <div>
@@ -384,28 +258,16 @@
   <!-- OTHER MODALS -->
   <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="hamburgerMenuModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-sm p-6 relative shadow-cyber-card my-auto space-y-3">
-      <button onclick="window.closeModal('hamburgerMenuModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
-      <h3 class="text-lg text-amber-400 font-black mb-4 flex items-center gap-2">
-        <i data-lucide="compass" class="w-5 h-5"></i> Navigation Menu
-      </h3>
-      <button onclick="window.closeModal('hamburgerMenuModal'); window.openModal('rankingsModal');" class="w-full bg-czDark hover:bg-slate-800 border border-amber-500/30 text-white p-3.5 rounded-2xl text-xs font-bold flex items-center gap-3 transition">
-        <i data-lucide="trophy" class="w-5 h-5 text-amber-400"></i>
-        <span>Creator Rank</span>
-      </button>
-      <button onclick="window.closeModal('hamburgerMenuModal'); window.openModal('notificationsModal');" class="w-full bg-czDark hover:bg-slate-800 border border-slate-700 text-white p-3.5 rounded-2xl text-xs font-bold flex items-center gap-3 transition">
-        <i data-lucide="bell" class="w-5 h-5 text-cyan-400"></i>
-        <span>Site Alerts & Notifications</span>
-      </button>
+      <button onclick="window.closeModal('hamburgerMenuModal')" class="absolute top-4 right-4 text-slate-400">✕</button>
+      <h3 class="text-lg text-amber-400 font-black mb-4">Navigation Menu</h3>
+      <button onclick="window.closeModal('hamburgerMenuModal'); window.openModal('rankingsModal');" class="w-full bg-czDark border border-amber-500/30 text-white p-3.5 rounded-2xl text-xs font-bold text-left">Creator Rank</button>
     </div>
   </div>
 
   <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="rankingsModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-lg p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('rankingsModal')" class="absolute top-4 right-4 text-slate-400">✕</button>
-      <h3 class="text-xl text-amber-400 font-bold mb-1 flex items-center gap-2">
-        <i data-lucide="trophy" class="w-5 h-5 text-amber-400"></i> Creator Rank
-      </h3>
-      <p class="text-xs text-slate-400 mb-4">Top layout architects ranked by active base uploads.</p>
+      <h3 class="text-xl text-amber-400 font-bold mb-4">Creator Rank</h3>
       <div id="rankingsListContainer" class="space-y-3"></div>
     </div>
   </div>
@@ -413,22 +275,11 @@
   <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="uploadModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-lg p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('uploadModal')" class="absolute top-4 right-4 text-slate-400">✕</button>
-      <h3 class="text-xl text-amber-400 font-bold mb-4">Upload Layout</h3>
       <form onsubmit="window.handleBaseUpload(event)" class="space-y-3">
         <input type="url" id="uploadLink" placeholder="In-Game Copy Link" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
-        <select id="uploadZone" onchange="window.updateUploadLevelOptions()" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white">
-          <option value="home">Home Village</option>
-          <option value="builder">Builder Base</option>
-          <option value="capital">Clan Capital</option>
-        </select>
+        <select id="uploadZone" onchange="window.updateUploadLevelOptions()" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white"><option value="home">Home Village</option><option value="builder">Builder Base</option><option value="capital">Clan Capital</option></select>
         <select id="uploadTH" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white"></select>
-        <select id="uploadType" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white">
-          <option>War</option>
-          <option>Anti 3-Star</option>
-          <option>Anti-Edrag</option>
-          <option>Trophy</option>
-          <option>Farming</option>
-        </select>
+        <select id="uploadType" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white"><option>War</option><option>Anti 3-Star</option><option>Anti-Edrag</option><option>Trophy</option><option>Farming</option></select>
         <input type="text" id="uploadTitle" placeholder="Base Title" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
         <input type="file" id="uploadImageFile" accept="image/*" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300" />
         <button type="submit" class="w-full bg-amber-500 text-black py-3 rounded-xl font-black text-xs uppercase">Publish Base</button>
@@ -447,21 +298,7 @@
     </div>
   </div>
 
-  <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="notificationsModal">
-    <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-md p-6 relative shadow-cyber-card my-auto">
-      <button onclick="window.closeModal('notificationsModal')" class="absolute top-4 right-4 text-slate-400">✕</button>
-      <h3 class="text-xl text-amber-400 font-bold mb-3">Platform Alerts</h3>
-      <p class="text-xs text-slate-300">Supercell API live sync and secure watermarking are fully active.</p>
-    </div>
-  </div>
-
   <script>
-    let deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
-    window.triggerPermanentAppInstall = async function() {
-      if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
-      else { window.showToast("App already installed or browser menu se add karein."); }
-    };
     window.switchProfileTab = function(tabName) {
       ['Posts', 'Saved'].forEach(t => {
         document.getElementById(`pTab${t}`)?.classList.toggle('active', t.toLowerCase() === tabName.toLowerCase());
