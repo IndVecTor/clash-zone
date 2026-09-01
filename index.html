@@ -13,7 +13,8 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- ADDED RUSSO ONE FONT -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&family=Russo+One&display=swap" rel="stylesheet">
   
   <script>
     tailwind.config = {
@@ -53,7 +54,15 @@
       background-size: 100% 100%, 40px 40px, 40px 40px;
       font-family: 'Rajdhani', sans-serif;
     }
-    .gaming-logo { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; text-shadow: 0 0 30px rgba(245, 158, 11, 0.5); }
+    
+    /* UPDATED LOGO FONT CLASS */
+    .gaming-logo { 
+      font-family: 'Russo One', sans-serif; 
+      text-transform: uppercase;
+      letter-spacing: 2px; 
+      text-shadow: 0 0 30px rgba(245, 158, 11, 0.5); 
+    }
+    
     .gold-gradient {
       background: linear-gradient(135deg, #ffffff 0%, #fbbf24 40%, #d97706 100%);
       -webkit-background-clip: text;
@@ -83,13 +92,15 @@
   <header class="sticky top-0 z-40 bg-czDark/95 backdrop-blur-2xl border-b border-czBorder w-full shadow-2xl">
     <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-3">
       <a href="index.html" class="flex items-center gap-3 shrink-0 group">
+        <!-- LOGO CONTAINER -->
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 via-yellow-500 to-amber-300 p-[1.5px] shadow-neon-gold group-hover:scale-105 transition">
-          <div class="w-full h-full bg-czDark rounded-[14px] flex items-center justify-center">
-            <i data-lucide="shield-alert" class="text-amber-400 w-6 h-6"></i>
+          <div class="w-full h-full bg-czDark rounded-[14px] flex items-center justify-center overflow-hidden">
+            <!-- AGAR AAPKO APNI IMAGE LAGANI HAI, TOH NEECHE WALI LINE HATA KAR <img> TAG USE KAREIN -->
+            <i data-lucide="swords" class="text-amber-400 w-6 h-6"></i>
           </div>
         </div>
         <div class="flex flex-col">
-          <span class="gaming-logo text-2xl font-black gold-gradient tracking-widest uppercase leading-none">CLASH<span class="text-white">ZONE</span></span>
+          <span class="gaming-logo text-2xl font-black gold-gradient tracking-widest leading-none">CLASH<span class="text-white">ZONE</span></span>
           <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold block mt-1">Esports Layout Command</span>
         </div>
       </a>
@@ -237,7 +248,7 @@
     </div>
   </nav>
 
-  <!-- AUTH MODAL (LOGIN & SIGNUP TABS) -->
+  <!-- AUTH MODAL -->
   <div class="fixed inset-0 bg-black/95 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="authModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-md p-7 relative shadow-cyber-card my-auto space-y-5">
       <button onclick="window.closeModal('authModal')" class="absolute top-5 right-5 text-slate-400 hover:text-white">✕</button>
@@ -246,7 +257,6 @@
         <button onclick="window.switchAuthTab('signup')" id="authTabSignupBtn" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-400 transition">Register</button>
       </div>
 
-      <!-- Login Form -->
       <form id="loginForm" onsubmit="window.handleEmailLogin(event)" class="space-y-3.5">
         <h3 class="text-lg font-black text-white text-center mb-1">Chief Portal Login</h3>
         <input type="email" id="loginEmail" placeholder="Email Address" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
@@ -254,7 +264,6 @@
         <button type="submit" class="w-full bg-amber-500 text-black font-black py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-neon-gold">Login to Account</button>
       </form>
 
-      <!-- Signup Form -->
       <form id="signupForm" onsubmit="window.handleEmailSignup(event)" class="space-y-3.5 hidden">
         <h3 class="text-lg font-black text-white text-center mb-1">Create Chief Profile</h3>
         <input type="text" id="signupName" placeholder="In-Game Name (IGN)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
@@ -313,7 +322,7 @@
     </div>
   </div>
 
-  <!-- OTHER MODALS (Hamburger, Rankings, Clans) -->
+  <!-- OTHER MODALS -->
   <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="hamburgerMenuModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-sm p-6 relative shadow-cyber-card my-auto space-y-3">
       <button onclick="window.closeModal('hamburgerMenuModal')" class="absolute top-4 right-4 text-slate-400">✕</button>
