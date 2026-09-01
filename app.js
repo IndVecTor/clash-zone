@@ -97,7 +97,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ==========================================
-// 3. COC PLAYER TAG SYNC (ONLY TAG NEEDED)
+// 3. COC PLAYER TAG SYNC (MULTI-PROXY ROBUST ENGINE)
 // ==========================================
 window.handleSyncCoCProfile = async function(e) {
   e.preventDefault();
@@ -114,10 +114,10 @@ window.handleSyncCoCProfile = async function(e) {
     return;
   }
 
-  // Tag Clean & Proper URL Format
-  const cleanTag = rawTag.replace(/[^A-Z0-9]/g, "");
-  const formattedTagWithHash = "#" + cleanTag;
-  const encodedTag = encodeURIComponent(formattedTagWithHash);
+  // 1. Tag Cleanup: O ko 0 me convert karein aur special symbols hatayein
+  let cleanTag = rawTag.replace(/O/g, "0").replace(/[^A-Z0-9]/g, "");
+  const formattedTag = "#" + cleanTag;
+  const encodedTag = encodeURIComponent(formattedTag);
 
   const syncBtn = document.getElementById("btnSyncProfile");
   syncBtn.disabled = true;
@@ -125,38 +125,47 @@ window.handleSyncCoCProfile = async function(e) {
 
   let responseData = null;
 
-  // Reliable CoC proxy endpoints to bypass CORS & token requirement for users
-  const apiEndpoints = [
+  // Multiple Proxy Endpoints for 100% Reliable Uptime
+  const proxyEndpoints = [
     `https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`,
-    `https://api.clashofclans.com/v1/players/${encodedTag}`
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`)}`,
+    `/api/player?tag=${encodedTag}`
   ];
 
   try {
     let success = false;
 
-    for (const url of apiEndpoints) {
+    for (const url of proxyEndpoints) {
       try {
         const res = await fetch(url, {
           method: "GET",
           headers: { "Accept": "application/json" }
         });
+        
         if (res.ok) {
-          responseData = await res.json();
-          success = true;
-          break;
+          const text = await res.text();
+          try {
+            responseData = JSON.parse(text);
+            if (responseData && (responseData.name || responseData.tag)) {
+              success = true;
+              break;
+            }
+          } catch (jsonErr) {
+            console.warn("JSON Parse Error for URL:", url);
+          }
         }
       } catch (err) {
-        console.warn("Proxy endpoint retry:", err);
+        console.warn("Proxy attempt failed, shifting to backup...", err);
       }
     }
 
     if (!success || !responseData) {
-      throw new Error("Player Tag Supercell server par nahi mila! Kripya sahi Tag dalein (jaise #P9L80YQ2)");
+      throw new Error("Supercell server se data fetch nahi ho paya. Kripya apna Player Tag check karein (e.g. #P9L80YQ2)");
     }
 
     const cocProfile = {
-      tag: responseData.tag || formattedTagWithHash,
-      name: responseData.name || "Chief",
+      tag: responseData.tag || formattedTag,
+      name: responseData.name || "Chief Player",
       townHallLevel: responseData.townHallLevel ? `TH ${responseData.townHallLevel}` : "TH 16",
       clanName: responseData.clan ? responseData.clan.name : "No Clan",
       trophies: responseData.trophies || 0,
@@ -164,10 +173,10 @@ window.handleSyncCoCProfile = async function(e) {
       syncedAt: serverTimestamp()
     };
 
-    // Save to Firestore Database
+    // Save profile to Firestore Database
     await setDoc(doc(db, "users", user.uid), cocProfile, { merge: true });
     
-    // Update Firebase Auth Display Name
+    // Update Firebase Auth User Display Name
     if (responseData.name) {
       await updateProfile(user, { displayName: responseData.name });
     }
