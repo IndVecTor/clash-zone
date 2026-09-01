@@ -1,202 +1,1092 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>CLASH ZONE | Ultimate Esports & Base Hub</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLASH ZONE | Next-Gen CoC Hub, Pro Bases & Esports Arena</title>
   
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Orbitron & Rajdhani & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@500;600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- HEADER -->
-  <header>
-    <div class="header-container">
-      <a class="brand-logo" href="index.html">
-        <img src="https://api.iconify.design/game-icons:barbarian.svg?color=%23fbbf24" alt="Barbarian Logo">
-        <span class="brand-text">CLASH ZONE</span>
+  <!-- Tailwind Configuration for Cyber-Electro Aesthetic -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            orbitron: ['Orbitron', 'sans-serif'],
+            rajdhani: ['Rajdhani', 'sans-serif'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            czCyan: '#00F0FF',
+            czCyanDark: '#0097A7',
+            czPurple: '#A855F7',
+            czMagenta: '#FF007F',
+            czGold: '#FACC15',
+            czGoldDark: '#B45309',
+            czDark: '#040711',
+            czCard: 'rgba(10, 16, 32, 0.72)',
+            czBorder: 'rgba(0, 240, 255, 0.22)',
+            czBorderHover: 'rgba(168, 85, 247, 0.7)',
+          },
+          boxShadow: {
+            'cyan-glow': '0 0 25px rgba(0, 240, 255, 0.4)',
+            'cyan-glow-sm': '0 0 12px rgba(0, 240, 255, 0.25)',
+            'purple-glow': '0 0 25px rgba(168, 85, 247, 0.45)',
+            'gold-glow': '0 0 25px rgba(250, 204, 21, 0.4)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #040711;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #00F0FF, #A855F7);
+      border-radius: 4px;
+    }
+
+    /* Cyber Glass Effect */
+    .cyber-glass {
+      background: rgba(10, 16, 32, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 240, 255, 0.18);
+    }
+    .cyber-glass-hover:hover {
+      border-color: rgba(0, 240, 255, 0.6);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+    }
+
+    /* Chamfered Cut-corner Shape */
+    .cyber-chamfer {
+      clip-path: polygon(14px 0px, 100% 0px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0px 100%, 0px 14px);
+    }
+    .cyber-chamfer-sm {
+      clip-path: polygon(8px 0px, 100% 0px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0px 100%, 0px 8px);
+    }
+
+    /* Text Gradients */
+    .cyan-gradient-text {
+      background: linear-gradient(135deg, #E0FFFF 0%, #00F0FF 55%, #0088FF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #FEF08A 0%, #FACC15 50%, #B45309 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Scanline Laser Effect */
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(1000%); }
+    }
+    .animate-scanline {
+      animation: scanline 8s linear infinite;
+    }
+
+    /* Marquee Flow */
+    @keyframes ticker {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-ticker {
+      display: flex;
+      width: 200%;
+      animation: ticker 30s linear infinite;
+    }
+    .animate-ticker:hover {
+      animation-play-state: paused;
+    }
+
+    /* Floating Pill Dock */
+    .floating-dock {
+      background: rgba(8, 12, 24, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 240, 255, 0.15);
+    }
+  </style>
+</head>
+
+<body class="bg-czDark text-slate-100 font-sans min-h-screen relative overflow-x-hidden selection:bg-czCyan selection:text-black pb-28">
+
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-40 left-1/4 w-96 h-96 bg-czCyan/10 rounded-full blur-[120px]"></div>
+    <div class="absolute top-1/3 right-10 w-96 h-96 bg-czPurple/15 rounded-full blur-[140px]"></div>
+    <div class="absolute bottom-10 left-10 w-96 h-96 bg-czMagenta/10 rounded-full blur-[120px]"></div>
+    <!-- Grid Overlay -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#00f0ff07_1px,transparent_1px),linear-gradient(to_bottom,#00f0ff07_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+    <canvas id="cyberCanvas" class="w-full h-full opacity-40"></canvas>
+  </div>
+
+  <header class="sticky top-0 z-50 w-full cyber-glass border-b border-czCyan/20 backdrop-blur-xl shadow-lg">
+    <!-- Top Cyber Event Ticker -->
+    <div class="bg-gradient-to-r from-blue-950/80 via-black to-purple-950/80 border-b border-czCyan/20 text-xs py-1.5 px-4 overflow-hidden relative">
+      <div class="animate-ticker whitespace-nowrap items-center flex gap-10 font-orbitron font-semibold tracking-wider text-[11px]">
+        <div class="flex items-center gap-2 text-czCyan">
+          <span class="w-2 h-2 rounded-full bg-czCyan animate-ping"></span>
+          <i class="fa-solid fa-bolt text-czCyan"></i>
+          <span>HAMMER JAM EVENT: <strong class="text-white">COUNTDOWN LIVE (-50% BUILDING UPGRADE COST)</strong></span>
+        </div>
+        <div class="flex items-center gap-2 text-czPurple">
+          <i class="fa-solid fa-trophy text-czPurple"></i>
+          <span>WAR TOURNAMENTS: <strong class="text-white">₹10,000 INR GRAND PRIZE POOL REGISTRATION OPEN</strong></span>
+        </div>
+        <div class="flex items-center gap-2 text-czGold">
+          <i class="fa-solid fa-shield-halved text-czGold"></i>
+          <span>PRO BASES 2026: <strong class="text-white">TH17 & TH16 ANTI 3-STAR PACK UPDATED</strong></span>
+        </div>
+        <!-- Infinite marquee clone -->
+        <div class="flex items-center gap-2 text-czCyan">
+          <span class="w-2 h-2 rounded-full bg-czCyan animate-ping"></span>
+          <i class="fa-solid fa-bolt text-czCyan"></i>
+          <span>HAMMER JAM EVENT: <strong class="text-white">COUNTDOWN LIVE (-50% BUILDING UPGRADE COST)</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 py-3 flex items-center justify-between">
+      <!-- Brand Logo -->
+      <a href="index.html" class="flex items-center gap-3 group cursor-pointer">
+        <div class="relative w-11 h-11 cyber-chamfer-sm bg-gradient-to-br from-czCyan via-blue-600 to-czPurple p-0.5 shadow-cyan-glow-sm transition-transform duration-300 group-hover:scale-105 flex items-center justify-center">
+          <div class="w-full h-full bg-slate-950 flex items-center justify-center">
+            <i class="fa-solid fa-shield-halved text-czCyan text-xl drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]"></i>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-orbitron font-extrabold tracking-widest text-lg sm:text-xl cyan-gradient-text uppercase">CLASHZONE</span>
+            <span class="px-1.5 py-0.5 text-[9px] font-orbitron font-bold bg-czCyan/15 text-czCyan border border-czCyan/40 rounded">v3.0</span>
+          </div>
+          <p class="text-[10px] text-slate-400 font-rajdhani tracking-widest font-semibold">ULTIMATE ESPORTS & PRO BASE HUB</p>
+        </div>
       </a>
-      <div class="header-actions" id="topNavActions"></div>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-2 font-orbitron font-bold text-xs tracking-wider">
+        <button onclick="scrollToSection('heroSearch')" class="px-3.5 py-2 rounded-lg text-czCyan bg-czCyan/10 border border-czCyan/30 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-magnifying-glass"></i> FINDER
+        </button>
+        <button onclick="scrollToSection('basesSection')" class="px-3.5 py-2 rounded-lg text-slate-300 hover:text-czCyan hover:bg-slate-800/60 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-chess-rook"></i> BASES
+        </button>
+        <button onclick="scrollToSection('tournamentsSection')" class="px-3.5 py-2 rounded-lg text-slate-300 hover:text-czCyan hover:bg-slate-800/60 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-trophy"></i> WARS & CUPS
+        </button>
+        <button onclick="scrollToSection('leaderboardSection')" class="px-3.5 py-2 rounded-lg text-slate-300 hover:text-czCyan hover:bg-slate-800/60 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-ranking-star"></i> RANKS
+        </button>
+      </nav>
+
+      <!-- Action & Auth Area -->
+      <div class="flex items-center gap-3" id="navAuthArea">
+        <!-- Auth Button -->
+        <button onclick="openModal('authModal')" class="cyber-chamfer px-5 py-2.5 bg-gradient-to-r from-czCyan via-blue-500 to-czPurple text-slate-950 font-orbitron font-bold text-xs uppercase tracking-wider shadow-cyan-glow transition transform hover:-translate-y-0.5 flex items-center gap-2">
+          <i class="fa-solid fa-user-astronaut"></i> <span>LOGIN</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <div class="container">
-    
-    <!-- HERO SECTION -->
-    <div class="hero">
-      <h1>CONQUER THE ARENA</h1>
-      <p>Download Undefeated Pro Layouts, Compete in Tournaments & Earn Real Cash Rewards.</p>
-    </div>
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
 
-    <!-- LOGGED IN USER PROFILE STRIP -->
-    <div id="userProfileStrip" class="user-profile-strip" style="display: none;">
-      <div class="user-info">
-        <div class="user-avatar"><i class="fa-solid fa-shield-halved"></i></div>
+    <!-- HERO COMBAT BANNER -->
+    <section class="relative rounded-3xl overflow-hidden cyber-glass border border-czCyan/30 p-6 sm:p-10 shadow-2xl">
+      <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-gradient-to-br from-czCyan/20 via-czPurple/20 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        <div class="lg:col-span-8 space-y-5 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full cyber-glass border border-czCyan/40 text-xs font-orbitron font-semibold text-czCyan">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            NEXT-GEN CLASH OF CLANS DASHBOARD
+          </div>
+
+          <h1 class="text-4xl sm:text-6xl font-orbitron font-black tracking-wider leading-none">
+            CONQUER THE <br class="hidden sm:inline" />
+            <span class="cyan-gradient-text">CYBER ARENA</span>
+          </h1>
+
+          <p class="text-slate-300 font-rajdhani text-base sm:text-lg font-medium max-w-2xl">
+            Copy undefeated Town Hall war layouts in one click, participate in high-stakes cash tournaments, and track real-time ranking XP.
+          </p>
+
+          <!-- Quick Base Search Bar -->
+          <div id="heroSearch" class="max-w-xl mx-auto lg:mx-0 cyber-glass p-2 rounded-2xl border border-czCyan/40 shadow-cyan-glow flex items-center gap-2">
+            <div class="pl-3 text-czCyan">
+              <i class="fa-solid fa-hashtag text-lg"></i>
+            </div>
+            <input 
+              type="text" 
+              id="tagSearchInput"
+              placeholder="Search TH Level or Base Name (e.g. TH16, War, Ring)..." 
+              onkeyup="handleSearchFilter()"
+              class="w-full bg-transparent border-none text-white focus:outline-none text-sm placeholder-slate-500 font-rajdhani font-semibold tracking-wide"
+            />
+            <button onclick="handleSearchFilter()" class="cyber-chamfer-sm px-6 py-3 bg-czCyan text-slate-950 font-orbitron font-bold text-xs uppercase hover:bg-cyan-300 transition">
+              FILTER
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Metrics HUD Card -->
+        <div class="lg:col-span-4 grid grid-cols-2 gap-3">
+          <div class="cyber-glass p-4 rounded-2xl border border-czCyan/20 flex flex-col items-center justify-center text-center">
+            <i class="fa-solid fa-cloud-arrow-down text-2xl text-czCyan mb-1"></i>
+            <span class="text-2xl font-orbitron font-bold text-white" id="statDownloads">12,840+</span>
+            <span class="text-[11px] font-rajdhani text-slate-400 font-semibold uppercase tracking-wider">Bases Copied</span>
+          </div>
+
+          <div class="cyber-glass p-4 rounded-2xl border border-czPurple/30 flex flex-col items-center justify-center text-center">
+            <i class="fa-solid fa-trophy text-2xl text-czPurple mb-1"></i>
+            <span class="text-2xl font-orbitron font-bold text-white" id="statPrize">₹50,000+</span>
+            <span class="text-[11px] font-rajdhani text-slate-400 font-semibold uppercase tracking-wider">Prize Pool Won</span>
+          </div>
+
+          <div class="cyber-glass p-4 rounded-2xl border border-czGold/30 flex flex-col items-center justify-center text-center">
+            <i class="fa-solid fa-shield-halved text-2xl text-czGold mb-1"></i>
+            <span class="text-2xl font-orbitron font-bold text-white">99.4%</span>
+            <span class="text-[11px] font-rajdhani text-slate-400 font-semibold uppercase tracking-wider">Anti 3-Star Rate</span>
+          </div>
+
+          <div class="cyber-glass p-4 rounded-2xl border border-rose-500/30 flex flex-col items-center justify-center text-center">
+            <i class="fa-solid fa-bolt text-2xl text-rose-400 mb-1"></i>
+            <span class="text-2xl font-orbitron font-bold text-white">LIVE</span>
+            <span class="text-[11px] font-rajdhani text-slate-400 font-semibold uppercase tracking-wider">Instant Copy Links</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="userProfileStrip" class="hidden cyber-glass border border-czCyan/30 rounded-2xl p-4 sm:p-5 flex-wrap items-center justify-between gap-4 shadow-cyan-glow-sm">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 cyber-chamfer-sm bg-gradient-to-br from-czCyan to-czPurple p-0.5 flex items-center justify-center">
+          <div class="w-full h-full bg-slate-950 flex items-center justify-center text-czCyan text-2xl">
+            <i class="fa-solid fa-crown"></i>
+          </div>
+        </div>
         <div>
-          <h3 id="dashName" style="color:var(--gold); font-size: 20px;">Chief</h3>
-          <p id="dashDetails" style="font-size: 13px; color:var(--text-muted);">TH 16 | Clan: Solo</p>
-        </div>
-      </div>
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <div style="background: #080c14; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--gold);">
-          <span style="font-size: 12px; color:var(--text-muted);">Points:</span>
-          <b id="dashXP" style="color:var(--neon-blue); font-size: 16px;">100 XP</b>
-        </div>
-        <button class="btn btn-outline" onclick="openModal('profileModal')"><i class="fa-solid fa-pen-to-square"></i> Edit Profile</button>
-      </div>
-    </div>
-
-    <!-- QUICK CATEGORY HUBS -->
-    <div class="section-header">
-      <h2 class="section-title"><i class="fa-solid fa-bolt" style="color:var(--gold);"></i> Explore Hubs</h2>
-    </div>
-
-    <div class="grid">
-      <!-- Wars Hub Card -->
-      <div class="card">
-        <div class="card-img-wrapper">
-          <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=500&q=80" alt="Tournaments">
-          <span class="card-badge">Esports</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Active War Tournaments</div>
-          <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 12px;">Participate in solo and 5v5 war cups for cash prize pools.</p>
-          <a href="tournaments.html" class="btn btn-gold" style="width: 100%; justify-content: center;"><i class="fa-solid fa-trophy"></i> Open Wars</a>
+          <div class="flex items-center gap-2">
+            <h3 id="dashName" class="font-orbitron font-bold text-lg text-white">Chief Clasher</h3>
+            <span id="dashTHBadge" class="text-[10px] font-orbitron font-bold px-2 py-0.5 bg-czCyan/20 text-czCyan border border-czCyan/40 rounded">TH16</span>
+          </div>
+          <p id="dashDetails" class="text-xs text-slate-400 font-rajdhani font-semibold">TAG: #Q8CRLCJV2 • CLAN: Fearless Kings</p>
         </div>
       </div>
 
-      <!-- Bases Hub Card -->
-      <div class="card">
-        <div class="card-img-wrapper">
-          <img src="https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=500&q=80" alt="Base Layouts">
-          <span class="card-badge">Pro Layouts</span>
+      <div class="flex items-center gap-3">
+        <div class="bg-slate-950/80 px-4 py-2 rounded-xl border border-czGold/40 flex items-center gap-2">
+          <i class="fa-solid fa-star text-czGold"></i>
+          <span class="text-xs text-slate-400 font-rajdhani font-bold">XP:</span>
+          <b id="dashXP" class="text-czGold font-orbitron text-sm">350 XP</b>
         </div>
-        <div class="card-body">
-          <div class="card-title">Pro Base Layouts</div>
-          <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 12px;">Copy direct anti 3-star, trophy push and farming bases.</p>
-          <a href="bases.html" class="btn btn-outline" style="width: 100%; justify-content: center;"><i class="fa-solid fa-chess-rook"></i> Browse Bases</a>
-        </div>
-      </div>
 
-      <!-- Leaderboard Hub Card -->
-      <div class="card">
-        <div class="card-img-wrapper">
-          <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=500&q=80" alt="Leaderboard">
-          <span class="card-badge">Rankings</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">Global Leaderboard</div>
-          <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 12px;">See top rankers, total XP points and highest trophy holders.</p>
-          <a href="leaderboard.html" class="btn btn-gold" style="width: 100%; justify-content: center;"><i class="fa-solid fa-ranking-star"></i> Check Ranks</a>
-        </div>
+        <button onclick="openModal('profileModal')" class="cyber-chamfer-sm px-4 py-2 bg-czCyan/10 border border-czCyan text-czCyan hover:bg-czCyan hover:text-black font-orbitron font-bold text-xs uppercase transition">
+          <i class="fa-solid fa-id-badge mr-1"></i> Edit Profile
+        </button>
+
+        <button onclick="logout()" class="p-2 rounded-xl bg-rose-500/10 border border-rose-500/40 text-rose-400 hover:bg-rose-500 hover:text-white transition" title="Logout">
+          <i class="fa-solid fa-power-off"></i>
+        </button>
       </div>
     </div>
 
-  </div>
+    <section id="basesSection" class="space-y-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-czCyan/20 pb-4">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-orbitron font-bold text-czCyan uppercase tracking-widest">
+            <i class="fa-solid fa-chess-rook"></i> Meta Defence Vault
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-orbitron font-black text-white uppercase tracking-wider mt-1">
+            PRO BASE <span class="cyan-gradient-text">LAYOUTS</span>
+          </h2>
+        </div>
 
-  <!-- BOTTOM NAVIGATION -->
-  <div class="bottom-nav">
-    <a href="index.html" class="nav-item active">
-      <i class="fa-solid fa-house"></i>
-      <span>Home</span>
-    </a>
-    <a href="tournaments.html" class="nav-item">
-      <i class="fa-solid fa-trophy"></i>
-      <span>Wars</span>
-    </a>
-    <a href="bases.html" class="nav-item">
-      <i class="fa-solid fa-chess-rook"></i>
+        <!-- Town Hall Filter Pills -->
+        <div class="flex flex-wrap items-center gap-2 font-orbitron font-bold text-xs" id="filterPillGroup">
+          <button onclick="filterBases('ALL')" class="filter-pill active px-4 py-2 rounded-xl bg-czCyan text-slate-950 shadow-cyan-glow transition">ALL</button>
+          <button onclick="filterBases('TH17')" class="filter-pill px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:border-czCyan transition">TH 17</button>
+          <button onclick="filterBases('TH16')" class="filter-pill px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:border-czCyan transition">TH 16</button>
+          <button onclick="filterBases('TH15')" class="filter-pill px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:border-czCyan transition">TH 15</button>
+          <button onclick="filterBases('TH14')" class="filter-pill px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:border-czCyan transition">TH 14</button>
+          <button onclick="filterBases('TH11')" class="filter-pill px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:border-czCyan transition">TH 11</button>
+        </div>
+      </div>
+
+      <!-- Base Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="baseCardsContainer">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </section>
+
+    <section id="tournamentsSection" class="space-y-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-czPurple/30 pb-4">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-orbitron font-bold text-czPurple uppercase tracking-widest">
+            <i class="fa-solid fa-trophy"></i> High-Stakes Arenas
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-orbitron font-black text-white uppercase tracking-wider mt-1">
+            ESPORTS <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">TOURNAMENTS</span>
+          </h2>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Tournament 1 -->
+        <div class="cyber-glass rounded-2xl border border-czPurple/30 overflow-hidden relative group hover:border-czPurple transition duration-300">
+          <div class="p-6 space-y-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="px-2.5 py-1 text-[10px] font-orbitron font-bold bg-czPurple/20 text-czPurple border border-czPurple/40 rounded-md">TH16 ONLY</span>
+                <h3 class="text-xl font-orbitron font-bold text-white mt-2">5v5 Clash Championship League</h3>
+              </div>
+              <div class="text-right">
+                <span class="text-xs text-slate-400 font-rajdhani font-semibold">PRIZE POOL</span>
+                <div class="text-xl font-orbitron font-extrabold text-czGold">₹5,000 INR</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-center text-xs font-rajdhani font-semibold py-2 bg-slate-950/60 rounded-xl border border-slate-800">
+              <div>
+                <div class="text-slate-400 text-[10px] uppercase">Entry Fee</div>
+                <div class="text-white font-bold">₹100 / Team</div>
+              </div>
+              <div>
+                <div class="text-slate-400 text-[10px] uppercase">Slots Left</div>
+                <div class="text-emerald-400 font-bold">4 / 16 Teams</div>
+              </div>
+              <div>
+                <div class="text-slate-400 text-[10px] uppercase">Mode</div>
+                <div class="text-czCyan font-bold">5v5 Wars</div>
+              </div>
+            </div>
+
+            <button onclick="handleTournamentJoin('TH16 5v5 Championship')" class="cyber-chamfer w-full py-3 bg-gradient-to-r from-czPurple to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-orbitron font-bold text-xs uppercase tracking-wider shadow-purple-glow transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-bolt"></i> REGISTER TEAM NOW
+            </button>
+          </div>
+        </div>
+
+        <!-- Tournament 2 -->
+        <div class="cyber-glass rounded-2xl border border-czCyan/30 overflow-hidden relative group hover:border-czCyan transition duration-300">
+          <div class="p-6 space-y-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="px-2.5 py-1 text-[10px] font-orbitron font-bold bg-czCyan/20 text-czCyan border border-czCyan/40 rounded-md">SOLO CUP</span>
+                <h3 class="text-xl font-orbitron font-bold text-white mt-2">TH15 1v1 Speed Attack Duel</h3>
+              </div>
+              <div class="text-right">
+                <span class="text-xs text-slate-400 font-rajdhani font-semibold">PRIZE POOL</span>
+                <div class="text-xl font-orbitron font-extrabold text-czGold">₹2,000 INR</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-center text-xs font-rajdhani font-semibold py-2 bg-slate-950/60 rounded-xl border border-slate-800">
+              <div>
+                <div class="text-slate-400 text-[10px] uppercase">Entry Fee</div>
+                <div class="text-white font-bold">₹50 / Player</div>
+              </div>
+              <div>
+                <div class="text-slate-400 text-[10px] uppercase">Slots Left</div>
+                <div class="text-emerald-400 font-bold">8 / 32 Players</div>
+              </div>
+              <div>
+                <div class="text-slate-400 text-[10px] uppercase">Mode</div>
+                <div class="text-czCyan font-bold">1v1 Speed 3★</div>
+              </div>
+            </div>
+
+            <button onclick="handleTournamentJoin('TH15 Speed Duel')" class="cyber-chamfer w-full py-3 bg-gradient-to-r from-czCyan via-blue-500 to-czPurple text-slate-950 font-orbitron font-bold text-xs uppercase tracking-wider shadow-cyan-glow transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-fire"></i> ENTER SOLO DUEL
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="leaderboardSection" class="space-y-6">
+      <div class="flex items-center justify-between border-b border-czGold/30 pb-4">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-orbitron font-bold text-czGold uppercase tracking-widest">
+            <i class="fa-solid fa-crown"></i> Hall of Fame
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-orbitron font-black text-white uppercase tracking-wider mt-1">
+            GLOBAL <span class="gold-gradient-text">LEADERBOARD</span>
+          </h2>
+        </div>
+      </div>
+
+      <div class="cyber-glass rounded-2xl border border-czBorder overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left font-rajdhani">
+            <thead>
+              <tr class="bg-slate-950/90 text-czCyan font-orbitron text-xs tracking-wider border-b border-czCyan/20">
+                <th class="p-4 uppercase">Rank</th>
+                <th class="p-4 uppercase">Chief Name</th>
+                <th class="p-4 uppercase">Town Hall</th>
+                <th class="p-4 uppercase">Clan Affiliation</th>
+                <th class="p-4 uppercase text-right">Ranking XP</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardTableBody" class="divide-y divide-slate-800/60 font-medium text-sm">
+              <!-- Rendered by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] max-w-md floating-dock rounded-full px-6 py-3 flex items-center justify-around z-40">
+    <button onclick="scrollToSection('basesSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-czCyan font-orbitron text-[10px] font-bold transition">
+      <i class="fa-solid fa-chess-rook text-lg"></i>
       <span>Bases</span>
-    </a>
-    <a href="leaderboard.html" class="nav-item">
-      <i class="fa-solid fa-chart-simple"></i>
+    </button>
+    <button onclick="scrollToSection('tournamentsSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-czPurple font-orbitron text-[10px] font-bold transition">
+      <i class="fa-solid fa-trophy text-lg"></i>
+      <span>Wars</span>
+    </button>
+    
+    <!-- Center Action Button -->
+    <button onclick="openModal('uploadBaseModal')" class="relative -top-5 w-12 h-12 rounded-full bg-gradient-to-tr from-czCyan to-czPurple text-slate-950 flex items-center justify-center shadow-cyan-glow hover:scale-110 transition">
+      <i class="fa-solid fa-plus text-xl font-black"></i>
+    </button>
+
+    <button onclick="scrollToSection('leaderboardSection')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-czGold font-orbitron text-[10px] font-bold transition">
+      <i class="fa-solid fa-ranking-star text-lg"></i>
       <span>Ranks</span>
-    </a>
-    <button class="nav-item" id="bottomProfileBtn" onclick="openAuthModal('login')">
-      <i class="fa-solid fa-user"></i>
-      <span id="bottomProfileText">Login</span>
+    </button>
+    <button onclick="openAuthOrProfile()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-czCyan font-orbitron text-[10px] font-bold transition">
+      <i class="fa-solid fa-user text-lg"></i>
+      <span id="dockProfileText">Login</span>
     </button>
   </div>
 
-  <!-- AUTH MODAL -->
-  <div class="modal" id="authModal">
-    <div class="modal-content">
-      <button class="close-btn" onclick="closeModal('authModal')">×</button>
+  <!-- AUTH MODAL (LOGIN / SIGNUP) -->
+  <div id="authModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="cyber-glass max-w-md w-full rounded-3xl border border-czCyan/40 p-6 sm:p-8 relative shadow-cyan-glow">
+      <button onclick="closeModal('authModal')" class="absolute top-4 right-5 text-slate-400 hover:text-white text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex gap-2 p-1 bg-slate-950 rounded-xl mb-6 border border-slate-800 font-orbitron text-xs font-bold">
+        <button id="authTabLogin" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg bg-czCyan text-slate-950 transition">LOGIN</button>
+        <button id="authTabSignup" onclick="switchAuthTab('signup')" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition">SIGN UP</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" onsubmit="event.preventDefault(); doLogin();" class="space-y-4">
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">MOBILE NUMBER</label>
+          <input type="tel" id="loginMobile" required placeholder="10-digit mobile number" maxlength="10" class="w-full bg-slate-950 border border-slate-800 focus:border-czCyan rounded-xl px-4 py-3 text-white text-sm outline-none font-rajdhani font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">PASSWORD</label>
+          <input type="password" id="loginPass" required placeholder="Enter password" class="w-full bg-slate-950 border border-slate-800 focus:border-czCyan rounded-xl px-4 py-3 text-white text-sm outline-none font-rajdhani font-semibold">
+        </div>
+        <button type="submit" class="cyber-chamfer w-full py-3 bg-czCyan text-slate-950 font-orbitron font-bold text-xs uppercase shadow-cyan-glow hover:bg-cyan-300 transition">
+          LOGIN TO ARENA
+        </button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signupForm" onsubmit="event.preventDefault(); doSignup();" class="space-y-3 hidden">
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">FULL NAME / IN-GAME NAME</label>
+          <input type="text" id="regName" required placeholder="e.g. Chief Kittu" class="w-full bg-slate-950 border border-slate-800 focus:border-czCyan rounded-xl px-4 py-2.5 text-white text-sm outline-none font-rajdhani font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">MOBILE NUMBER</label>
+          <input type="tel" id="regMobile" required placeholder="10-digit number" maxlength="10" class="w-full bg-slate-950 border border-slate-800 focus:border-czCyan rounded-xl px-4 py-2.5 text-white text-sm outline-none font-rajdhani font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">COC PLAYER TAG</label>
+          <input type="text" id="regTag" required placeholder="e.g. #Q8CRLCJV2" class="w-full bg-slate-950 border border-slate-800 focus:border-czCyan rounded-xl px-4 py-2.5 text-white text-sm outline-none font-rajdhani font-semibold uppercase">
+        </div>
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">PASSWORD</label>
+          <input type="password" id="regPass" required placeholder="Min 4 characters" class="w-full bg-slate-950 border border-slate-800 focus:border-czCyan rounded-xl px-4 py-2.5 text-white text-sm outline-none font-rajdhani font-semibold">
+        </div>
+        <button type="submit" class="cyber-chamfer w-full py-3 bg-gradient-to-r from-czCyan to-czPurple text-slate-950 font-orbitron font-bold text-xs uppercase shadow-cyan-glow transition">
+          CREATE ACCOUNT (+100 XP)
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PROFILE EDIT MODAL -->
+  <div id="profileModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="cyber-glass max-w-md w-full rounded-3xl border border-czCyan/40 p-6 sm:p-8 relative shadow-cyan-glow">
+      <button onclick="closeModal('profileModal')" class="absolute top-4 right-5 text-slate-400 hover:text-white text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h3 class="text-xl font-orbitron font-bold text-white mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-id-card text-czCyan"></i> UPDATE PROFILE
+      </h3>
+      <p class="text-xs font-rajdhani font-semibold text-czCyan mb-4">Complete your details to earn <b>+150 XP bonus!</b></p>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">TOWN HALL LEVEL</label>
+          <select id="profTHSelect" class="w-full bg-slate-950 border border-slate-800 focus:border-czCyan rounded-xl px-4 py-3 text-white text-sm outline-none font-rajdhani font-semibold">
+            <option value="TH 17">Town Hall 17</option>
+            <option value="TH 16" selected>Town Hall 16</option>
+            <option value="TH 15">Town Hall 15</option>
+            <option value="TH 14">Town Hall 14</option>
+            <option value="TH 11">Town Hall 11</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">CLAN NAME</label>
+          <input type="text" id="profClanInput" placeholder="e.g. Azamgarh Kings" class="w-full bg-slate-950 border border-slate-800 focus:border-czCyan rounded-xl px-4 py-3 text-white text-sm outline-none font-rajdhani font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">TROPHIES 🏆</label>
+          <input type="number" id="profTrophiesInput" placeholder="e.g. 5600" class="w-full bg-slate-950 border border-slate-800 focus:border-czCyan rounded-xl px-4 py-3 text-white text-sm outline-none font-rajdhani font-semibold">
+        </div>
+
+        <button onclick="saveUserProfile()" class="cyber-chamfer w-full py-3 bg-czCyan text-slate-950 font-orbitron font-bold text-xs uppercase shadow-cyan-glow hover:bg-cyan-300 transition">
+          SAVE PROFILE & CLAIM XP
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPLOAD BASE MODAL -->
+  <div id="uploadBaseModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="cyber-glass max-w-md w-full rounded-3xl border border-czPurple/40 p-6 sm:p-8 relative shadow-purple-glow">
+      <button onclick="closeModal('uploadBaseModal')" class="absolute top-4 right-5 text-slate-400 hover:text-white text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h3 class="text-xl font-orbitron font-bold text-white mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-cloud-arrow-up text-czPurple"></i> PUBLISH PRO LAYOUT
+      </h3>
+      <p class="text-xs font-rajdhani font-semibold text-slate-400 mb-4">Share your winning base and earn <b>+50 Ranking XP</b>.</p>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">BASE TITLE</label>
+          <input type="text" id="newBaseTitle" placeholder="e.g. Anti-Root Rider CWL Base" class="w-full bg-slate-950 border border-slate-800 focus:border-czPurple rounded-xl px-4 py-2.5 text-white text-sm outline-none font-rajdhani font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">TOWN HALL LEVEL</label>
+          <select id="newBaseTH" class="w-full bg-slate-950 border border-slate-800 focus:border-czPurple rounded-xl px-4 py-2.5 text-white text-sm outline-none font-rajdhani font-semibold">
+            <option value="TH17">TH 17</option>
+            <option value="TH16">TH 16</option>
+            <option value="TH15">TH 15</option>
+            <option value="TH14">TH 14</option>
+            <option value="TH11">TH 11</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">BASE CATEGORY</label>
+          <select id="newBaseCategory" class="w-full bg-slate-950 border border-slate-800 focus:border-czPurple rounded-xl px-4 py-2.5 text-white text-sm outline-none font-rajdhani font-semibold">
+            <option value="Anti 3-Star War">Anti 3-Star War</option>
+            <option value="Legend Trophy Push">Legend Trophy Push</option>
+            <option value="Hybrid Farming">Hybrid Farming</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-orbitron font-bold text-slate-300 mb-1">IN-GAME SHARE LINK</label>
+          <input type="url" id="newBaseLink" placeholder="https://link.clashofclans.com/en?action=OpenLayout..." class="w-full bg-slate-950 border border-slate-800 focus:border-czPurple rounded-xl px-4 py-2.5 text-white text-sm outline-none font-rajdhani font-semibold">
+        </div>
+
+        <button onclick="publishUserBase()" class="cyber-chamfer w-full py-3 bg-gradient-to-r from-czPurple to-pink-600 text-white font-orbitron font-bold text-xs uppercase shadow-purple-glow transition">
+          PUBLISH BASE LINK (+50 XP)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initial Base Layout Database
+    let baseDatabase = [
+      {
+        id: 1,
+        th: "TH16",
+        type: "Anti 3-Star War",
+        title: "Hardcore CWL Anti-Root Ring Base",
+        desc: "Isolated Spell Towers with central Town Hall bait chambers designed for high-percentage defense.",
+        downloads: 4120,
+        stars: 4.9,
+        badgeColor: "bg-rose-500/20 text-rose-400 border-rose-500/40",
+        link: "https://link.clashofclans.com/en?action=OpenLayout&id=TH16-WAR-PRO-1"
+      },
+      {
+        id: 2,
+        th: "TH17",
+        type: "Legend Trophy Push",
+        title: "Apex Predator Meta Defend Layout",
+        desc: "Spread-out Multi-Archer Towers & Ricochet Cannons preventing Super Archer Blimp paths.",
+        downloads: 5890,
+        stars: 5.0,
+        badgeColor: "bg-czCyan/20 text-czCyan border-czCyan/40",
+        link: "https://link.clashofclans.com/en?action=OpenLayout&id=TH17-LEGEND-APEX"
+      },
+      {
+        id: 3,
+        th: "TH15",
+        type: "Anti 3-Star War",
+        title: "Anti-Electro Dragon Box Layout",
+        desc: "2-tile space air defense isolation preventing chain lightning sweeps across core structures.",
+        downloads: 3240,
+        stars: 4.8,
+        badgeColor: "bg-czPurple/20 text-czPurple border-czPurple/40",
+        link: "https://link.clashofclans.com/en?action=OpenLayout&id=TH15-WAR-BOX"
+      },
+      {
+        id: 4,
+        th: "TH14",
+        type: "Hybrid Farming",
+        title: "Dark Elixir Vault Defender",
+        desc: "Symmetric ring structure protecting Dark Elixir and Gold Storages against sneaky goblin farming.",
+        downloads: 2190,
+        stars: 4.7,
+        badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40",
+        link: "https://link.clashofclans.com/en?action=OpenLayout&id=TH14-FARM-VAULT"
+      },
+      {
+        id: 5,
+        th: "TH11",
+        type: "Anti 3-Star War",
+        title: "TH11 War Island Island Base",
+        desc: "Eagle Artillery isolated with Witch funnel traps and hidden Tesla farms for war dominance.",
+        downloads: 1840,
+        stars: 4.9,
+        badgeColor: "bg-czGold/20 text-czGold border-czGold/40",
+        link: "https://link.clashofclans.com/en?action=OpenLayout&id=TH11-WAR-ISLAND"
+      }
+    ];
+
+    let currentFilter = 'ALL';
+
+    // Lifecycle Init
+    document.addEventListener("DOMContentLoaded", () => {
+      renderBaseCards();
+      renderLeaderboard();
+      syncAppState();
+      initCanvasBackground();
+    });
+
+    // Render Base Layout Cards
+    function renderBaseCards(filteredData = null) {
+      const container = document.getElementById("baseCardsContainer");
+      const list = filteredData || (currentFilter === 'ALL' ? baseDatabase : baseDatabase.filter(b => b.th === currentFilter));
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center cyber-glass rounded-2xl border border-dashed border-slate-700">
+            <i class="fa-solid fa-folder-open text-4xl text-slate-600 mb-3"></i>
+            <p class="font-orbitron font-bold text-slate-400">NO BASE LAYOUTS FOUND</p>
+            <p class="text-xs text-slate-500 font-rajdhani mt-1">Try another filter or upload your layout!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(base => `
+        <div class="cyber-glass rounded-2xl border border-czBorder overflow-hidden group hover:border-czCyan transition duration-300 flex flex-col justify-between">
+          <!-- Card Header Visual -->
+          <div class="h-44 bg-slate-950 relative flex items-center justify-center overflow-hidden border-b border-slate-800">
+            <div class="absolute inset-0 bg-[radial-gradient(#00f0ff15_1px,transparent_1px)] bg-[size:16px_16px]"></div>
+            <i class="fa-solid fa-chess-rook text-6xl text-slate-800 group-hover:scale-110 group-hover:text-czCyan/40 transition duration-500"></i>
+            
+            <span class="absolute top-3 left-3 text-[10px] font-orbitron font-bold px-2.5 py-1 rounded-md border ${base.badgeColor}">
+              ${base.type}
+            </span>
+            <span class="absolute top-3 right-3 text-xs font-orbitron font-bold px-2.5 py-1 bg-slate-950/80 text-czGold border border-czGold/30 rounded-md">
+              ${base.th}
+            </span>
+          </div>
+
+          <!-- Card Body -->
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between text-xs font-rajdhani text-slate-400 mb-1">
+                <span><i class="fa-solid fa-download text-czCyan mr-1"></i> ${base.downloads.toLocaleString()} Copies</span>
+                <span class="text-czGold font-bold"><i class="fa-solid fa-star mr-1"></i> ${base.stars}</span>
+              </div>
+              <h3 class="font-orbitron font-bold text-base text-white group-hover:text-czCyan transition">${base.title}</h3>
+              <p class="text-xs text-slate-400 font-rajdhani mt-1 line-clamp-2">${base.desc}</p>
+            </div>
+
+            <!-- Action Button -->
+            <button onclick="copyBaseLink('${base.link}', ${base.id})" class="cyber-chamfer-sm w-full py-2.5 bg-slate-900 hover:bg-czCyan text-czCyan hover:text-slate-950 border border-czCyan/40 font-orbitron font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-copy"></i> <span>COPY IN-GAME LINK</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filter bases by Town Hall
+    function filterBases(th) {
+      currentFilter = th;
+      document.querySelectorAll(".filter-pill").forEach(btn => {
+        if (btn.innerText.replace(" ", "") === th || (th === 'ALL' && btn.innerText === 'ALL')) {
+          btn.className = "filter-pill active px-4 py-2 rounded-xl bg-czCyan text-slate-950 shadow-cyan-glow transition";
+        } else {
+          btn.className = "filter-pill px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:border-czCyan transition";
+        }
+      });
+      renderBaseCards();
+    }
+
+    // Search Tag Filter
+    function handleSearchFilter() {
+      const q = document.getElementById("tagSearchInput").value.trim().toLowerCase();
+      if (!q) {
+        renderBaseCards();
+        return;
+      }
+      const filtered = baseDatabase.filter(b => 
+        b.title.toLowerCase().includes(q) || 
+        b.th.toLowerCase().includes(q) || 
+        b.type.toLowerCase().includes(q)
+      );
+      renderBaseCards(filtered);
+    }
+
+    // Copy Base Link
+    function copyBaseLink(url, baseId) {
+      const tempInput = document.createElement("input");
+      tempInput.value = url;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempInput);
+
+      // Increment stats
+      const target = baseDatabase.find(b => b.id === baseId);
+      if (target) target.downloads += 1;
+      renderBaseCards();
+
+      // UI Feedback Toast
+      showToast("✅ Base link copied! Paste in Clash of Clans to load layout.");
+    }
+
+    // Publish New User Base
+    function publishUserBase() {
+      const title = document.getElementById("newBaseTitle").value.trim();
+      const th = document.getElementById("newBaseTH").value;
+      const category = document.getElementById("newBaseCategory").value;
+      const link = document.getElementById("newBaseLink").value.trim();
+
+      if (!title || !link) {
+        showToast("⚠️ Please enter Title and In-Game link!");
+        return;
+      }
+
+      const newBase = {
+        id: Date.now(),
+        th: th,
+        type: category,
+        title: title,
+        desc: "Custom player created pro base layout published for community push.",
+        downloads: 1,
+        stars: 5.0,
+        badgeColor: "bg-czCyan/20 text-czCyan border-czCyan/40",
+        link: link
+      };
+
+      baseDatabase.unshift(newBase);
+      closeModal("uploadBaseModal");
+      renderBaseCards();
+
+      // Award XP
+      let user = JSON.parse(localStorage.getItem("cz_user"));
+      if (user) {
+        user.xp = (user.xp || 100) + 50;
+        localStorage.setItem("cz_user", JSON.stringify(user));
+        syncAppState();
+        renderLeaderboard();
+      }
+
+      showToast("🎉 Pro Base layout published! +50 XP awarded.");
+    }
+
+    // Render Leaderboard
+    function renderLeaderboard() {
+      const tbody = document.getElementById("leaderboardTableBody");
+      let users = JSON.parse(localStorage.getItem("cz_all_users")) || [];
+
+      let list = [
+        { name: "Apex Predator", th: "TH 17", clan: "Fearless Kings", xp: 1450 },
+        { name: "ShadowKing", th: "TH 16", clan: "Dark Nebula", xp: 1220 },
+        { name: "Kittu #Q8CRLCJV2", th: "TH 16", clan: "Azamgarh Kings", xp: 980 },
+        { name: "DevilHunter", th: "TH 15", clan: "Indian Legends", xp: 740 },
+        ...users
+      ];
+
+      list.sort((a,b) => (b.xp || 0) - (a.xp || 0));
+
+      tbody.innerHTML = list.map((p, idx) => {
+        let badge = `<span class="text-slate-400 font-mono">#${idx + 1}</span>`;
+        if (idx === 0) badge = `<span class="px-2 py-0.5 rounded bg-czGold/20 text-czGold font-bold border border-czGold/40">🥇 1st</span>`;
+        if (idx === 1) badge = `<span class="px-2 py-0.5 rounded bg-slate-300/20 text-slate-200 font-bold border border-slate-300/40">🥈 2nd</span>`;
+        if (idx === 2) badge = `<span class="px-2 py-0.5 rounded bg-amber-700/20 text-amber-500 font-bold border border-amber-700/40">🥉 3rd</span>`;
+
+        return `
+          <tr class="hover:bg-slate-900/40 transition">
+            <td class="p-4 font-orbitron text-xs">${badge}</td>
+            <td class="p-4 font-bold text-white">${p.name}</td>
+            <td class="p-4 text-czCyan">${p.th || 'TH 16'}</td>
+            <td class="p-4 text-slate-400">${p.clan || 'Solo'}</td>
+            <td class="p-4 text-right font-orbitron font-bold text-czGold">${p.xp || 100} XP</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Auth & App State Sync
+    function syncAppState() {
+      const user = JSON.parse(localStorage.getItem("cz_user"));
+      const navAuthArea = document.getElementById("navAuthArea");
+      const profileStrip = document.getElementById("userProfileStrip");
+      const dockProfileText = document.getElementById("dockProfileText");
+
+      if (user) {
+        navAuthArea.innerHTML = `
+          <button onclick="openModal('profileModal')" class="flex items-center gap-2 px-3 py-1.5 rounded-xl cyber-glass border border-czCyan/40 text-xs font-orbitron font-bold text-czCyan hover:bg-czCyan/20 transition">
+            <i class="fa-solid fa-crown text-czGold"></i>
+            <span>${user.name.split(' ')[0]}</span>
+          </button>
+        `;
+        profileStrip.classList.remove("hidden");
+        profileStrip.classList.add("flex");
+
+        document.getElementById("dashName").innerText = user.name;
+        document.getElementById("dashTHBadge").innerText = user.th || "TH 16";
+        document.getElementById("dashDetails").innerText = `TAG: ${user.tag || '#Q8CRLCJV2'} • CLAN: ${user.clan || 'Fearless Kings'}`;
+        document.getElementById("dashXP").innerText = `${user.xp || 100} XP`;
+
+        dockProfileText.innerText = "Profile";
+      } else {
+        navAuthArea.innerHTML = `
+          <button onclick="openModal('authModal')" class="cyber-chamfer px-5 py-2.5 bg-gradient-to-r from-czCyan via-blue-500 to-czPurple text-slate-950 font-orbitron font-bold text-xs uppercase tracking-wider shadow-cyan-glow transition transform hover:-translate-y-0.5 flex items-center gap-2">
+            <i class="fa-solid fa-user-astronaut"></i> <span>LOGIN</span>
+          </button>
+        `;
+        profileStrip.classList.add("hidden");
+        profileStrip.classList.remove("flex");
+        dockProfileText.innerText = "Login";
+      }
+    }
+
+    function switchAuthTab(type) {
+      if (type === 'login') {
+        document.getElementById("loginForm").classList.remove("hidden");
+        document.getElementById("signupForm").classList.add("hidden");
+        document.getElementById("authTabLogin").className = "flex-1 py-2 rounded-lg bg-czCyan text-slate-950 transition";
+        document.getElementById("authTabSignup").className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition";
+      } else {
+        document.getElementById("loginForm").classList.add("hidden");
+        document.getElementById("signupForm").classList.remove("hidden");
+        document.getElementById("authTabSignup").className = "flex-1 py-2 rounded-lg bg-czCyan text-slate-950 transition";
+        document.getElementById("authTabLogin").className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition";
+      }
+    }
+
+    function doSignup() {
+      const name = document.getElementById("regName").value.trim();
+      const mobile = document.getElementById("regMobile").value.trim();
+      const tag = document.getElementById("regTag").value.trim();
+      const pass = document.getElementById("regPass").value.trim();
+
+      if (!name || mobile.length !== 10 || !tag || pass.length < 4) {
+        showToast("⚠️ Invalid details! Enter 10-digit mobile & 4+ char password.");
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem("cz_all_users")) || [];
+      if (users.find(u => u.mobile === mobile)) {
+        showToast("⚠️ Mobile already registered. Please Login!");
+        switchAuthTab('login');
+        return;
+      }
+
+      const newUser = {
+        name, mobile, tag, pass,
+        xp: 150,
+        th: "TH 16",
+        clan: "Fearless Kings"
+      };
+
+      users.push(newUser);
+      localStorage.setItem("cz_all_users", JSON.stringify(users));
+      localStorage.setItem("cz_user", JSON.stringify(newUser));
+
+      closeModal("authModal");
+      syncAppState();
+      renderLeaderboard();
+      showToast("🎉 Account created! +150 XP bonus added to profile.");
+    }
+
+    function doLogin() {
+      const mobile = document.getElementById("loginMobile").value.trim();
+      const pass = document.getElementById("loginPass").value.trim();
+
+      let users = JSON.parse(localStorage.getItem("cz_all_users")) || [];
+      const user = users.find(u => u.mobile === mobile && u.pass === pass);
+
+      if (user) {
+        localStorage.setItem("cz_user", JSON.stringify(user));
+        closeModal("authModal");
+        syncAppState();
+        renderLeaderboard();
+        showToast(`👑 Welcome back, Chief ${user.name}!`);
+      } else {
+        showToast("⚠️ Incorrect Mobile number or Password!");
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("cz_user");
+      syncAppState();
+      showToast("Logged out successfully.");
+    }
+
+    function saveUserProfile() {
+      let user = JSON.parse(localStorage.getItem("cz_user"));
+      if (!user) return;
+
+      user.th = document.getElementById("profTHSelect").value;
+      user.clan = document.getElementById("profClanInput").value.trim() || user.clan || "Fearless Kings";
+      user.xp = (user.xp || 100) + 150;
+
+      localStorage.setItem("cz_user", JSON.stringify(user));
+
+      let users = JSON.parse(localStorage.getItem("cz_all_users")) || [];
+      users = users.map(u => u.mobile === user.mobile ? user : u);
+      localStorage.setItem("cz_all_users", JSON.stringify(users));
+
+      closeModal("profileModal");
+      syncAppState();
+      renderLeaderboard();
+      showToast(`✅ Profile updated! +150 XP bonus earned! Total: ${user.xp} XP`);
+    }
+
+    function handleTournamentJoin(tournamentName) {
+      const user = localStorage.getItem("cz_user");
+      if (!user) {
+        showToast("⚠️ Please Login or Sign Up first to register!");
+        openModal("authModal");
+      } else {
+        showToast(`🏆 Registration opened for ${tournamentName}! Connecting to match lobby...`);
+      }
+    }
+
+    function openAuthOrProfile() {
+      const user = localStorage.getItem("cz_user");
+      if (user) openModal('profileModal');
+      else openModal('authModal');
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove("hidden");
+        el.classList.add("flex");
+      }
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add("hidden");
+        el.classList.remove("flex");
+      }
+    }
+
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Floating Interactive Toast Notification
+    function showToast(msg) {
+      let toast = document.getElementById("czToast");
+      if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "czToast";
+        toast.className = "fixed top-20 right-6 z-50 cyber-glass border border-czCyan text-white px-5 py-3 rounded-2xl shadow-cyan-glow font-orbitron text-xs flex items-center gap-3 transition-all duration-300 transform translate-y-[-20px] opacity-0";
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<i class="fa-solid fa-circle-info text-czCyan text-base"></i> <span>${msg}</span>`;
+      toast.classList.remove("translate-y-[-20px]", "opacity-0");
+      setTimeout(() => {
+        toast.classList.add("translate-y-[-20px]", "opacity-0");
+      }, 3500);
+    }
+
+    // Ambient Cyber Particle Canvas
+    function initCanvasBackground() {
+      const canvas = document.getElementById("cyberCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      let particles = [];
       
-      <div class="tab-switch">
-        <button class="tab-btn active" id="btnTabLogin" onclick="switchAuth('login')">Login</button>
-        <button class="tab-btn" id="btnTabSignup" onclick="switchAuth('signup')">Sign Up</button>
-      </div>
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resize);
+      resize();
 
-      <div id="loginForm">
-        <div class="form-group">
-          <label><i class="fa-solid fa-phone"></i> Mobile Number</label>
-          <input type="tel" id="logMobile" placeholder="10-digit mobile number" maxlength="10">
-        </div>
-        <div class="form-group">
-          <label><i class="fa-solid fa-lock"></i> Password</label>
-          <input type="password" id="logPass" placeholder="Enter password">
-        </div>
-        <button class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Login Now</button>
-      </div>
+      for (let i = 0; i < 40; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.5 + 0.5,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          color: Math.random() > 0.5 ? '#00f0ff' : '#a855f7'
+        });
+      }
 
-      <div id="signupForm" style="display: none;">
-        <div class="form-group">
-          <label><i class="fa-solid fa-user"></i> Full Name</label>
-          <input type="text" id="regName" placeholder="e.g. Aman Clasher">
-        </div>
-        <div class="form-group">
-          <label><i class="fa-solid fa-phone"></i> Mobile Number</label>
-          <input type="tel" id="regMobile" placeholder="10-digit mobile number" maxlength="10">
-        </div>
-        <div class="form-group">
-          <label><i class="fa-solid fa-hashtag"></i> CoC Player Tag</label>
-          <input type="text" id="regTag" placeholder="#P9L80YQ2">
-        </div>
-        <div class="form-group">
-          <label><i class="fa-solid fa-lock"></i> Set Password</label>
-          <input type="password" id="regPass" placeholder="Min 4 characters">
-        </div>
-        <button class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="doSignup()"><i class="fa-solid fa-user-plus"></i> Create Account (+100 XP)</button>
-      </div>
-    </div>
-  </div>
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+          if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-  <!-- PROFILE MODAL -->
-  <div class="modal" id="profileModal">
-    <div class="modal-content">
-      <button class="close-btn" onclick="closeModal('profileModal')">×</button>
-      <h2 style="font-family:'Teko'; color:var(--gold); font-size:28px;"><i class="fa-solid fa-id-card"></i> Update CoC Profile</h2>
-      <p style="color:var(--neon-blue); font-size:13px; margin-bottom:15px;">Earn <b>+150 XP Ranking Points</b> by saving details!</p>
-
-      <div class="form-group">
-        <label>Town Hall Level</label>
-        <select id="profTH">
-          <option>TH 16</option>
-          <option>TH 15</option>
-          <option>TH 14</option>
-          <option>TH 13</option>
-          <option>TH 12</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Clan Name</label>
-        <input type="text" id="profClan" placeholder="e.g. Soul Clan">
-      </div>
-      <div class="form-group">
-        <label>Current Trophies 🏆</label>
-        <input type="number" id="profTrophies" placeholder="e.g. 5400">
-      </div>
-
-      <button class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="saveProfile()"><i class="fa-solid fa-floppy-disk"></i> Save & Get +150 Points</button>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+        });
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+  </script>
 </body>
 </html>
