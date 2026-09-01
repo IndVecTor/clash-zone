@@ -106,7 +106,6 @@ window.showToast = function(message, type = "success") {
 window.handleSmartLinkValidation = function(rawLink) {
   const badge = document.getElementById("linkValidationBadge");
   const linkInput = document.getElementById("uploadLink");
-  const zoneSelect = document.getElementById("uploadZone");
 
   if (!rawLink || rawLink.trim() === '') {
     if (badge) badge.className = "hidden";
@@ -142,7 +141,7 @@ window.handleSmartLinkValidation = function(rawLink) {
 // ==========================================
 // 4. CREATOR WATERMARK ENGINE
 // ==========================================
-function compressAndWatermarkImage(file, creatorName = "Chief", isVerified = false, maxWidth = 900, quality = 0.72) {
+function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 900, quality = 0.72) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -252,8 +251,6 @@ window.handleLiveSupercellSync = async function() {
     document.getElementById("editName").value = liveData.name;
     document.getElementById("editTH").value = "TH " + liveData.townHallLevel;
     document.getElementById("editTrophies").value = liveData.trophies;
-    document.getElementById("editClan").value = liveData.clan?.name || "Solo";
-    document.getElementById("editWarStars").value = liveData.warStars;
     window.showToast(`⚡ Live API Sync: ${liveData.name}!`);
   } catch (err) {
     window.showToast("Sync Error: " + err.message, "error");
@@ -265,7 +262,7 @@ window.handleLiveSupercellSync = async function() {
 };
 
 // ==========================================
-// 6. AUTH STATE & PROFILE DASHBOARD POPULATE
+// 6. AUTH STATE & PROFILE DASHBOARD RENDER
 // ==========================================
 onAuthStateChanged(auth, async (user) => {
   const profileLoggedOut = document.getElementById("profileLoggedOutView");
@@ -288,7 +285,6 @@ onAuthStateChanged(auth, async (user) => {
           tag: "#CLASH",
           clanName: "Solo",
           trophies: 5000,
-          warStars: 0,
           followersCount: 0,
           youtubeUrl: "",
           discordUrl: "",
@@ -637,7 +633,6 @@ function renderBasesUI() {
 
   container.innerHTML = filtered.map(base => {
     const isLiked = userLikedBases.includes(base.id);
-    const isBookmarked = userBookmarkedBases.includes(base.id);
 
     return `
       <div class="glass-panel rounded-3xl overflow-hidden flex flex-col group border-slate-800">
@@ -696,7 +691,7 @@ window.handleBaseUpload = async function(e) {
 
   try {
     const creatorIGN = currentUserProfile?.name || user.displayName || 'Chief';
-    const base64Image = await compressAndWatermarkImage(file, creatorIGN, true);
+    const base64Image = await compressAndWatermarkImage(file, creatorIGN);
 
     const baseData = {
       zone: document.getElementById("uploadZone").value,
