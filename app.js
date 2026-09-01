@@ -12,6 +12,9 @@ import {
   collection, 
   addDoc, 
   getDocs, 
+  doc,
+  setDoc,
+  getDoc,
   query, 
   orderBy, 
   serverTimestamp 
@@ -39,37 +42,135 @@ let currentType = "ALL";
 let allFetchedBases = [];
 
 // ==========================================
-// 2. AUTH STATE LISTENER (UI SYNC)
+// 2. AUTH STATE LISTENER & USER DASHBOARD
 // ==========================================
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   const headerAuth = document.getElementById("headerAuthArea");
-  if (!headerAuth) return;
+  const userProfileStrip = document.getElementById("userProfileStrip");
 
   if (user) {
     const displayName = user.displayName || user.email.split('@')[0];
-    headerAuth.innerHTML = `
-      <button onclick="window.openModal('uploadModal')" class="bg-amber-500 hover:bg-amber-400 text-black px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-500/20">
-        <i class="fa-solid fa-cloud-arrow-up"></i>
-        <span>Upload Base</span>
-      </button>
-      <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs">
-        <i class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span class="font-bold text-white max-w-[110px] truncate">${displayName}</span>
-        <button onclick="window.handleLogout()" class="text-red-400 hover:text-red-300 ml-1" title="Logout"><i class="fa-solid fa-power-off"></i></button>
-      </div>
-    `;
+    
+    // Header UI
+    if (headerAuth) {
+      headerAuth.innerHTML = `
+        <button onclick="window.openModal('uploadModal')" class="bg-amber-500 hover:bg-amber-400 text-black px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-500/20">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span>Upload Base</span>
+        </button>
+        <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-xs">
+          <i class="fa-solid fa-circle-check text-emerald-400"></i>
+          <span class="font-bold text-white max-w-[110px] truncate">${displayName}</span>
+          <button onclick="window.handleLogout()" class="text-red-400 hover:text-red-300 ml-1" title="Logout"><i class="fa-solid fa-power-off"></i></button>
+        </div>
+      `;
+    }
+
+    // Load Synced CoC Profile from Firestore
+    if (userProfileStrip) {
+      userProfileStrip.classList.remove("hidden");
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const u = userDoc.data();
+          document.getElementById("dashPlayerName").innerText = u.name || displayName;
+          document.getElementById("dashTHBadge").innerText = u.townHallLevel || "TH 16";
+          document.getElementById("dashClanInfo").innerText = `Clan: ${u.clanName || 'Solo'} | Tag: ${u.tag || '---'}`;
+          document.getElementById("dashTrophies").innerText = `🏆 ${u.trophies || 0}`;
+        } else {
+          document.getElementById("dashPlayerName").innerText = displayName;
+        }
+      } catch (e) {
+        console.warn("Could not read user profile doc:", e);
+      }
+    }
+
   } else {
-    headerAuth.innerHTML = `
-      <button onclick="window.openModal('authModal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-400 px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1.5 transition">
-        <i class="fa-solid fa-user-lock"></i>
-        <span>Login / Sign Up</span>
-      </button>
-    `;
+    if (headerAuth) {
+      headerAuth.innerHTML = `
+        <button onclick="window.openModal('authModal')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-400 px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-user-lock"></i>
+          <span>Login / Sign Up</span>
+        </button>
+      `;
+    }
+    if (userProfileStrip) userProfileStrip.classList.add("hidden");
   }
 });
 
 // ==========================================
-// 3. FETCH & DISPLAY BASES
+// 3. COC DEVELOPER API PROFILE SYNC HANDLER
+// ==========================================
+window.handleSyncCoCProfile = async function(e) {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Pehle Login karein!");
+    return;
+  }
+
+  let tag = document.getElementById("syncPlayerTag").value.trim().toUpperCase();
+  const apiToken = document.getElementById("syncApiToken").value.trim();
+
+  if (!tag) {
+    alert("Kripya valid Player Tag dalein!");
+    return;
+  }
+  if (!tag.startsWith("#")) tag = "#" + tag;
+  const formattedTag = encodeURIComponent(tag);
+
+  const syncBtn = document.getElementById("btnSyncProfile");
+  syncBtn.disabled = true;
+  syncBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fetching from Supercell Server...`;
+
+  try {
+    let responseData = null;
+
+    // Direct CoC Official API call with token if provided, else public proxy
+    if (apiToken) {
+      const res = await fetch(`https://api.clashofclans.com/v1/players/${formattedTag}`, {
+        headers: {
+          "Authorization": `Bearer ${apiToken}`,
+          "Accept": "application/json"
+        }
+      });
+      if (!res.ok) throw new Error("API Token ya Player Tag galat hai!");
+      responseData = await res.json();
+    } else {
+      const proxyRes = await fetch(`https://cocproxy.royaleapi.dev/v1/players/${formattedTag}`);
+      if (!proxyRes.ok) throw new Error("Player Tag Supercell server par nahi mila!");
+      responseData = await proxyRes.json();
+    }
+
+    const cocProfile = {
+      tag: responseData.tag,
+      name: responseData.name,
+      townHallLevel: "TH " + responseData.townHallLevel,
+      clanName: responseData.clan ? responseData.clan.name : "No Clan",
+      trophies: responseData.trophies || 0,
+      warStars: responseData.warStars || 0,
+      syncedAt: serverTimestamp()
+    };
+
+    // Save to Firestore
+    await setDoc(doc(db, "users", user.uid), cocProfile, { merge: true });
+    await updateProfile(user, { displayName: cocProfile.name });
+
+    window.closeModal('profileSyncModal');
+    alert(`🎉 CoC ID Linked Successfully! Welcome Chief ${cocProfile.name}`);
+    location.reload();
+
+  } catch (err) {
+    console.error("CoC Sync Error:", err);
+    alert("❌ " + err.message);
+  } finally {
+    syncBtn.disabled = false;
+    syncBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Fetch & Link Game Profile`;
+  }
+};
+
+// ==========================================
+// 4. FETCH & DISPLAY BASES (0 DUMMY DATA)
 // ==========================================
 async function loadBasesFromFirestore() {
   const container = document.getElementById("basesContainer");
@@ -86,7 +187,7 @@ async function loadBasesFromFirestore() {
 
     renderBasesUI();
   } catch (error) {
-    console.warn("Firestore fetch error, checking local storage:", error);
+    console.warn("Firestore access error, loading local:", error);
     allFetchedBases = JSON.parse(localStorage.getItem("cz_user_uploaded_bases")) || [];
     renderBasesUI();
   }
@@ -152,7 +253,7 @@ function renderBasesUI() {
 }
 
 // ==========================================
-// 4. IMAGE COMPRESSION UTILITY
+// 5. IMAGE COMPRESSION & BASE UPLOAD
 // ==========================================
 function compressImage(file, maxWidth = 900, quality = 0.7) {
   return new Promise((resolve, reject) => {
@@ -183,9 +284,6 @@ function compressImage(file, maxWidth = 900, quality = 0.7) {
   });
 }
 
-// ==========================================
-// 5. BASE UPLOAD HANDLER
-// ==========================================
 window.handleBaseUpload = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
@@ -243,7 +341,7 @@ window.handleBaseUpload = async function(e) {
 };
 
 // ==========================================
-// 6. AUTH HANDLERS (SIGNUP & LOGIN)
+// 6. SIMPLE & FAST SIGNUP / LOGIN
 // ==========================================
 window.handleEmailSignup = async function(e) {
   e.preventDefault();
@@ -260,8 +358,8 @@ window.handleEmailSignup = async function(e) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(userCredential.user, { displayName: name });
     window.closeModal('authModal');
-    alert(`🎉 Welcome Chief ${name}! Account create ho gaya.`);
-    loadBasesFromFirestore();
+    alert(`🎉 Welcome Chief ${name}! Account ban gaya.`);
+    location.reload();
   } catch (error) {
     console.error("Signup error:", error);
     if (error.code === 'auth/email-already-in-use') {
@@ -269,8 +367,6 @@ window.handleEmailSignup = async function(e) {
       window.switchAuthTab('login');
     } else if (error.code === 'auth/invalid-email') {
       alert("❌ Sahi email address dalein.");
-    } else if (error.code === 'auth/operation-not-allowed') {
-      alert("❌ Firebase Console me Email/Password sign-in method Enable nahi hai!");
     } else {
       alert("❌ Signup Error: " + error.message);
     }
@@ -286,20 +382,17 @@ window.handleEmailLogin = async function(e) {
     await signInWithEmailAndPassword(auth, email, pass);
     window.closeModal('authModal');
     alert("✅ Login successful!");
-    loadBasesFromFirestore();
+    location.reload();
   } catch (error) {
     console.error("Login error:", error);
-    if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-      alert("❌ Email ya Password galat hai!");
-    } else {
-      alert("❌ Login Error: " + error.message);
-    }
+    alert("❌ Login Error: " + error.message);
   }
 };
 
 window.handleLogout = function() {
   signOut(auth).then(() => {
-    alert("Logged out successfully!");
+    alert("Logged out!");
+    location.reload();
   });
 };
 
@@ -370,7 +463,6 @@ window.switchAuthTab = function(type) {
   }
 };
 
-// Initial document load
 document.addEventListener("DOMContentLoaded", () => {
   loadBasesFromFirestore();
 });
