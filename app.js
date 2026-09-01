@@ -41,6 +41,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+let currentZone = "home"; // 'home' | 'builder' | 'capital'
 let currentTH = "ALL";
 let currentType = "ALL";
 let currentSort = "latest";
@@ -51,6 +52,14 @@ let currentReviewBaseId = null;
 
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases")) || [];
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases")) || [];
+let userFollowedCreators = JSON.parse(localStorage.getItem("cz_followed_creators")) || [];
+
+// Zone config definitions
+const ZONE_LEVELS = {
+  home: ["ALL", "TH 18", "TH 17", "TH 16", "TH 15", "TH 14", "TH 13", "TH 12", "TH 11"],
+  builder: ["ALL", "BH 10", "BH 9", "BH 8", "BH 7", "BH 6"],
+  capital: ["ALL", "Capital Peak", "Dragon Cliffs", "Balloon Lagoon", "Skeleton Park", "Golem Quarry", "Wizard Valley", "Barbarian Camp"]
+};
 
 // League rank calculation
 function getLeagueRank(trophies = 0) {
@@ -169,7 +178,52 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ==========================================
-// 4. MAIN HUB VIEW SWITCHER
+// 4. ZONE & LEVEL SELECTOR (BUILDER / CAPITAL / HOME)
+// ==========================================
+window.switchZone = function(zone) {
+  currentZone = zone;
+  currentTH = "ALL";
+
+  document.querySelectorAll(".zone-tab-btn").forEach(btn => {
+    btn.classList.remove("active", "text-black");
+    btn.classList.add("text-slate-300");
+  });
+
+  const activeZoneBtn = document.getElementById(`zoneTab${zone.charAt(0).toUpperCase() + zone.slice(1)}`);
+  if (activeZoneBtn) {
+    activeZoneBtn.classList.add("active");
+    activeZoneBtn.classList.remove("text-slate-300");
+  }
+
+  renderLevelFilters();
+  renderBasesUI();
+};
+
+function renderLevelFilters() {
+  const container = document.getElementById("levelFilterContainer");
+  if (!container) return;
+
+  const levels = ZONE_LEVELS[currentZone] || ZONE_LEVELS.home;
+  container.innerHTML = levels.map(lvl => `
+    <button onclick="window.setTHFilter('${lvl}')" class="base-filter-btn ${lvl === currentTH ? 'active' : ''} px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">
+      ${lvl}
+    </button>
+  `).join('');
+}
+
+window.updateUploadLevelOptions = function() {
+  const zoneSelect = document.getElementById("uploadZone");
+  const thSelect = document.getElementById("uploadTH");
+  if (!zoneSelect || !thSelect) return;
+
+  const zone = zoneSelect.value;
+  const levels = ZONE_LEVELS[zone].filter(l => l !== "ALL");
+
+  thSelect.innerHTML = levels.map(l => `<option value="${l}">${l}</option>`).join('');
+};
+
+// ==========================================
+// 5. MAIN HUB VIEW SWITCHER
 // ==========================================
 window.switchMainHubView = function(viewName) {
   const vBases = document.getElementById("viewBasesSection");
@@ -205,8 +259,21 @@ window.switchMainHubView = function(viewName) {
 };
 
 // ==========================================
-// 5. BOOKMARKS & SAVED BASES LOGIC
+// 6. SOCIAL & CREATOR FOLLOWING ENGINE
 // ==========================================
+window.handleFollowCreator = function(creatorName, creatorUid) {
+  const key = creatorUid || creatorName;
+  if (userFollowedCreators.some(c => c.key === key)) {
+    userFollowedCreators = userFollowedCreators.filter(c => c.key !== key);
+    window.showToast(`Unfollowed ${creatorName}`);
+  } else {
+    userFollowedCreators.push({ key, name: creatorName });
+    window.showToast(`Now following ${creatorName}! 🏆`);
+  }
+  localStorage.setItem("cz_followed_creators", JSON.stringify(userFollowedCreators));
+  renderBasesUI();
+};
+
 window.handleBookmarkBase = function(baseId) {
   if (userBookmarkedBases.includes(baseId)) {
     userBookmarkedBases = userBookmarkedBases.filter(id => id !== baseId);
@@ -222,30 +289,37 @@ window.handleBookmarkBase = function(baseId) {
 window.switchProfileSubTab = function(tabName) {
   const form = document.getElementById("profileDetailsForm");
   const saved = document.getElementById("profileSavedBasesWrapper");
+  const following = document.getElementById("profileFollowingWrapper");
   const uploads = document.getElementById("profileUploadsWrapper");
 
   const tabDetails = document.getElementById("pSubTabDetails");
   const tabSaved = document.getElementById("pSubTabSaved");
+  const tabFollowing = document.getElementById("pSubTabFollowing");
   const tabUploads = document.getElementById("pSubTabUploads");
 
-  [tabDetails, tabSaved, tabUploads].forEach(b => {
-    b.className = "flex-1 py-1.5 rounded-xl text-xs font-bold text-slate-400 transition";
+  [tabDetails, tabSaved, tabFollowing, tabUploads].forEach(b => {
+    b.className = "flex-1 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-400 transition shrink-0";
   });
 
   form.classList.add("hidden");
   saved.classList.add("hidden");
+  if (following) following.classList.add("hidden");
   uploads.classList.add("hidden");
 
   if (tabName === 'details') {
     form.classList.remove("hidden");
-    tabDetails.className = "flex-1 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-black transition";
+    tabDetails.className = "flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0";
   } else if (tabName === 'saved') {
     saved.classList.remove("hidden");
-    tabSaved.className = "flex-1 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-black transition";
+    tabSaved.className = "flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0";
     renderSavedBasesList();
+  } else if (tabName === 'following') {
+    if (following) following.classList.remove("hidden");
+    tabFollowing.className = "flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0";
+    renderFollowingList();
   } else if (tabName === 'uploads') {
     uploads.classList.remove("hidden");
-    tabUploads.className = "flex-1 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-black transition";
+    tabUploads.className = "flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0";
     renderMyBasesList();
   }
 };
@@ -278,8 +352,30 @@ function renderSavedBasesList() {
   `).join('');
 }
 
+function renderFollowingList() {
+  const container = document.getElementById("followingCreatorsContainer");
+  if (!container) return;
+
+  if (userFollowedCreators.length === 0) {
+    container.innerHTML = `<p class="text-xs text-slate-500 italic">You are not following any builders yet.</p>`;
+    return;
+  }
+
+  container.innerHTML = userFollowedCreators.map(c => `
+    <div class="flex items-center justify-between bg-czDark p-2 rounded-xl border border-slate-800 text-xs">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-circle-user text-amber-400 text-base"></i>
+        <span class="text-white font-bold">${c.name}</span>
+      </div>
+      <button onclick="window.handleFollowCreator('${c.name}', '${c.key}'); renderFollowingList();" class="text-rose-400 hover:text-rose-300 px-2.5 py-1 bg-rose-500/10 rounded-lg text-[11px] font-bold">
+        Unfollow
+      </button>
+    </div>
+  `).join('');
+}
+
 // ==========================================
-// 6. PRO BUILDERS LEADERBOARD LOGIC
+// 7. PRO BUILDERS LEADERBOARD LOGIC
 // ==========================================
 function renderLeaderboardUI() {
   const container = document.getElementById("leaderboardListContainer");
@@ -290,6 +386,7 @@ function renderLeaderboardUI() {
     const key = base.uploaderUid || base.uploaderName;
     if (!creatorsMap[key]) {
       creatorsMap[key] = {
+        key: key,
         name: base.uploaderName || 'Chief',
         uploads: 0,
         totalLikes: 0,
@@ -315,6 +412,7 @@ function renderLeaderboardUI() {
     if (idx === 2) rankBadge = `<span class="text-amber-600 text-base w-6"><i class="fa-solid fa-award"></i></span>`;
 
     const isPro = c.uploads >= 3;
+    const isFollowing = userFollowedCreators.some(f => f.key === c.key);
 
     return `
       <div class="flex items-center justify-between bg-czDark/80 p-3 rounded-2xl border border-slate-800 text-xs shadow-md">
@@ -328,21 +426,20 @@ function renderLeaderboardUI() {
               <span class="text-white font-bold truncate">${c.name}</span>
               ${isPro ? '<span class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 text-[9px] font-black px-1.5 py-0.2 rounded uppercase"><i class="fa-solid fa-certificate"></i> Pro</span>' : ''}
             </div>
-            <span class="text-[10px] text-slate-400">${c.uploads} Bases Published</span>
+            <span class="text-[10px] text-slate-400">${c.uploads} Layouts • ${c.totalLikes} Likes</span>
           </div>
         </div>
 
-        <div class="flex items-center gap-3 shrink-0">
-          <span class="text-rose-400 font-bold"><i class="fa-solid fa-heart mr-1"></i>${c.totalLikes}</span>
-          <span class="text-emerald-400 font-bold"><i class="fa-solid fa-download mr-1"></i>${c.totalDownloads}</span>
-        </div>
+        <button onclick="window.handleFollowCreator('${c.name}', '${c.key}'); renderLeaderboardUI();" class="px-3 py-1 rounded-xl text-xs font-bold transition ${isFollowing ? 'bg-slate-800 text-slate-300' : 'bg-amber-500 text-black shadow-cyber-gold'}">
+          ${isFollowing ? 'Following' : '+ Follow'}
+        </button>
       </div>
     `;
   }).join('');
 }
 
 // ==========================================
-// 7. RATINGS, REVIEWS & DEFENSE PROOF
+// 8. RATINGS, REVIEWS & DISCUSSION
 // ==========================================
 window.openReviewsModal = function(baseId) {
   currentReviewBaseId = baseId;
@@ -351,6 +448,20 @@ window.openReviewsModal = function(baseId) {
 
   document.getElementById("reviewModalBaseTitle").innerText = `${base.th} | ${base.title}`;
   
+  // Strategy & CC display
+  const ccElem = document.getElementById("modalCCTroops");
+  if (ccElem) ccElem.innerText = base.ccTroops || "None specified";
+
+  const armyWrapper = document.getElementById("modalArmyLinkWrapper");
+  const copyArmyBtn = document.getElementById("modalCopyArmyBtn");
+  if (base.armyLink) {
+    armyWrapper.classList.remove("hidden");
+    copyArmyBtn.onclick = () => window.copyArmyLink(base.armyLink);
+  } else {
+    armyWrapper.classList.add("hidden");
+  }
+
+  // Defense Proof Log
   const proofWrapper = document.getElementById("defenseProofWrapper");
   const proofImg = document.getElementById("defenseProofImg");
   if (base.defenseProof) {
@@ -369,7 +480,7 @@ function renderReviewsList(reviews) {
   if (!container) return;
 
   if (reviews.length === 0) {
-    container.innerHTML = `<p class="text-xs text-slate-500 italic">No reviews yet. Be the first to leave one!</p>`;
+    container.innerHTML = `<p class="text-xs text-slate-500 italic">No comments yet. Start the strategy discussion!</p>`;
     return;
   }
 
@@ -398,7 +509,7 @@ window.handleAddReview = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
   if (!user) {
-    window.showToast("Please login to post reviews!", "error");
+    window.showToast("Please login to post comments!", "error");
     window.openModal('authModal');
     return;
   }
@@ -427,7 +538,7 @@ window.handleAddReview = async function(e) {
     }
 
     document.getElementById("reviewTextInput").value = "";
-    window.showToast("Review submitted successfully! ⭐");
+    window.showToast("Strategy comment posted! ⭐");
   } catch (err) {
     console.error("Review error:", err);
     window.showToast("Failed to save review.", "error");
@@ -435,7 +546,7 @@ window.handleAddReview = async function(e) {
 };
 
 // ==========================================
-// 8. CLAN RECRUITMENT HUB LOGIC
+// 9. CLAN RECRUITMENT HUB LOGIC
 // ==========================================
 async function loadClansFromFirestore() {
   const container = document.getElementById("clansContainer");
@@ -548,7 +659,7 @@ window.handleRegisterClan = async function(e) {
 };
 
 // ==========================================
-// 9. FETCH, SORT & DISPLAY BASES
+// 10. FETCH, SORT & DISPLAY BASES
 // ==========================================
 async function loadBasesFromFirestore() {
   const container = document.getElementById("basesContainer");
@@ -593,12 +704,18 @@ function renderBasesUI() {
   const search = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
 
   let filtered = allFetchedBases.filter(base => {
+    // Zone filter check
+    const baseZone = base.zone || (base.th && base.th.startsWith("BH") ? "builder" : (base.th && !base.th.startsWith("TH") ? "capital" : "home"));
+    const matchZone = baseZone === currentZone;
+
+    // TH / District check
     const matchTH = currentTH === "ALL" || base.th === currentTH;
     const matchType = currentType === "ALL" || (base.type && base.type.toLowerCase().includes(currentType.toLowerCase()));
     const matchSearch = (base.title || "").toLowerCase().includes(search) || 
                         (base.th || "").toLowerCase().includes(search) || 
+                        (base.ccTroops || "").toLowerCase().includes(search) || 
                         (base.uploaderName || "").toLowerCase().includes(search);
-    return matchTH && matchType && matchSearch;
+    return matchZone && matchTH && matchType && matchSearch;
   });
 
   if (currentSort === "likes") {
@@ -613,8 +730,8 @@ function renderBasesUI() {
     container.innerHTML = `
       <div class="col-span-full py-16 text-center text-slate-500">
         <i class="fa-solid fa-shield-cat text-4xl mb-3 text-slate-600"></i>
-        <h3 class="text-base font-bold text-slate-300">No layouts found</h3>
-        <p class="text-xs text-slate-500 mt-1">Upload the first defense layout!</p>
+        <h3 class="text-base font-bold text-slate-300">No layouts found in this category</h3>
+        <p class="text-xs text-slate-500 mt-1">Be the first chief to upload a layout for ${currentTH}!</p>
       </div>
     `;
     return;
@@ -624,6 +741,7 @@ function renderBasesUI() {
     const isLiked = userLikedBases.includes(base.id);
     const isBookmarked = userBookmarkedBases.includes(base.id);
     const hasProof = !!base.defenseProof;
+    const isFollowingCreator = userFollowedCreators.some(f => f.key === (base.uploaderUid || base.uploaderName));
 
     return `
       <div class="glass-card rounded-2xl overflow-hidden transition-all duration-300 flex flex-col group shadow-cyber-card hover:border-amber-400/60 hover:-translate-y-1">
@@ -649,18 +767,30 @@ function renderBasesUI() {
         <div class="p-4 flex flex-col flex-grow justify-between">
           <div>
             <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
-              <span class="text-amber-400 font-bold truncate max-w-[130px]"><i class="fa-solid fa-circle-user mr-1"></i> ${base.uploaderName || 'Chief'}</span>
+              <div class="flex items-center gap-1.5 truncate max-w-[140px]">
+                <span class="text-amber-400 font-bold truncate"><i class="fa-solid fa-circle-user mr-1"></i> ${base.uploaderName || 'Chief'}</span>
+                <button onclick="window.handleFollowCreator('${base.uploaderName}', '${base.uploaderUid}')" class="text-[10px] ${isFollowingCreator ? 'text-slate-500' : 'text-amber-400 font-bold'} hover:underline">
+                  ${isFollowingCreator ? '• Following' : '• +Follow'}
+                </button>
+              </div>
               
               <div class="flex items-center gap-2">
                 <button onclick="window.openReviewsModal('${base.id}')" class="text-yellow-400 hover:text-yellow-300 font-semibold text-xs transition">
-                  <i class="fa-solid fa-star"></i> Reviews (${(base.reviews || []).length})
+                  <i class="fa-solid fa-comments"></i> (${(base.reviews || []).length})
                 </button>
                 <button onclick="window.handleBookmarkBase('${base.id}')" class="${isBookmarked ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'} text-sm transition" title="Save Base">
                   <i class="fa-${isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i>
                 </button>
               </div>
             </div>
-            <h3 class="font-bold text-sm text-white line-clamp-2 mb-3 leading-snug">${base.title}</h3>
+            
+            <h3 class="font-bold text-sm text-white line-clamp-2 mb-2 leading-snug">${base.title}</h3>
+
+            ${base.ccTroops ? `
+              <div class="mb-3 text-[11px] bg-czDark/60 p-1.5 rounded-lg text-slate-300 truncate border border-slate-800/80">
+                <i class="fa-solid fa-castle text-amber-400 mr-1"></i> <b class="text-white">CC:</b> ${base.ccTroops}
+              </div>
+            ` : ''}
           </div>
 
           <div>
@@ -674,6 +804,12 @@ function renderBasesUI() {
                 <i class="fa-solid fa-download text-emerald-400"></i>
                 <span id="dlCount-${base.id}">${base.downloadsCount || 0}</span>
               </div>
+
+              ${base.armyLink ? `
+                <button onclick="window.copyArmyLink('${base.armyLink}')" class="text-cyan-400 hover:text-cyan-300 transition text-[11px] font-bold" title="Copy Army Setup">
+                  <i class="fa-solid fa-wand-magic-sparkles mr-0.5"></i> Army
+                </button>
+              ` : ''}
 
               <button onclick="window.shareOnWhatsApp('${base.title}', '${base.link}')" class="text-emerald-400 hover:text-emerald-300 transition" title="Share on WhatsApp">
                 <i class="fa-brands fa-whatsapp text-sm"></i>
@@ -692,7 +828,7 @@ function renderBasesUI() {
 }
 
 // ==========================================
-// 10. LIKES, DOWNLOADS & WHATSAPP
+// 11. LIKES, DOWNLOADS, ARMY & WHATSAPP
 // ==========================================
 window.handleLikeBase = async function(baseId) {
   const isLiked = userLikedBases.includes(baseId);
@@ -738,13 +874,21 @@ window.copyBaseLink = async function(baseId, link) {
   });
 };
 
+window.copyArmyLink = function(armyLink) {
+  if (!armyLink) return;
+  navigator.clipboard.writeText(armyLink).then(() => {
+    window.showToast("✨ Army Composition Link copied!");
+    setTimeout(() => window.open(armyLink, "_blank"), 600);
+  });
+};
+
 window.shareOnWhatsApp = function(title, link) {
   const text = encodeURIComponent(`🔥 Check out this verified Clash of Clans layout on ClashZone:\n\n*${title}*\n\nDirect In-Game Link: ${link}`);
   window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
 };
 
 // ==========================================
-// 11. IMAGE LIGHTBOX
+// 12. IMAGE LIGHTBOX
 // ==========================================
 window.openLightbox = function(imageSrc) {
   const lb = document.getElementById("imageLightbox");
@@ -765,7 +909,7 @@ window.closeLightbox = function() {
 };
 
 // ==========================================
-// 12. IMAGE COMPRESSION & BASE UPLOAD
+// 13. IMAGE COMPRESSION & BASE UPLOAD
 // ==========================================
 function compressImage(file, maxWidth = 900, quality = 0.7) {
   return new Promise((resolve, reject) => {
@@ -833,10 +977,13 @@ window.handleBaseUpload = async function(e) {
     }
 
     const baseData = {
+      zone: document.getElementById("uploadZone").value,
       th: document.getElementById("uploadTH").value,
       type: document.getElementById("uploadType").value,
       title: document.getElementById("uploadTitle").value.trim(),
+      ccTroops: document.getElementById("uploadCCTroops").value.trim(),
       link: rawLink,
+      armyLink: document.getElementById("uploadArmyLink").value.trim(),
       image: base64Image,
       defenseProof: base64Proof,
       uploaderUid: user.uid,
@@ -850,21 +997,21 @@ window.handleBaseUpload = async function(e) {
     await addDoc(collection(db, "bases"), baseData);
 
     submitBtn.disabled = false;
-    submitBtn.innerHTML = `Publish Base Layout`;
+    submitBtn.innerHTML = `Publish Base & Strategy`;
     window.closeModal('uploadModal');
     e.target.reset();
     await loadBasesFromFirestore();
-    window.showToast("✅ Base layout successfully published!");
+    window.showToast("✅ Layout published successfully!");
   } catch (error) {
     console.error("Upload error:", error);
     submitBtn.disabled = false;
-    submitBtn.innerHTML = `Publish Base Layout`;
+    submitBtn.innerHTML = `Publish Base & Strategy`;
     window.showToast("Error: " + error.message, "error");
   }
 };
 
 // ==========================================
-// 13. AUTH HANDLERS & PROFILE SAVING
+// 14. AUTH HANDLERS & PROFILE SAVING
 // ==========================================
 window.openEditProfileModal = function() {
   const user = auth.currentUser;
@@ -1024,7 +1171,7 @@ window.handleLogout = function() {
 };
 
 // ==========================================
-// 14. FILTERS & MODAL HELPERS
+// 15. FILTERS & MODAL HELPERS
 // ==========================================
 window.setTHFilter = function(th) {
   currentTH = th;
@@ -1081,7 +1228,7 @@ window.switchAuthTab = function(type) {
 };
 
 // ==========================================
-// 15. PWA SERVICE WORKER & MOBILE INSTALL ENGINE
+// 16. PWA SERVICE WORKER & MOBILE INSTALL ENGINE
 // ==========================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -1134,6 +1281,8 @@ window.addEventListener('appinstalled', () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  renderLevelFilters();
+  window.updateUploadLevelOptions();
   loadBasesFromFirestore();
   loadClansFromFirestore();
 });
