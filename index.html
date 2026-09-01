@@ -34,7 +34,7 @@
             body: ['Rajdhani', 'sans-serif'],
           },
           boxShadow: {
-            'cyber-gold': '0 0 20px rgba(245, 158, 11, 0.25)',
+            'cyber-gold': '0 0 20px rgba(245, 158, 11, 0.35)',
             'cyber-card': '0 10px 30px -10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(245, 158, 11, 0.08)',
           }
         }
@@ -60,7 +60,7 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .base-filter-btn.active, .sort-btn.active, .hub-tab-btn.active, .zone-tab-btn.active {
+    .base-filter-btn.active, .sort-btn.active, .zone-tab-btn.active {
       background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
       color: #050811;
       font-weight: 800;
@@ -68,12 +68,33 @@
       box-shadow: 0 0 18px rgba(245, 158, 11, 0.45);
     }
     .glass-card {
-      background: rgba(10, 16, 29, 0.82);
-      backdrop-filter: blur(14px);
+      background: rgba(10, 16, 29, 0.85);
+      backdrop-filter: blur(16px);
       border: 1px solid rgba(245, 158, 11, 0.18);
     }
     .scrollbar-none::-webkit-scrollbar { display: none; }
     .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Bottom Nav Active State & Micro Animations */
+    .bnav-btn {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .bnav-btn.active {
+      color: #fbbf24;
+      transform: translateY(-2px);
+    }
+    .bnav-btn.active .bnav-dot {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .bnav-dot {
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.25s ease;
+    }
+    .bnav-btn:active {
+      transform: scale(0.88);
+    }
 
     .skeleton-box {
       background: linear-gradient(90deg, #0a101d 25%, #162238 50%, #0a101d 75%);
@@ -92,7 +113,7 @@
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- TOP HEADER -->
-  <header class="sticky top-0 z-40 bg-czDark/90 backdrop-blur-xl border-b border-czBorder w-full shadow-lg">
+  <header class="sticky top-0 z-40 bg-czDark/95 backdrop-blur-xl border-b border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
       <a href="index.html" class="flex items-center gap-2.5 shrink-0">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-yellow-400 p-[1.5px] shadow-cyber-gold shrink-0">
@@ -105,19 +126,6 @@
           <span class="text-[8px] sm:text-[9px] uppercase tracking-widest text-slate-400 font-bold block">Supercell Verified Hub</span>
         </div>
       </a>
-
-      <!-- Desktop Navigation Tabs -->
-      <div class="hidden md:flex items-center gap-2 bg-czPanel border border-slate-800 p-1 rounded-2xl">
-        <button onclick="window.switchMainHubView('bases')" id="hubTabBases" class="hub-tab-btn active px-4 py-1.5 rounded-xl text-xs font-bold transition">
-          <i class="fa-solid fa-layer-group mr-1.5"></i> Layouts
-        </button>
-        <button onclick="window.switchMainHubView('leaderboard')" id="hubTabLeaderboard" class="hub-tab-btn px-4 py-1.5 rounded-xl text-xs font-bold text-slate-400 transition hover:text-white">
-          <i class="fa-solid fa-trophy mr-1.5 text-amber-400"></i> Top Creators
-        </button>
-        <button onclick="window.switchMainHubView('clans')" id="hubTabClans" class="hub-tab-btn px-4 py-1.5 rounded-xl text-xs font-bold text-slate-400 transition hover:text-white">
-          <i class="fa-solid fa-flag-checkered mr-1.5 text-rose-400"></i> Clan Hub
-        </button>
-      </div>
 
       <!-- Header Actions -->
       <div class="flex items-center gap-2 shrink-0">
@@ -135,19 +143,6 @@
       </div>
     </div>
   </header>
-
-  <!-- MOBILE TOP HUB SELECTOR -->
-  <div class="md:hidden flex items-center justify-around bg-czPanel border-b border-czBorder/50 py-2 px-3 text-xs">
-    <button onclick="window.switchMainHubView('bases')" id="mHubTabBases" class="hub-tab-btn active px-3 py-1.5 rounded-xl font-bold transition">
-      <i class="fa-solid fa-layer-group mr-1"></i> Bases
-    </button>
-    <button onclick="window.switchMainHubView('leaderboard')" id="mHubTabLeaderboard" class="hub-tab-btn px-3 py-1.5 rounded-xl font-bold text-slate-400 transition">
-      <i class="fa-solid fa-trophy mr-1 text-amber-400"></i> Creators
-    </button>
-    <button onclick="window.switchMainHubView('clans')" id="mHubTabClans" class="hub-tab-btn px-3 py-1.5 rounded-xl font-bold text-slate-400 transition">
-      <i class="fa-solid fa-flag mr-1 text-rose-400"></i> Clans
-    </button>
-  </div>
 
   <!-- MAIN CONTAINER -->
   <div class="max-w-7xl mx-auto px-4 pt-4 w-full overflow-hidden">
@@ -169,7 +164,7 @@
               </span>
 
               <span id="dashBuilderBadge" class="hidden bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">
-                <i class="fa-solid fa-certificate mr-1"></i>Pro Builder (10+)
+                <i class="fa-solid fa-certificate mr-1"></i>Pro Builder
               </span>
 
               <span id="dashLeagueBadge" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">Legend League</span>
@@ -197,16 +192,16 @@
             <span class="text-[9px] text-slate-400 font-bold uppercase block leading-none mb-0.5">Trophies</span>
             <b id="dashTrophies" class="text-amber-400 text-xs sm:text-sm font-black">🏆 5000</b>
           </div>
-          <button onclick="window.openEditProfileModal()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-4 py-2 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition flex-1 sm:flex-initial shadow-cyber-gold shrink-0">
+          <button onclick="window.switchMainHubView('profile')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-4 py-2 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition flex-1 sm:flex-initial shadow-cyber-gold shrink-0">
             <i class="fa-solid fa-arrows-rotate"></i>
-            <span>Profile & Vault</span>
+            <span>Sync Stats</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- VIEW 1: BASES SECTION -->
-    <div id="viewBasesSection">
+    <!-- VIEW 1: FEED SECTION (HOME / BASES) -->
+    <div id="viewFeedSection">
       <section class="py-2 sm:py-4 text-center w-full">
         <h1 class="gaming-title text-2xl sm:text-5xl font-black text-white uppercase tracking-wider leading-tight">
           Meta Defense <span class="gold-gradient">& Capital Maps</span>
@@ -289,17 +284,15 @@
       </main>
     </div>
 
-    <!-- VIEW 2: LEADERBOARD SECTION -->
-    <div id="viewLeaderboardSection" class="hidden py-4">
+    <!-- VIEW 2: SAVED VAULT SECTION (1-TAP DIRECT ACCESS) -->
+    <div id="viewVaultSection" class="hidden py-4">
       <div class="text-center mb-6">
-        <h2 class="gaming-title text-2xl sm:text-4xl font-black text-white gold-gradient">Pro Builders Leaderboard</h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-1">Top verified creators ranked by total followers and layout quality.</p>
+        <h2 class="gaming-title text-2xl sm:text-4xl font-black text-white gold-gradient">Saved Layouts Vault</h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">Your bookmarked defense layouts ready to copy anytime.</p>
       </div>
 
-      <div class="max-w-3xl mx-auto glass-card rounded-3xl p-4 sm:p-6 shadow-cyber-card border-amber-500/30">
-        <div class="space-y-3" id="leaderboardListContainer">
-          <p class="text-xs text-slate-500 text-center py-6">Calculating builder stats...</p>
-        </div>
+      <div class="max-w-4xl mx-auto space-y-3" id="directVaultContainer">
+        <p class="text-xs text-slate-500 text-center py-10">Loading saved layouts...</p>
       </div>
     </div>
 
@@ -320,33 +313,120 @@
       </div>
     </div>
 
+    <!-- VIEW 4: MY PROFILE SECTION -->
+    <div id="viewProfileSection" class="hidden py-4">
+      <div class="max-w-xl mx-auto glass-card rounded-3xl p-5 sm:p-6 shadow-cyber-card border-amber-500/30">
+        <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2 mb-1">
+          <i class="fa-solid fa-id-badge"></i> Chief Profile & Live API Sync
+        </h3>
+        <p class="text-xs text-slate-400 mb-4">Sync your Player Tag directly with official Supercell servers.</p>
+
+        <form onsubmit="window.handleSaveProfile(event)" class="space-y-3">
+          <div class="bg-czDark p-3.5 rounded-2xl border border-amber-500/30">
+            <label class="block text-xs font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt"></i> Live Supercell Player Tag
+            </label>
+            <div class="flex gap-2">
+              <input type="text" id="editTag" placeholder="#P9L80YQ2" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white uppercase outline-none focus:border-amber-400 font-mono font-bold" />
+              <button type="button" id="btnSyncPlayerTag" onclick="window.handleLiveSupercellSync()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-4 py-2 rounded-xl text-xs font-black shrink-0 transition flex items-center gap-1.5 shadow-cyber-gold">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Sync Live</span>
+              </button>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Verifies Town Hall, Trophies, War Stars & Heroes automatically.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">In-Game Name (IGN)</label>
+            <input type="text" id="editName" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400 font-bold" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">Town Hall Level</label>
+              <input type="text" id="editTH" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-amber-400 font-bold outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">Trophies 🏆</label>
+              <input type="number" id="editTrophies" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-amber-400 font-bold outline-none" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">Clan</label>
+              <input type="text" id="editClan" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1">War Stars ⭐</label>
+              <input type="number" id="editWarStars" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-yellow-400 font-bold outline-none" />
+            </div>
+          </div>
+
+          <button type="submit" id="btnSaveProfile" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold mt-2">
+            Save Verified Details
+          </button>
+        </form>
+
+        <div class="mt-5 pt-3 border-t border-slate-800">
+          <button onclick="window.handleLogout()" class="w-full bg-rose-500/10 hover:bg-rose-500 hover:text-white border border-rose-500/30 text-rose-400 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-power-off"></i>
+            <span>Logout Account</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- FIXED BOTTOM NAVIGATION BAR -->
-  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-czDark/95 backdrop-blur-xl border-t border-czBorder px-6 py-2.5 w-full shadow-2xl">
-    <div class="max-w-md mx-auto flex items-center justify-between px-4">
-      <button onclick="window.switchMainHubView('bases')" class="flex flex-col items-center gap-1 text-amber-400 text-xs font-bold p-1 transition hover:scale-105 active:scale-95">
-        <i class="fa-solid fa-house text-xl"></i>
-        <span>Home</span>
+  <!-- FULL-WIDTH EDGE-TO-EDGE CYBER GAMING BOTTOM NAVIGATION BAR -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#050811]/95 backdrop-blur-2xl border-t border-amber-500/30 px-3 py-2 w-full shadow-2xl shadow-black">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
+      
+      <!-- 1. Feed / Home -->
+      <button onclick="window.switchMainHubView('feed')" id="bnavFeed" class="bnav-btn active flex-1 flex flex-col items-center gap-0.5 text-slate-400 text-center cursor-pointer">
+        <i class="fa-solid fa-house text-base"></i>
+        <span class="text-[10px] font-bold tracking-wider">Feed</span>
+        <span class="bnav-dot w-1 h-1 rounded-full bg-amber-400 shadow-cyber-gold"></span>
       </button>
 
-      <button onclick="window.openModal('uploadModal')" class="w-13 h-13 -mt-6 rounded-2xl bg-gradient-to-tr from-amber-600 to-yellow-400 text-black flex items-center justify-center text-2xl font-black shadow-cyber-gold hover:scale-110 active:scale-95 transition shrink-0 p-3">
-        <i class="fa-solid fa-plus"></i>
+      <!-- 2. Saved Vault (Direct Access) -->
+      <button onclick="window.switchMainHubView('vault')" id="bnavVault" class="bnav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 text-center cursor-pointer">
+        <i class="fa-solid fa-bookmark text-base"></i>
+        <span class="text-[10px] font-bold tracking-wider">Saved</span>
+        <span class="bnav-dot w-1 h-1 rounded-full bg-amber-400 shadow-cyber-gold"></span>
       </button>
 
-      <button onclick="window.openEditProfileModal()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white text-xs font-bold p-1 transition hover:scale-105 active:scale-95">
-        <i class="fa-solid fa-id-card text-xl"></i>
-        <span>Profile</span>
+      <!-- 3. Center Elevated Floating Upload Button -->
+      <div class="flex-1 flex justify-center -mt-6">
+        <button onclick="window.openModal('uploadModal')" class="w-13 h-13 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-black flex items-center justify-center text-xl font-black shadow-cyber-gold border border-yellow-200/50 hover:scale-110 active:scale-90 transition transform">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+
+      <!-- 4. Clan Hub -->
+      <button onclick="window.switchMainHubView('clans')" id="bnavClans" class="bnav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 text-center cursor-pointer">
+        <i class="fa-solid fa-shield-halved text-base"></i>
+        <span class="text-[10px] font-bold tracking-wider">Clans</span>
+        <span class="bnav-dot w-1 h-1 rounded-full bg-amber-400 shadow-cyber-gold"></span>
       </button>
+
+      <!-- 5. Profile -->
+      <button onclick="window.switchMainHubView('profile')" id="bnavProfile" class="bnav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 text-center cursor-pointer">
+        <i class="fa-solid fa-id-card text-base"></i>
+        <span class="text-[10px] font-bold tracking-wider">Profile</span>
+        <span class="bnav-dot w-1 h-1 rounded-full bg-amber-400 shadow-cyber-gold"></span>
+      </button>
+
     </div>
   </nav>
 
-  <!-- DEDICATED FULL BASE DETAILS & STRATEGY HUB (ON CARD/IMAGE CLICK) -->
+  <!-- FULL BASE DETAILS HUB (ON CARD CLICK) -->
   <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="baseDetailsModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-2xl p-5 sm:p-6 relative shadow-cyber-card my-auto max-h-[92vh] overflow-y-auto">
       <button onclick="window.closeModal('baseDetailsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center z-10">✕</button>
 
-      <!-- HD Base Image with Full Screen Expand -->
+      <!-- Base Image -->
       <div class="relative h-64 sm:h-80 rounded-2xl overflow-hidden bg-czDark border border-slate-800 mb-4 group">
         <img id="modalBaseImg" src="" alt="Base Map Layout" class="w-full h-full object-cover" />
         <span id="modalBaseTH" class="absolute top-3 left-3 bg-czDark/95 text-amber-400 border border-amber-400/40 text-xs font-black px-3 py-1 rounded-lg backdrop-blur-md shadow-cyber-gold"></span>
@@ -389,7 +469,7 @@
         </div>
       </div>
 
-      <!-- Action Buttons: Direct In-Game Copy & Army Link -->
+      <!-- Copy Action Buttons -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6">
         <button id="modalCopyBaseBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black font-black py-3 rounded-xl text-xs flex items-center justify-center gap-2 uppercase tracking-wider transition shadow-cyber-gold">
           <i class="fa-solid fa-copy text-sm"></i>
@@ -402,7 +482,7 @@
         </button>
       </div>
 
-      <!-- Community Strategy & Comment Discussion -->
+      <!-- Community Strategy Discussion -->
       <div class="pt-4 border-t border-slate-800">
         <h4 class="gaming-title text-sm text-amber-400 mb-3 flex items-center gap-2">
           <i class="fa-solid fa-comments"></i> Clasher Discussion & Tips
@@ -629,112 +709,6 @@
           Create Verified Account
         </button>
       </form>
-    </div>
-  </div>
-
-  <!-- PROFILE, SAVED BASES, FOLLOWING & LIVE SYNC MODAL -->
-  <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="editProfileModal">
-    <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto max-h-[90vh] overflow-y-auto">
-      <button onclick="window.closeModal('editProfileModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
-      
-      <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2">
-        <i class="fa-solid fa-id-badge"></i> Chief Profile & Live API Sync
-      </h3>
-      <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Verify your Player Tag with Supercell API to unlock verified badges.</p>
-
-      <div class="flex gap-2 mb-4 bg-czDark p-1 rounded-2xl overflow-x-auto scrollbar-none">
-        <button onclick="window.switchProfileSubTab('details')" id="pSubTabDetails" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0">Live Sync</button>
-        <button onclick="window.switchProfileSubTab('saved')" id="pSubTabSaved" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-400 transition shrink-0">Vault (Saved)</button>
-        <button onclick="window.switchProfileSubTab('following')" id="pSubTabFollowing" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-400 transition shrink-0">Following</button>
-        <button onclick="window.switchProfileSubTab('uploads')" id="pSubTabUploads" class="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-400 transition shrink-0">My Uploads</button>
-      </div>
-
-      <!-- Tab 1: Live API Sync & Profile Form -->
-      <form id="profileDetailsForm" onsubmit="window.handleSaveProfile(event)" class="space-y-3">
-        <div class="bg-czDark p-3 rounded-2xl border border-amber-500/30">
-          <label class="block text-xs font-bold text-amber-400 mb-1 flex items-center gap-1.5">
-            <i class="fa-solid fa-bolt"></i> Live Supercell Player Tag
-          </label>
-          <div class="flex gap-2">
-            <input type="text" id="editTag" placeholder="#P9L80YQ2" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white uppercase outline-none focus:border-amber-400 font-mono font-bold" />
-            <button type="button" id="btnSyncPlayerTag" onclick="window.handleLiveSupercellSync()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-4 py-2 rounded-xl text-xs font-black shrink-0 transition flex items-center gap-1.5 shadow-cyber-gold">
-              <i class="fa-solid fa-arrows-rotate"></i>
-              <span>Sync Live</span>
-            </button>
-          </div>
-          <p class="text-[10px] text-slate-400 mt-1">Tap 'Sync Live' to automatically verify Town Hall, Trophies, War Stars & Heroes.</p>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">In-Game Name (IGN)</label>
-          <input type="text" id="editName" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400 font-bold" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-2.5">
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Town Hall Level</label>
-            <input type="text" id="editTH" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-amber-400 font-bold outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Trophies 🏆</label>
-            <input type="number" id="editTrophies" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-amber-400 font-bold outline-none" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2.5">
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">Clan</label>
-            <input type="text" id="editClan" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-300 mb-1">War Stars ⭐</label>
-            <input type="number" id="editWarStars" readonly class="w-full bg-czDark/60 border border-slate-700 rounded-xl p-2.5 text-xs text-yellow-400 font-bold outline-none" />
-          </div>
-        </div>
-
-        <button type="submit" id="btnSaveProfile" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold mt-2">
-          Save Verified Details
-        </button>
-      </form>
-
-      <!-- Tab 2: Saved / Bookmarked Bases -->
-      <div id="profileSavedBasesWrapper" class="hidden space-y-2">
-        <h4 class="text-xs font-black uppercase text-amber-400 mb-2 flex items-center gap-1.5">
-          <i class="fa-solid fa-bookmark"></i> Bookmarked Layouts
-        </h4>
-        <div id="savedBasesContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
-          <p class="text-xs text-slate-500 italic">No bookmarked bases found.</p>
-        </div>
-      </div>
-
-      <!-- Tab 3: Following Creators -->
-      <div id="profileFollowingWrapper" class="hidden space-y-2">
-        <h4 class="text-xs font-black uppercase text-amber-400 mb-2 flex items-center gap-1.5">
-          <i class="fa-solid fa-user-plus"></i> Creators You Follow
-        </h4>
-        <div id="followingCreatorsContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
-          <p class="text-xs text-slate-500 italic">You are not following any builders yet.</p>
-        </div>
-      </div>
-
-      <!-- Tab 4: My Uploaded Bases -->
-      <div id="profileUploadsWrapper" class="hidden space-y-2">
-        <h4 class="text-xs font-black uppercase text-amber-400 mb-2 flex items-center gap-1.5">
-          <i class="fa-solid fa-layer-group"></i> Uploaded Bases
-        </h4>
-        <div id="myBasesContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
-          <p class="text-xs text-slate-500 italic">You haven't uploaded any layouts yet.</p>
-        </div>
-      </div>
-
-      <!-- Logout Button -->
-      <div class="mt-4 pt-3 border-t border-slate-800">
-        <button onclick="window.handleLogout()" class="w-full bg-rose-500/10 hover:bg-rose-500 hover:text-white border border-rose-500/30 text-rose-400 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
-          <i class="fa-solid fa-power-off"></i>
-          <span>Logout Account</span>
-        </button>
-      </div>
-
     </div>
   </div>
 

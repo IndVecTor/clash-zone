@@ -19,7 +19,6 @@ import {
   updateDoc, 
   increment, 
   arrayUnion, 
-  arrayRemove,
   query, 
   orderBy, 
   serverTimestamp 
@@ -111,7 +110,6 @@ window.handleSmartLinkValidation = function(rawLink) {
   const cleanLink = rawLink.trim();
   const isOfficial = cleanLink.startsWith("https://link.clashofclans.com/") || cleanLink.startsWith("http://link.clashofclans.com/");
   const isLayoutAction = cleanLink.includes("action=OpenLayout");
-
   const isDuplicate = allFetchedBases.some(b => b.link && b.link.trim() === cleanLink);
 
   if (isDuplicate) {
@@ -332,7 +330,7 @@ onAuthStateChanged(auth, async (user) => {
     
     if (headerAuth) {
       headerAuth.innerHTML = `
-        <button onclick="window.openEditProfileModal()" class="flex items-center gap-2 bg-czPanel border border-slate-700 hover:border-amber-400/50 px-3.5 py-1.5 rounded-xl text-xs transition shadow-md">
+        <button onclick="window.switchMainHubView('profile')" class="flex items-center gap-2 bg-czPanel border border-slate-700 hover:border-amber-400/50 px-3.5 py-1.5 rounded-xl text-xs transition shadow-md">
           <i class="fa-solid fa-circle-user text-amber-400 text-sm"></i>
           <span class="font-bold text-white max-w-[110px] truncate" id="headerUserName">${defaultName}</span>
         </button>
@@ -362,7 +360,6 @@ onAuthStateChanged(auth, async (user) => {
             verifiedBadge.classList.remove("hidden");
           }
 
-          // PRO BUILDER BADGE (10+ UPLOADS)
           const userBasesCount = allFetchedBases.filter(b => b.uploaderUid === user.uid).length;
           const builderBadge = document.getElementById("dashBuilderBadge");
           if (builderBadge) {
@@ -462,43 +459,104 @@ window.updateUploadLevelOptions = function() {
 };
 
 // ==========================================
-// 8. MAIN HUB VIEW SWITCHER
+// 8. MINIMAL UTILITY HUB NAVIGATION SWITCHER
 // ==========================================
 window.switchMainHubView = function(viewName) {
-  const vBases = document.getElementById("viewBasesSection");
-  const vLeaderboard = document.getElementById("viewLeaderboardSection");
+  const vFeed = document.getElementById("viewFeedSection");
+  const vVault = document.getElementById("viewVaultSection");
   const vClans = document.getElementById("viewClansSection");
+  const vProfile = document.getElementById("viewProfileSection");
 
-  const tabs = ["Bases", "Leaderboard", "Clans"];
-  tabs.forEach(t => {
-    const desktopBtn = document.getElementById(`hubTab${t}`);
-    const mobileBtn = document.getElementById(`mHubTab${t}`);
-    if (desktopBtn) desktopBtn.className = "hub-tab-btn px-4 py-1.5 rounded-xl text-xs font-bold text-slate-400 transition hover:text-white";
-    if (mobileBtn) mobileBtn.className = "hub-tab-btn px-3 py-1.5 rounded-xl font-bold text-slate-400 transition";
+  // Reset Bottom Nav Button States
+  const navTabs = ['Feed', 'Vault', 'Clans', 'Profile'];
+  navTabs.forEach(tab => {
+    const btn = document.getElementById(`bnav${tab}`);
+    if (btn) btn.classList.remove('active');
   });
 
-  const activeDesktop = document.getElementById(`hubTab${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`);
-  const activeMobile = document.getElementById(`mHubTab${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`);
-  if (activeDesktop) activeDesktop.className = "hub-tab-btn active px-4 py-1.5 rounded-xl text-xs font-bold transition";
-  if (activeMobile) activeMobile.className = "hub-tab-btn active px-3 py-1.5 rounded-xl font-bold transition";
+  const activeBtn = document.getElementById(`bnav${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`);
+  if (activeBtn) activeBtn.classList.add('active');
 
-  if (vBases) vBases.classList.add("hidden");
-  if (vLeaderboard) vLeaderboard.classList.add("hidden");
+  // Hide all sections
+  if (vFeed) vFeed.classList.add("hidden");
+  if (vVault) vVault.classList.add("hidden");
   if (vClans) vClans.classList.add("hidden");
+  if (vProfile) vProfile.classList.add("hidden");
 
-  if (viewName === 'bases') {
-    vBases.classList.remove("hidden");
-  } else if (viewName === 'leaderboard') {
-    vLeaderboard.classList.remove("hidden");
-    renderLeaderboardUI();
+  // Show selected section
+  if (viewName === 'feed') {
+    vFeed.classList.remove("hidden");
+  } else if (viewName === 'vault') {
+    vVault.classList.remove("hidden");
+    renderDirectVaultUI();
   } else if (viewName === 'clans') {
     vClans.classList.remove("hidden");
     loadClansFromFirestore();
+  } else if (viewName === 'profile') {
+    vProfile.classList.remove("hidden");
+    populateProfileForm();
   }
 };
 
 // ==========================================
-// 9. FULL BASE DETAILS HUB (OPEN MODAL ON CLICK)
+// 9. DIRECT SAVED VAULT VIEW ENGINE
+// ==========================================
+function renderDirectVaultUI() {
+  const container = document.getElementById("directVaultContainer");
+  if (!container) return;
+
+  const savedList = allFetchedBases.filter(b => userBookmarkedBases.includes(b.id));
+  
+  if (savedList.length === 0) {
+    container.innerHTML = `
+      <div class="glass-card rounded-3xl p-10 text-center text-slate-500">
+        <i class="fa-regular fa-bookmark text-4xl mb-3 text-slate-600"></i>
+        <h3 class="text-base font-bold text-slate-300">Your Saved Vault is Empty</h3>
+        <p class="text-xs text-slate-500 mt-1">Bookmark layouts from the feed to quickly copy them during war prep!</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = savedList.map(b => `
+    <div class="glass-card rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 border-slate-800 hover:border-amber-400/50 transition">
+      <div class="flex items-center gap-3 min-w-0 cursor-pointer flex-1" onclick="window.openBaseDetailsModal('${b.id}')">
+        <img src="${b.image}" alt="${b.title}" class="w-14 h-14 rounded-xl object-cover border border-slate-800 shrink-0" />
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 mb-1">
+            <span class="bg-amber-500/20 text-amber-400 font-bold px-2 py-0.5 rounded text-[10px] shrink-0">${b.th}</span>
+            <span class="text-[10px] text-slate-400 truncate">by ${b.uploaderName}</span>
+          </div>
+          <h4 class="text-xs sm:text-sm font-bold text-white truncate">${b.title}</h4>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <button onclick="window.copyBaseLink('${b.id}', '${b.link}')" class="bg-amber-500 hover:bg-amber-400 text-black px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-cyber-gold">
+          <i class="fa-solid fa-copy"></i>
+          <span class="hidden sm:inline">Copy Link</span>
+        </button>
+        <button onclick="window.handleBookmarkBase('${b.id}'); renderDirectVaultUI();" class="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition text-xs" title="Remove from Vault">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function populateProfileForm() {
+  const user = auth.currentUser;
+  if (!user) return;
+  document.getElementById("editName").value = currentUserProfile?.name || user.displayName || "";
+  document.getElementById("editTH").value = currentUserProfile?.townHallLevel || "TH 16";
+  document.getElementById("editTag").value = currentUserProfile?.tag || "";
+  document.getElementById("editClan").value = currentUserProfile?.clanName || "Solo";
+  document.getElementById("editTrophies").value = currentUserProfile?.trophies || 5000;
+  document.getElementById("editWarStars").value = currentUserProfile?.warStars || 0;
+}
+
+// ==========================================
+// 10. FULL BASE DETAILS MODAL (ON CARD CLICK)
 // ==========================================
 window.openBaseDetailsModal = function(baseId) {
   const base = allFetchedBases.find(b => b.id === baseId);
@@ -511,7 +569,6 @@ window.openBaseDetailsModal = function(baseId) {
   document.getElementById("modalBaseTitle").innerText = base.title;
   document.getElementById("modalBaseUploader").innerText = `Chief ${base.uploaderName || 'Clasher'}`;
 
-  // Badges
   const verifiedTag = document.getElementById("modalUploaderVerified");
   const proTag = document.getElementById("modalUploaderPro");
   
@@ -522,7 +579,6 @@ window.openBaseDetailsModal = function(baseId) {
   if (creatorUploads >= 10) proTag.classList.remove("hidden");
   else proTag.classList.add("hidden");
 
-  // Follow Button in Details
   const followBtn = document.getElementById("modalFollowBtn");
   const creatorKey = base.uploaderUid || base.uploaderName;
   const isFollowing = userFollowedCreators.some(f => f.key === creatorKey);
@@ -534,7 +590,6 @@ window.openBaseDetailsModal = function(baseId) {
     window.openBaseDetailsModal(baseId);
   };
 
-  // Bookmark Button in Details
   const bmBtn = document.getElementById("modalBookmarkBtn");
   const isBookmarked = userBookmarkedBases.includes(base.id);
   bmBtn.innerHTML = `<i class="fa-${isBookmarked ? 'solid text-amber-400' : 'regular'} fa-bookmark"></i>`;
@@ -543,11 +598,9 @@ window.openBaseDetailsModal = function(baseId) {
     window.openBaseDetailsModal(baseId);
   };
 
-  // CC Troops
   const ccText = document.getElementById("modalCCText");
   ccText.innerText = base.ccTroops || "No specific CC required";
 
-  // Defense Proof
   const proofBox = document.getElementById("modalProofBox");
   const proofImg = document.getElementById("modalProofImg");
   if (base.defenseProof) {
@@ -557,11 +610,9 @@ window.openBaseDetailsModal = function(baseId) {
     proofBox.classList.add("hidden");
   }
 
-  // Copy In-game Link
   const copyBaseBtn = document.getElementById("modalCopyBaseBtn");
   copyBaseBtn.onclick = () => window.copyBaseLink(base.id, base.link);
 
-  // Army Link
   const copyArmyBtn = document.getElementById("modalCopyArmyBtn");
   if (base.armyLink) {
     copyArmyBtn.classList.remove("hidden");
@@ -571,14 +622,12 @@ window.openBaseDetailsModal = function(baseId) {
     copyArmyBtn.classList.add("hidden");
   }
 
-  // Reviews
   renderReviewsList(base.reviews || []);
-
   window.openModal('baseDetailsModal');
 };
 
 // ==========================================
-// 10. FOLLOW & CREATOR PROFILE SYSTEM
+// 11. FOLLOW & BOOKMARK LOGIC
 // ==========================================
 window.handleFollowCreator = async function(creatorName, creatorUid) {
   const key = creatorUid || creatorName;
@@ -604,13 +653,12 @@ window.handleFollowCreator = async function(creatorName, creatorUid) {
 
   localStorage.setItem("cz_followed_creators", JSON.stringify(userFollowedCreators));
   renderBasesUI();
-  renderLeaderboardUI();
 };
 
 window.handleBookmarkBase = function(baseId) {
   if (userBookmarkedBases.includes(baseId)) {
     userBookmarkedBases = userBookmarkedBases.filter(id => id !== baseId);
-    window.showToast("Removed from bookmarks.");
+    window.showToast("Removed from Saved Vault.");
   } else {
     userBookmarkedBases.push(baseId);
     window.showToast("Base saved to your Vault! 🔖");
@@ -619,173 +667,8 @@ window.handleBookmarkBase = function(baseId) {
   renderBasesUI();
 };
 
-window.switchProfileSubTab = function(tabName) {
-  const form = document.getElementById("profileDetailsForm");
-  const saved = document.getElementById("profileSavedBasesWrapper");
-  const following = document.getElementById("profileFollowingWrapper");
-  const uploads = document.getElementById("profileUploadsWrapper");
-
-  const tabDetails = document.getElementById("pSubTabDetails");
-  const tabSaved = document.getElementById("pSubTabSaved");
-  const tabFollowing = document.getElementById("pSubTabFollowing");
-  const tabUploads = document.getElementById("pSubTabUploads");
-
-  [tabDetails, tabSaved, tabFollowing, tabUploads].forEach(b => {
-    b.className = "flex-1 py-1.5 px-3 rounded-xl text-xs font-bold text-slate-400 transition shrink-0";
-  });
-
-  form.classList.add("hidden");
-  saved.classList.add("hidden");
-  if (following) following.classList.add("hidden");
-  uploads.classList.add("hidden");
-
-  if (tabName === 'details') {
-    form.classList.remove("hidden");
-    tabDetails.className = "flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0";
-  } else if (tabName === 'saved') {
-    saved.classList.remove("hidden");
-    tabSaved.className = "flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0";
-    renderSavedBasesList();
-  } else if (tabName === 'following') {
-    if (following) following.classList.remove("hidden");
-    tabFollowing.className = "flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0";
-    renderFollowingList();
-  } else if (tabName === 'uploads') {
-    uploads.classList.remove("hidden");
-    tabUploads.className = "flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-amber-500 text-black transition shrink-0";
-    renderMyBasesList();
-  }
-};
-
-function renderSavedBasesList() {
-  const container = document.getElementById("savedBasesContainer");
-  if (!container) return;
-
-  const savedList = allFetchedBases.filter(b => userBookmarkedBases.includes(b.id));
-  if (savedList.length === 0) {
-    container.innerHTML = `<p class="text-xs text-slate-500 italic">No bookmarked bases yet.</p>`;
-    return;
-  }
-
-  container.innerHTML = savedList.map(b => `
-    <div class="flex items-center justify-between bg-czDark p-2 rounded-xl border border-slate-800 text-xs">
-      <div class="flex items-center gap-2 min-w-0 cursor-pointer" onclick="window.openBaseDetailsModal('${b.id}')">
-        <span class="bg-amber-500/20 text-amber-400 font-bold px-1.5 py-0.5 rounded text-[10px] shrink-0">${b.th}</span>
-        <span class="text-white truncate font-medium max-w-[170px]">${b.title}</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <button onclick="window.copyBaseLink('${b.id}', '${b.link}')" class="text-amber-400 hover:text-white px-2 py-1 bg-amber-500/10 rounded-lg shrink-0">
-          <i class="fa-solid fa-copy"></i>
-        </button>
-        <button onclick="window.handleBookmarkBase('${b.id}'); renderSavedBasesList();" class="text-rose-400 hover:text-rose-300 px-2 py-1 bg-rose-500/10 rounded-lg shrink-0" title="Remove">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderFollowingList() {
-  const container = document.getElementById("followingCreatorsContainer");
-  if (!container) return;
-
-  if (userFollowedCreators.length === 0) {
-    container.innerHTML = `<p class="text-xs text-slate-500 italic">You are not following any builders yet.</p>`;
-    return;
-  }
-
-  container.innerHTML = userFollowedCreators.map(c => `
-    <div class="flex items-center justify-between bg-czDark p-2.5 rounded-xl border border-slate-800 text-xs">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400 font-bold">
-          ${c.name.charAt(0).toUpperCase()}
-        </div>
-        <div>
-          <span class="text-white font-bold block">${c.name}</span>
-          <span class="text-[10px] text-slate-400">Creator</span>
-        </div>
-      </div>
-      <button onclick="window.handleFollowCreator('${c.name}', '${c.key}'); renderFollowingList();" class="text-rose-400 hover:text-rose-300 px-3 py-1 bg-rose-500/10 rounded-lg text-xs font-bold transition">
-        Unfollow
-      </button>
-    </div>
-  `).join('');
-}
-
 // ==========================================
-// 11. PRO BUILDERS LEADERBOARD (FOLLOWER BASED)
-// ==========================================
-function renderLeaderboardUI() {
-  const container = document.getElementById("leaderboardListContainer");
-  if (!container) return;
-
-  const creatorsMap = {};
-  allFetchedBases.forEach(base => {
-    const key = base.uploaderUid || base.uploaderName;
-    if (!creatorsMap[key]) {
-      creatorsMap[key] = {
-        key: key,
-        uid: base.uploaderUid || null,
-        name: base.uploaderName || 'Chief',
-        uploads: 0,
-        thLevel: base.th || "TH 16",
-        isVerified: base.isSupercellVerified || false,
-        followers: userFollowedCreators.filter(f => f.key === key).length * 12 + 3 // Simulated + Local synced
-      };
-    }
-    creatorsMap[key].uploads += 1;
-  });
-
-  const rankedCreators = Object.values(creatorsMap).sort((a, b) => (b.followers * 3 + b.uploads) - (a.followers * 3 + a.uploads));
-
-  if (rankedCreators.length === 0) {
-    container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No creators active yet.</p>`;
-    return;
-  }
-
-  container.innerHTML = rankedCreators.map((c, idx) => {
-    let rankBadge = `<span class="font-bold text-slate-400 text-xs w-6">#${idx + 1}</span>`;
-    if (idx === 0) rankBadge = `<span class="text-amber-400 text-base w-6"><i class="fa-solid fa-trophy"></i></span>`;
-    if (idx === 1) rankBadge = `<span class="text-slate-300 text-base w-6"><i class="fa-solid fa-medal"></i></span>`;
-    if (idx === 2) rankBadge = `<span class="text-amber-600 text-base w-6"><i class="fa-solid fa-award"></i></span>`;
-
-    // 10+ uploads = Pro Builder
-    const isPro = c.uploads >= 10;
-    const isFollowing = userFollowedCreators.some(f => f.key === c.key);
-
-    return `
-      <div class="flex items-center justify-between bg-czDark/80 p-3 rounded-2xl border border-slate-800 text-xs shadow-md">
-        <div class="flex items-center gap-3 min-w-0">
-          ${rankBadge}
-          <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold shrink-0">
-            ${c.name.charAt(0).toUpperCase()}
-          </div>
-          <div class="min-w-0">
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="text-white font-bold truncate">${c.name}</span>
-              ${c.isVerified ? '<span class="text-emerald-400 text-[10px]" title="Supercell Verified"><i class="fa-solid fa-circle-check"></i></span>' : ''}
-              ${isPro ? '<span class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 text-[9px] font-black px-1.5 py-0.2 rounded uppercase"><i class="fa-solid fa-certificate"></i> Pro</span>' : ''}
-            </div>
-            <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
-              <span><b>${c.thLevel}</b></span>
-              <span>•</span>
-              <span>${c.uploads} Layouts</span>
-              <span>•</span>
-              <span class="text-cyan-400 font-bold"><i class="fa-solid fa-users text-[9px]"></i> ${c.followers} Followers</span>
-            </div>
-          </div>
-        </div>
-
-        <button onclick="window.handleFollowCreator('${c.name}', '${c.uid}');" class="px-3 py-1 rounded-xl text-xs font-bold transition ${isFollowing ? 'bg-slate-800 text-slate-300' : 'bg-amber-500 text-black shadow-cyber-gold'}">
-          ${isFollowing ? 'Following' : '+ Follow'}
-        </button>
-      </div>
-    `;
-  }).join('');
-}
-
-// ==========================================
-// 12. RATING & COMMENTS DISCUSSION
+// 12. RATING & REVIEWS DISCUSSION
 // ==========================================
 function renderReviewsList(reviews) {
   const container = document.getElementById("reviewsListContainer");
@@ -840,16 +723,14 @@ window.handleAddReview = async function(e) {
 
   try {
     const baseRef = doc(db, "bases", currentActiveBase.id);
-    await updateDoc(baseRef, {
-      reviews: arrayUnion(newReview)
-    });
+    await updateDoc(baseRef, { reviews: arrayUnion(newReview) });
 
     if (!currentActiveBase.reviews) currentActiveBase.reviews = [];
     currentActiveBase.reviews.push(newReview);
     renderReviewsList(currentActiveBase.reviews);
 
     document.getElementById("reviewTextInput").value = "";
-    window.showToast("Strategy tip posted! ⭐");
+    window.showToast("Strategy comment posted! ⭐");
   } catch (err) {
     window.showToast("Failed to save comment.", "error");
   }
@@ -1049,14 +930,12 @@ function renderBasesUI() {
     const creatorKey = base.uploaderUid || base.uploaderName;
     const isFollowingCreator = userFollowedCreators.some(f => f.key === creatorKey);
 
-    // 10+ Uploads check
     const creatorTotalUploads = allFetchedBases.filter(b => (b.uploaderUid && b.uploaderUid === base.uploaderUid) || b.uploaderName === base.uploaderName).length;
     const isProBuilder = creatorTotalUploads >= 10;
 
     return `
       <div class="glass-card rounded-2xl overflow-hidden transition-all duration-300 flex flex-col group shadow-cyber-card hover:border-amber-400/60 hover:-translate-y-1">
         
-        <!-- Click Image to Open Full Base Details Hub -->
         <div class="h-48 relative overflow-hidden bg-czDark cursor-pointer" onclick="window.openBaseDetailsModal('${base.id}')">
           <img src="${base.image}" alt="${base.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80'" />
           
@@ -1078,7 +957,6 @@ function renderBasesUI() {
 
         <div class="p-4 flex flex-col flex-grow justify-between">
           <div>
-            <!-- Creator Profile Header -->
             <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
               <div class="flex items-center gap-1.5 truncate max-w-[150px]">
                 <span class="text-amber-400 font-bold truncate"><i class="fa-solid fa-circle-user mr-1"></i>${base.uploaderName || 'Chief'}</span>
@@ -1279,61 +1157,6 @@ window.handleBaseUpload = async function(e) {
 // ==========================================
 // 17. AUTH HANDLERS & PROFILE SAVING
 // ==========================================
-window.openEditProfileModal = function() {
-  const user = auth.currentUser;
-  if (!user) {
-    window.openModal('authModal');
-    return;
-  }
-
-  document.getElementById("editName").value = currentUserProfile?.name || user.displayName || "";
-  document.getElementById("editTH").value = currentUserProfile?.townHallLevel || "TH 16";
-  document.getElementById("editTag").value = currentUserProfile?.tag || "";
-  document.getElementById("editClan").value = currentUserProfile?.clanName || "Solo";
-  document.getElementById("editTrophies").value = currentUserProfile?.trophies || 5000;
-  document.getElementById("editWarStars").value = currentUserProfile?.warStars || 0;
-
-  window.switchProfileSubTab('details');
-  window.openModal('editProfileModal');
-};
-
-function renderMyBasesList() {
-  const container = document.getElementById("myBasesContainer");
-  const user = auth.currentUser;
-  if (!container || !user) return;
-
-  const myBases = allFetchedBases.filter(b => b.uploaderUid === user.uid);
-  if (myBases.length === 0) {
-    container.innerHTML = `<p class="text-xs text-slate-500 italic">You haven't uploaded any layouts yet.</p>`;
-    return;
-  }
-
-  container.innerHTML = myBases.map(b => `
-    <div class="flex items-center justify-between bg-czDark p-2 rounded-xl border border-slate-800 text-xs">
-      <div class="flex items-center gap-2 min-w-0">
-        <span class="bg-amber-500/20 text-amber-400 font-bold px-1.5 py-0.5 rounded text-[10px] shrink-0">${b.th}</span>
-        <span class="text-white truncate font-medium max-w-[170px]">${b.title}</span>
-      </div>
-      <button onclick="window.handleDeleteBase('${b.id}')" class="text-rose-400 hover:text-rose-300 px-2 py-1 bg-rose-500/10 rounded-lg shrink-0" title="Delete Base">
-        <i class="fa-solid fa-trash-can"></i>
-      </button>
-    </div>
-  `).join('');
-}
-
-window.handleDeleteBase = async function(baseId) {
-  if (!confirm("Are you sure you want to delete this base layout?")) return;
-
-  try {
-    await deleteDoc(doc(db, "bases", baseId));
-    window.showToast("Base deleted successfully!");
-    await loadBasesFromFirestore();
-    renderMyBasesList();
-  } catch (err) {
-    window.showToast("Delete Error: " + err.message, "error");
-  }
-};
-
 window.handleSaveProfile = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
@@ -1362,9 +1185,8 @@ window.handleSaveProfile = async function(e) {
     await updateProfile(user, { displayName: profileData.name });
 
     currentUserProfile = profileData;
-    window.closeModal('editProfileModal');
     window.showToast("Profile and Live Stats verified!");
-    setTimeout(() => location.reload(), 1000);
+    setTimeout(() => location.reload(), 800);
   } catch (err) {
     window.showToast("Error: " + err.message, "error");
   } finally {
@@ -1515,10 +1337,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
   if (installBtn) {
     installBtn.classList.remove("hidden");
     installBtn.classList.add("flex");
-  }
-
-  if (window.showToast) {
-    window.showToast("📱 Tap 'Install App' at top to add to Home Screen!");
   }
 });
 
