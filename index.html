@@ -97,7 +97,7 @@
   <!-- TOAST NOTIFICATION -->
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- POWER-PACKED TOP HEADER -->
+  <!-- CLEAN TOP HEADER (NO CLUTTER) -->
   <header class="sticky top-0 z-40 bg-czDark/95 backdrop-blur-xl border-b border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
       
@@ -114,44 +114,13 @@
         </div>
       </a>
 
-      <!-- Quick Zone Switcher & Live CWL Timer (Desktop & Tablet) -->
-      <div class="hidden lg:flex items-center gap-3">
-        <!-- Zone Quick Pill Toggle -->
-        <div class="bg-czPanel border border-slate-800 p-1 rounded-xl flex items-center gap-1 text-xs">
-          <button onclick="window.switchZone('home')" id="headerZoneHome" class="px-3 py-1 rounded-lg font-bold bg-amber-500 text-black transition">Home</button>
-          <button onclick="window.switchZone('builder')" id="headerZoneBuilder" class="px-3 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition">Builder</button>
-          <button onclick="window.switchZone('capital')" id="headerZoneCapital" class="px-3 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition">Capital</button>
-        </div>
-
-        <!-- Live CWL Season Countdown Badge -->
-        <div class="bg-czPanel border border-amber-500/30 px-3 py-1 rounded-xl text-[11px] font-bold text-amber-400 flex items-center gap-1.5 shadow-md">
-          <i class="fa-solid fa-hourglass-half text-amber-400 animate-spin text-[10px]" style="animation-duration: 6s;"></i>
-          <span>CWL Ends: <b class="text-white font-mono">5d 12h</b></span>
-        </div>
-      </div>
-
-      <!-- Header Action Controls -->
+      <!-- Header Action Controls (Only Essential Auth & Install) -->
       <div class="flex items-center gap-2 shrink-0">
-        
-        <!-- Rankings Button -->
-        <button onclick="window.openModal('rankingsModal')" class="bg-czPanel hover:bg-slate-800 border border-amber-500/40 text-amber-400 p-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-cyber-gold" title="Pro Builders Rankings">
-          <i class="fa-solid fa-trophy text-amber-400 text-sm"></i>
-          <span class="hidden sm:inline">Rankings</span>
-        </button>
-
-        <!-- Notification Alert Bell -->
-        <button onclick="window.openModal('notificationsModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-slate-300 p-2.5 rounded-xl text-xs transition relative" title="Notifications">
-          <i class="fa-solid fa-bell text-sm"></i>
-          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 shadow-cyber-gold animate-pulse"></span>
-        </button>
-
-        <!-- PWA Install Button -->
         <button id="pwaInstallBtn" onclick="window.triggerAppInstall()" class="hidden bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-3 py-1.5 rounded-xl text-xs font-black items-center gap-1.5 transition shadow-cyber-gold animate-pulse">
           <i class="fa-solid fa-download"></i>
           <span>Install</span>
         </button>
         
-        <!-- User Auth Button -->
         <div id="headerAuthArea">
           <button onclick="window.openModal('authModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-amber-400 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
             <i class="fa-solid fa-user-lock"></i>
@@ -161,18 +130,6 @@
       </div>
     </div>
   </header>
-
-  <!-- MOBILE QUICK ZONE BAR -->
-  <div class="lg:hidden flex items-center justify-between bg-czPanel/90 border-b border-czBorder/60 px-4 py-2 text-xs">
-    <div class="flex items-center gap-1.5">
-      <button onclick="window.switchZone('home')" id="mHeaderZoneHome" class="px-3 py-1 rounded-lg font-bold bg-amber-500 text-black text-[11px] transition">Home</button>
-      <button onclick="window.switchZone('builder')" id="mHeaderZoneBuilder" class="px-3 py-1 rounded-lg font-bold text-slate-400 text-[11px] transition">Builder</button>
-      <button onclick="window.switchZone('capital')" id="mHeaderZoneCapital" class="px-3 py-1 rounded-lg font-bold text-slate-400 text-[11px] transition">Capital</button>
-    </div>
-    <div class="text-[10px] text-amber-400 font-bold font-mono">
-      ⏳ CWL: 5d 12h
-    </div>
-  </div>
 
   <!-- MAIN CONTAINER -->
   <div class="max-w-7xl mx-auto px-4 pt-4 w-full overflow-hidden">
@@ -207,13 +164,6 @@
               <span>•</span>
               <span id="dashFollowersCount" class="text-cyan-400 font-bold"><i class="fa-solid fa-users text-[10px]"></i> 0 Followers</span>
             </div>
-
-            <div id="dashHeroRibbon" class="flex items-center gap-2 mt-2 overflow-x-auto scrollbar-none text-[10px] font-bold text-slate-300">
-              <span class="bg-czDark px-2 py-0.5 rounded-lg border border-slate-800">👑 King: <b id="heroBK" class="text-amber-400">95</b></span>
-              <span class="bg-czDark px-2 py-0.5 rounded-lg border border-slate-800">🏹 Queen: <b id="heroAQ" class="text-amber-400">95</b></span>
-              <span class="bg-czDark px-2 py-0.5 rounded-lg border border-slate-800">📖 Warden: <b id="heroGW" class="text-amber-400">70</b></span>
-              <span class="bg-czDark px-2 py-0.5 rounded-lg border border-slate-800">🛡️ Champ: <b id="heroRC" class="text-amber-400">45</b></span>
-            </div>
           </div>
         </div>
 
@@ -243,6 +193,48 @@
         <div class="max-w-xl mx-auto glass-card rounded-2xl p-2 flex items-center gap-2 shadow-cyber-card focus-within:border-amber-400/60 transition w-full">
           <i class="fa-solid fa-magnifying-glass text-slate-400 ml-2.5 text-xs sm:text-sm shrink-0"></i>
           <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall, Capital District, Creator, Tag..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
+        </div>
+      </section>
+
+      <!-- SYSTEMATIC SUB-HEADER BAR: ZONES + RANKINGS + NOTIFICATIONS + CWL TIMER -->
+      <section class="py-2 w-full">
+        <div class="glass-card rounded-2xl p-2 sm:p-2.5 flex flex-col md:flex-row items-center justify-between gap-3 shadow-md">
+          
+          <!-- Left: Zone Selector (Home / Builder / Capital) -->
+          <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
+            <button onclick="window.switchZone('home')" id="zoneTabHome" class="zone-tab-btn active px-3.5 py-1.5 bg-czDark border border-slate-700 rounded-xl text-xs font-bold shrink-0 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-house-laptop text-amber-400"></i> Home Village
+            </button>
+            <button onclick="window.switchZone('builder')" id="zoneTabBuilder" class="zone-tab-btn px-3.5 py-1.5 bg-czDark border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-hammer text-cyan-400"></i> Builder Base
+            </button>
+            <button onclick="window.switchZone('capital')" id="zoneTabCapital" class="zone-tab-btn px-3.5 py-1.5 bg-czDark border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-mountain-city text-emerald-400"></i> Clan Capital
+            </button>
+          </div>
+
+          <!-- Right: Pro Rankings, Notifications & CWL Season Countdown -->
+          <div class="flex items-center gap-2 w-full md:w-auto justify-end shrink-0">
+            <!-- Rankings Modal Button -->
+            <button onclick="window.openModal('rankingsModal')" class="bg-czDark hover:bg-slate-800 border border-amber-500/40 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+              <i class="fa-solid fa-trophy text-amber-400"></i>
+              <span>Rankings</span>
+            </button>
+
+            <!-- Notifications Bell -->
+            <button onclick="window.openModal('notificationsModal')" class="bg-czDark hover:bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition relative">
+              <i class="fa-solid fa-bell text-amber-400"></i>
+              <span>Updates</span>
+              <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            </button>
+
+            <!-- CWL Timer Badge -->
+            <div class="hidden sm:flex items-center gap-1.5 bg-czDark border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-400">
+              <i class="fa-solid fa-hourglass-half text-[10px] animate-spin" style="animation-duration: 6s;"></i>
+              <span>CWL: <b class="text-white font-mono">5d 12h</b></span>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -449,7 +441,7 @@
         <span class="bnav-dot w-1 h-1 rounded-full bg-amber-400 shadow-cyber-gold"></span>
       </button>
 
-      <!-- 2. Saved Vault (Direct Access) -->
+      <!-- 2. Saved Vault -->
       <button onclick="window.switchMainHubView('vault')" id="bnavVault" class="bnav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 text-center cursor-pointer">
         <i class="fa-solid fa-bookmark text-base"></i>
         <span class="text-[10px] font-bold tracking-wider">Saved</span>
@@ -480,7 +472,7 @@
     </div>
   </nav>
 
-  <!-- FULL BASE DETAILS HUB (ON CARD CLICK) -->
+  <!-- MODALS FOR UPLOAD, BASE DETAILS & CLANS -->
   <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="baseDetailsModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-2xl p-5 sm:p-6 relative shadow-cyber-card my-auto max-h-[92vh] overflow-y-auto">
       <button onclick="window.closeModal('baseDetailsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center z-10">✕</button>
