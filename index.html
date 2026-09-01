@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ClashZone | Esports Base Layouts, Live Supercell Sync & Clan Hub</title>
   
-  <!-- PWA & Mobile Optimization with Custom Icon -->
+  <!-- PWA & Mobile Optimization -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f59e0b" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -15,7 +15,7 @@
 
   <!-- Tailwind & Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   
   <script>
@@ -102,14 +102,14 @@
   <!-- TOAST NOTIFICATION -->
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- ULTRA-CLEAN TOP BAR -->
+  <!-- TOP BAR WITH PERMANENT INSTALL BUTTON -->
   <header class="sticky top-0 z-40 bg-czDark/95 backdrop-blur-xl border-b border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
       
       <a href="index.html" class="flex items-center gap-2.5 shrink-0 group">
         <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 via-yellow-500 to-amber-300 p-[1.5px] shadow-cyber-gold shrink-0 group-hover:scale-105 transition">
           <div class="w-full h-full bg-czDark rounded-[14px] flex items-center justify-center">
-            <i class="fa-solid fa-shield-halved text-amber-400 text-lg"></i>
+            <i data-lucide="shield-check" class="text-amber-400 w-5 h-5"></i>
           </div>
         </div>
         <div class="flex flex-col">
@@ -119,14 +119,15 @@
       </a>
 
       <div class="flex items-center gap-2 shrink-0">
-        <button onclick="window.openModal('notificationsModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-slate-300 w-10 h-10 rounded-xl text-xs flex items-center justify-center transition relative shadow-sm" title="Platform & User Alerts">
-          <i class="fa-solid fa-bell text-amber-400 text-sm"></i>
-          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-cyber-gold"></span>
+        <!-- PERMANENT NON-HIDING INSTALL APP BUTTON -->
+        <button id="permanentInstallBtn" onclick="window.triggerPermanentAppInstall()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-3 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition shadow-cyber-gold cursor-pointer">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Install App</span>
         </button>
 
-        <button id="pwaInstallBtn" onclick="window.triggerAppInstall()" class="hidden bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-3 py-2 rounded-xl text-xs font-black items-center gap-1.5 transition shadow-cyber-gold animate-pulse">
-          <i class="fa-solid fa-download"></i>
-          <span>Install</span>
+        <button onclick="window.openModal('notificationsModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-slate-300 w-10 h-10 rounded-xl text-xs flex items-center justify-center transition relative shadow-sm" title="Platform Alerts">
+          <i data-lucide="bell" class="text-amber-400 w-4 h-4"></i>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-cyber-gold"></span>
         </button>
       </div>
     </div>
@@ -140,7 +141,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         <div class="flex items-center gap-3.5 min-w-0">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500/30 to-yellow-400/10 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl shadow-cyber-gold shrink-0">
-            <i class="fa-solid fa-crown"></i>
+            <i data-lucide="crown" class="w-7 h-7"></i>
           </div>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 flex-wrap">
@@ -148,11 +149,11 @@
               <span id="dashTHBadge" class="bg-amber-500 text-black text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">TH 16</span>
               
               <span id="dashVerifiedBadge" class="hidden bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 flex items-center gap-1">
-                <i class="fa-solid fa-circle-check text-emerald-400"></i> Supercell Verified
+                <i data-lucide="check-circle" class="w-3 h-3 text-emerald-400"></i> Supercell Verified
               </span>
 
-              <span id="dashBuilderBadge" class="hidden bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">
-                <i class="fa-solid fa-certificate mr-1"></i>Pro Builder
+              <span id="dashBuilderBadge" class="hidden bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 flex items-center gap-1">
+                <i data-lucide="award" class="w-3 h-3"></i> Pro Builder
               </span>
 
               <span id="dashLeagueBadge" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">Legend League</span>
@@ -161,9 +162,9 @@
             <div class="flex items-center gap-2 text-xs text-slate-400 mt-1 flex-wrap">
               <span id="dashClanInfo" class="truncate font-medium">Clan: Solo</span>
               <span>•</span>
-              <span id="dashWarStars" class="text-yellow-400 font-bold"><i class="fa-solid fa-star text-[10px]"></i> 1200 War Stars</span>
+              <span id="dashWarStars" class="text-yellow-400 font-bold inline-flex items-center gap-1"><i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 1200 War Stars</span>
               <span>•</span>
-              <span id="dashFollowersCount" class="text-cyan-400 font-bold"><i class="fa-solid fa-users text-[10px]"></i> 0 Followers</span>
+              <span id="dashFollowersCount" class="text-cyan-400 font-bold inline-flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> 0 Followers</span>
             </div>
           </div>
         </div>
@@ -174,14 +175,14 @@
             <b id="dashTrophies" class="text-amber-400 text-xs sm:text-sm font-black">🏆 5000</b>
           </div>
           <button onclick="window.switchMainHubView('profile')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-4 py-2 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition flex-1 sm:flex-initial shadow-cyber-gold shrink-0">
-            <i class="fa-solid fa-arrows-rotate"></i>
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
             <span>Sync Stats</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- VIEW 1: FEED SECTION (REDESIGNED HIGH-IMPACT HERO HOME PAGE) -->
+    <!-- VIEW 1: FEED SECTION -->
     <div id="viewFeedSection">
       
       <!-- HERO BANNER SECTION -->
@@ -191,7 +192,7 @@
 
         <div class="relative z-10 max-w-2xl mx-auto">
           <span class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] sm:text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest inline-flex items-center gap-1.5 mb-3">
-            <i class="fa-solid fa-bolt text-amber-400"></i> Esports Pro Layout Vault • TH 5 to TH 18
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Esports Pro Layout Vault • TH 5 to TH 18
           </span>
 
           <h1 class="gaming-logo text-3xl sm:text-6xl font-black text-white uppercase tracking-wider leading-tight mb-3">
@@ -202,13 +203,11 @@
             Instant 1-tap copy links for War, CWL, Anti-3 Star, and Farming bases with automated creator watermark protection & Supercell API sync.
           </p>
 
-          <!-- Quick Search Bar inside Hero -->
           <div class="max-w-md mx-auto bg-czDark border border-amber-500/40 rounded-2xl p-2 flex items-center gap-2 shadow-cyber-gold">
-            <i class="fa-solid fa-magnifying-glass text-amber-400 ml-2.5 text-sm shrink-0"></i>
+            <i data-lucide="search" class="text-amber-400 w-4 h-4 ml-2.5 shrink-0"></i>
             <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall (TH5 - TH18), Creator, Tag..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
           </div>
 
-          <!-- Quick Live Stats Ribbon -->
           <div class="grid grid-cols-3 gap-2 mt-6 max-w-md mx-auto text-center">
             <div class="bg-czDark/80 border border-slate-800 p-2 rounded-xl">
               <span class="text-[9px] text-slate-400 block uppercase font-bold">Total Layouts</span>
@@ -226,27 +225,25 @@
         </div>
       </section>
 
-      <!-- SYSTEMATIC SUB-HEADER BAR: ZONES + RANKINGS -->
+      <!-- SYSTEMATIC SUB-HEADER BAR -->
       <section class="py-2 w-full">
         <div class="glass-card rounded-2xl p-2 sm:p-2.5 flex flex-col md:flex-row items-center justify-between gap-3 shadow-md">
           
-          <!-- Left: Zone Selector -->
           <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
             <button onclick="window.switchZone('home')" id="zoneTabHome" class="zone-tab-btn active px-3.5 py-1.5 bg-czDark border border-slate-700 rounded-xl text-xs font-bold shrink-0 transition flex items-center gap-1.5">
-              <i class="fa-solid fa-house-laptop text-amber-400"></i> Home Village
+              <i data-lucide="home" class="w-3.5 h-3.5 text-amber-400"></i> Home Village
             </button>
             <button onclick="window.switchZone('builder')" id="zoneTabBuilder" class="zone-tab-btn px-3.5 py-1.5 bg-czDark border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition flex items-center gap-1.5">
-              <i class="fa-solid fa-hammer text-cyan-400"></i> Builder Base
+              <i data-lucide="hammer" class="w-3.5 h-3.5 text-cyan-400"></i> Builder Base
             </button>
             <button onclick="window.switchZone('capital')" id="zoneTabCapital" class="zone-tab-btn px-3.5 py-1.5 bg-czDark border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition flex items-center gap-1.5">
-              <i class="fa-solid fa-mountain-city text-emerald-400"></i> Clan Capital
+              <i data-lucide="mountain" class="w-3.5 h-3.5 text-emerald-400"></i> Clan Capital
             </button>
           </div>
 
-          <!-- Right: Pro Rankings Modal Button -->
           <div class="flex items-center gap-2 w-full md:w-auto justify-end shrink-0">
             <button onclick="window.openModal('rankingsModal')" class="bg-czDark hover:bg-slate-800 border border-amber-500/40 text-amber-400 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm w-full md:w-auto justify-center">
-              <i class="fa-solid fa-trophy text-amber-400"></i>
+              <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-400"></i>
               <span>Pro Builders Rankings</span>
             </button>
           </div>
@@ -254,21 +251,21 @@
         </div>
       </section>
 
-      <!-- STICKY FILTER BAR (TH 5 TO TH 18) -->
+      <!-- STICKY FILTER BAR -->
       <div class="sticky top-16 z-30 bg-czDark/95 backdrop-blur-xl py-2 -mx-4 px-4 border-b border-czBorder/60 shadow-md">
         <div class="flex items-center justify-between gap-2 overflow-x-auto pb-2 scrollbar-none mb-1">
           <div class="flex items-center gap-2">
-            <span class="text-[10px] sm:text-[11px] font-black uppercase text-amber-400 shrink-0">
-              <i class="fa-solid fa-arrow-down-short-wide mr-1"></i> Sort:
+            <span class="text-[10px] sm:text-[11px] font-black uppercase text-amber-400 shrink-0 inline-flex items-center gap-1">
+              <i data-lucide="sliders-horizontal" class="w-3 h-3"></i> Sort:
             </span>
-            <button onclick="window.setSortOption('latest')" id="sortLatest" class="sort-btn active px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold shrink-0 transition">
-              <i class="fa-solid fa-clock mr-1"></i> Latest
+            <button onclick="window.setSortOption('latest')" id="sortLatest" class="sort-btn active px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold shrink-0 transition inline-flex items-center gap-1">
+              <i data-lucide="clock" class="w-3 h-3"></i> Latest
             </button>
-            <button onclick="window.setSortOption('likes')" id="sortLikes" class="sort-btn px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">
-              <i class="fa-solid fa-heart mr-1 text-rose-500"></i> Top Liked
+            <button onclick="window.setSortOption('likes')" id="sortLikes" class="sort-btn px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1">
+              <i data-lucide="heart" class="w-3 h-3 text-rose-500"></i> Top Liked
             </button>
-            <button onclick="window.setSortOption('downloads')" id="sortDownloads" class="sort-btn px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">
-              <i class="fa-solid fa-download mr-1 text-emerald-400"></i> Most Copied
+            <button onclick="window.setSortOption('downloads')" id="sortDownloads" class="sort-btn px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1">
+              <i data-lucide="download" class="w-3 h-3 text-emerald-400"></i> Most Copied
             </button>
           </div>
           <span class="text-[11px] font-bold text-slate-400 shrink-0" id="baseCountText">0 Layouts</span>
@@ -281,12 +278,12 @@
       <section class="py-3 w-full">
         <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full max-w-full">
           <button onclick="window.setTypeFilter('ALL')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">All Layouts</button>
-          <button onclick="window.setTypeFilter('War')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-swords text-rose-400 mr-1"></i> War / CWL</button>
-          <button onclick="window.setTypeFilter('Anti 3-Star')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-shield text-amber-400 mr-1"></i> Anti 3-Star</button>
-          <button onclick="window.setTypeFilter('Anti-Edrag')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-dragon text-cyan-400 mr-1"></i> Anti-Edrag</button>
-          <button onclick="window.setTypeFilter('Anti-Smash')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-skull-crossbones text-indigo-400 mr-1"></i> Anti-Smash</button>
-          <button onclick="window.setTypeFilter('Trophy')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-trophy text-blue-400 mr-1"></i> Trophy</button>
-          <button onclick="window.setTypeFilter('Farming')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-coins text-emerald-400 mr-1"></i> Farming</button>
+          <button onclick="window.setTypeFilter('War')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1"><i data-lucide="swords" class="w-3 h-3 text-rose-400"></i> War / CWL</button>
+          <button onclick="window.setTypeFilter('Anti 3-Star')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3 text-amber-400"></i> Anti 3-Star</button>
+          <button onclick="window.setTypeFilter('Anti-Edrag')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1"><i data-lucide="zap" class="w-3 h-3 text-cyan-400"></i> Anti-Edrag</button>
+          <button onclick="window.setTypeFilter('Anti-Smash')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1"><i data-lucide="skull" class="w-3 h-3 text-indigo-400"></i> Anti-Smash</button>
+          <button onclick="window.setTypeFilter('Trophy')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1"><i data-lucide="trophy" class="w-3 h-3 text-blue-400"></i> Trophy</button>
+          <button onclick="window.setTypeFilter('Farming')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition inline-flex items-center gap-1"><i data-lucide="coins" class="w-3 h-3 text-emerald-400"></i> Farming</button>
         </div>
       </section>
 
@@ -326,8 +323,8 @@
           <h2 class="gaming-title text-2xl sm:text-4xl font-black text-white gold-gradient">Clan Showcase Hub</h2>
           <p class="text-xs sm:text-sm text-slate-400 mt-1">Recruit top-tier clashers or find your dream competitive clan.</p>
         </div>
-        <button onclick="window.openModal('postClanModal')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold shrink-0">
-          <i class="fa-solid fa-plus mr-1"></i> Register Your Clan
+        <button onclick="window.openModal('postClanModal')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold shrink-0 inline-flex items-center gap-1">
+          <i data-lucide="plus" class="w-4 h-4"></i> Register Your Clan
         </button>
       </div>
 
@@ -340,19 +337,19 @@
     <div id="viewProfileSection" class="hidden py-4">
       <div class="max-w-xl mx-auto glass-card rounded-3xl p-5 sm:p-6 shadow-cyber-card border-amber-500/30">
         <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2 mb-1">
-          <i class="fa-solid fa-id-badge"></i> Chief Profile & Live API Sync
+          <i data-lucide="id-card" class="w-5 h-5"></i> Chief Profile & Live API Sync
         </h3>
         <p class="text-xs text-slate-400 mb-4">Sync your Player Tag directly with official Supercell servers.</p>
 
         <form onsubmit="window.handleSaveProfile(event)" class="space-y-3">
           <div class="bg-czDark p-3.5 rounded-2xl border border-amber-500/30">
             <label class="block text-xs font-bold text-amber-400 mb-1 flex items-center gap-1.5">
-              <i class="fa-solid fa-bolt"></i> Live Supercell Player Tag
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i> Live Supercell Player Tag
             </label>
             <div class="flex gap-2">
               <input type="text" id="editTag" placeholder="#P9L80YQ2" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white uppercase outline-none focus:border-amber-400 font-mono font-bold" />
               <button type="button" id="btnSyncPlayerTag" onclick="window.handleLiveSupercellSync()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-4 py-2 rounded-xl text-xs font-black shrink-0 transition flex items-center gap-1.5 shadow-cyber-gold">
-                <i class="fa-solid fa-arrows-rotate"></i>
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
                 <span>Sync Live</span>
               </button>
             </div>
@@ -393,7 +390,7 @@
 
         <div class="mt-5 pt-3 border-t border-slate-800">
           <button onclick="window.handleLogout()" class="w-full bg-rose-500/10 hover:bg-rose-500 hover:text-white border border-rose-500/30 text-rose-400 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
-            <i class="fa-solid fa-power-off"></i>
+            <i data-lucide="power-off" class="w-4 h-4"></i>
             <span>Logout Account</span>
           </button>
         </div>
@@ -408,7 +405,7 @@
       <button onclick="window.closeModal('rankingsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
       
       <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2 mb-1">
-        <i class="fa-solid fa-trophy"></i> Pro Builders Rankings
+        <i data-lucide="trophy" class="w-5 h-5 text-amber-400"></i> Pro Builders Rankings
       </h3>
       <p class="text-xs text-slate-400 mb-4">Top verified layout architects ranked by follower count & uploads.</p>
 
@@ -424,26 +421,26 @@
       <button onclick="window.closeModal('notificationsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
       
       <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2 mb-3">
-        <i class="fa-solid fa-bell"></i> ClashZone Site & User Alerts
+        <i data-lucide="bell" class="w-5 h-5 text-amber-400"></i> ClashZone Site & User Alerts
       </h3>
 
       <div class="space-y-2.5 text-xs">
         <div class="bg-czDark p-3 rounded-2xl border border-slate-800 flex items-start gap-2.5">
-          <i class="fa-solid fa-shield-halved text-amber-400 mt-0.5 text-base"></i>
+          <i data-lucide="shield-check" class="text-amber-400 w-5 h-5 shrink-0 mt-0.5"></i>
           <div>
             <b class="text-white block">Supercell API Verification Active</b>
             <span class="text-slate-400">Your player tag sync is active and creator watermark protection is enabled for your uploaded base layouts.</span>
           </div>
         </div>
         <div class="bg-czDark p-3 rounded-2xl border border-slate-800 flex items-start gap-2.5">
-          <i class="fa-solid fa-bookmark text-cyan-400 mt-0.5 text-base"></i>
+          <i data-lucide="bookmark" class="text-cyan-400 w-5 h-5 shrink-0 mt-0.5"></i>
           <div>
             <b class="text-white block">Saved Vault Synchronized</b>
             <span class="text-slate-400">All bookmarked defense maps are safely stored in your local vault for instant 1-tap war copy.</span>
           </div>
         </div>
         <div class="bg-czDark p-3 rounded-2xl border border-slate-800 flex items-start gap-2.5">
-          <i class="fa-solid fa-fire text-emerald-400 mt-0.5 text-base"></i>
+          <i data-lucide="flame" class="text-emerald-400 w-5 h-5 shrink-0 mt-0.5"></i>
           <div>
             <b class="text-white block">New Town Hall Meta Added</b>
             <span class="text-slate-400">Community uploaded TH5 to TH18 layouts today. Check the feed for latest anti-edrag setups.</span>
@@ -453,20 +450,52 @@
     </div>
   </div>
 
+  <!-- PWA INSTALL GUIDE MODAL (FOR PHONES WHERE AUTO PROMPT IS BLOCKED) -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="pwaGuideModal">
+    <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-md p-5 sm:p-6 relative shadow-cyber-card my-auto text-xs text-slate-300">
+      <button onclick="window.closeModal('pwaGuideModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
+      
+      <h3 class="gaming-title text-base sm:text-lg text-amber-400 flex items-center gap-2 mb-3">
+        <i data-lucide="download" class="w-5 h-5"></i> Install ClashZone App
+      </h3>
+
+      <p class="mb-3">Apne mobile par app ko home screen par add karne ke liye niche diye gaye steps follow karein:</p>
+      
+      <div class="space-y-2 bg-czDark p-3.5 rounded-2xl border border-slate-800 mb-4">
+        <div class="flex items-start gap-2">
+          <b>1.</b>
+          <span>Browser menu (<i data-lucide="more-vertical" class="w-3.5 h-3.5 inline"></i> ya <i data-lucide="share" class="w-3.5 h-3.5 inline"></i> icon) par tap karein.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <b>2.</b>
+          <span><b>"Add to Home Screen"</b> ya <b>"Install App"</b> option par click karein.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <b>3.</b>
+          <span>Confirmation ke baad ClashZone aapke phone par ek dedicated native app ki tarah install ho jayegi!</span>
+        </div>
+      </div>
+
+      <button onclick="window.closeModal('pwaGuideModal')" class="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition">
+        Got It, Chief!
+      </button>
+    </div>
+  </div>
+
   <!-- FULL-WIDTH EDGE-TO-EDGE CYBER GAMING BOTTOM NAVIGATION BAR -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#050811]/95 backdrop-blur-2xl border-t border-amber-500/30 px-3 py-2 w-full shadow-2xl shadow-black">
     <div class="max-w-xl mx-auto flex items-center justify-between">
       
       <!-- 1. Feed / Home -->
       <button onclick="window.switchMainHubView('feed')" id="bnavFeed" class="bnav-btn active flex-1 flex flex-col items-center gap-0.5 text-slate-400 text-center cursor-pointer">
-        <i class="fa-solid fa-house text-base"></i>
+        <i data-lucide="home" class="w-5 h-5"></i>
         <span class="text-[10px] font-bold tracking-wider">Feed</span>
         <span class="bnav-dot w-1 h-1 rounded-full bg-amber-400 shadow-cyber-gold"></span>
       </button>
 
       <!-- 2. Saved Vault -->
       <button onclick="window.switchMainHubView('vault')" id="bnavVault" class="bnav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 text-center cursor-pointer">
-        <i class="fa-solid fa-bookmark text-base"></i>
+        <i data-lucide="bookmark" class="w-5 h-5"></i>
         <span class="text-[10px] font-bold tracking-wider">Saved</span>
         <span class="bnav-dot w-1 h-1 rounded-full bg-amber-400 shadow-cyber-gold"></span>
       </button>
@@ -474,20 +503,20 @@
       <!-- 3. Center Elevated Floating Upload Button -->
       <div class="flex-1 flex justify-center -mt-6">
         <button onclick="window.openModal('uploadModal')" class="w-13 h-13 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-black flex items-center justify-center text-xl font-black shadow-cyber-gold border border-yellow-200/50 hover:scale-110 active:scale-90 transition transform">
-          <i class="fa-solid fa-plus"></i>
+          <i data-lucide="plus" class="w-6 h-6 stroke-[3]"></i>
         </button>
       </div>
 
       <!-- 4. Clan Hub -->
       <button onclick="window.switchMainHubView('clans')" id="bnavClans" class="bnav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 text-center cursor-pointer">
-        <i class="fa-solid fa-shield-halved text-base"></i>
+        <i data-lucide="shield" class="w-5 h-5"></i>
         <span class="text-[10px] font-bold tracking-wider">Clans</span>
         <span class="bnav-dot w-1 h-1 rounded-full bg-amber-400 shadow-cyber-gold"></span>
       </button>
 
       <!-- 5. Profile -->
       <button onclick="window.switchMainHubView('profile')" id="bnavProfile" class="bnav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400 text-center cursor-pointer">
-        <i class="fa-solid fa-id-card text-base"></i>
+        <i data-lucide="user-cog" class="w-5 h-5"></i>
         <span class="text-[10px] font-bold tracking-wider">Profile</span>
         <span class="bnav-dot w-1 h-1 rounded-full bg-amber-400 shadow-cyber-gold"></span>
       </button>
@@ -511,11 +540,11 @@
           <h2 id="modalBaseTitle" class="text-base sm:text-xl font-black text-white leading-snug"></h2>
           <div class="flex items-center gap-2 mt-1.5 flex-wrap">
             <span class="text-xs text-amber-400 font-bold" id="modalBaseUploader"></span>
-            <span id="modalUploaderVerified" class="hidden bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[9px] font-black px-2 py-0.5 rounded uppercase">
-              <i class="fa-solid fa-circle-check"></i> Supercell Verified
+            <span id="modalUploaderVerified" class="hidden bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[9px] font-black px-2 py-0.5 rounded uppercase items-center gap-1">
+              <i data-lucide="check-circle" class="w-3 h-3"></i> Supercell Verified
             </span>
-            <span id="modalUploaderPro" class="hidden bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 text-[9px] font-black px-2 py-0.5 rounded uppercase">
-              <i class="fa-solid fa-certificate"></i> Pro Builder
+            <span id="modalUploaderPro" class="hidden bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 text-[9px] font-black px-2 py-0.5 rounded uppercase items-center gap-1">
+              <i data-lucide="award" class="w-3 h-3"></i> Pro Builder
             </span>
           </div>
         </div>
@@ -523,49 +552,49 @@
         <div class="flex items-center gap-2">
           <button id="modalFollowBtn" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition"></button>
           <button id="modalBookmarkBtn" class="p-2 rounded-xl bg-czDark border border-slate-800 text-slate-400 hover:text-amber-400 transition text-sm">
-            <i class="fa-regular fa-bookmark"></i>
+            <i data-lucide="bookmark" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
 
       <div class="space-y-3 mb-5">
         <div id="modalCCBox" class="bg-czDark p-3 rounded-2xl border border-slate-800 text-xs flex items-center gap-2">
-          <span class="text-amber-400 font-bold shrink-0"><i class="fa-solid fa-castle mr-1"></i> Recommended CC:</span>
+          <span class="text-amber-400 font-bold shrink-0 inline-flex items-center gap-1"><i data-lucide="castle" class="w-3.5 h-3.5"></i> Recommended CC:</span>
           <span id="modalCCText" class="text-slate-200 font-semibold truncate">None specified</span>
         </div>
 
         <div id="modalProofBox" class="hidden bg-czDark p-3 rounded-2xl border border-slate-800">
-          <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block mb-2"><i class="fa-solid fa-shield-halved mr-1"></i> Verified Defense Log Screenshot</span>
+          <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block mb-2 inline-flex items-center gap-1"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Verified Defense Log Screenshot</span>
           <img id="modalProofImg" src="" alt="Defense Proof" class="w-full h-40 object-cover rounded-xl border border-slate-700" />
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-6">
         <button id="modalCopyBaseBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black font-black py-3 rounded-xl text-xs flex items-center justify-center gap-2 uppercase tracking-wider transition shadow-cyber-gold">
-          <i class="fa-solid fa-copy text-sm"></i>
+          <i data-lucide="copy" class="w-4 h-4"></i>
           <span>Copy In-Game Layout</span>
         </button>
 
         <button id="modalCopyArmyBtn" class="hidden w-full bg-cyan-500/20 hover:bg-cyan-500 hover:text-black text-cyan-400 border border-cyan-500/40 font-bold py-3 rounded-xl text-xs items-center justify-center gap-2 transition">
-          <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+          <i data-lucide="wand-2" class="w-4 h-4"></i>
           <span>Copy Recommended Army</span>
         </button>
       </div>
 
       <div class="pt-4 border-t border-slate-800">
         <h4 class="gaming-title text-sm text-amber-400 mb-3 flex items-center gap-2">
-          <i class="fa-solid fa-comments"></i> Clasher Discussion & Tips
+          <i data-lucide="message-square" class="w-4 h-4"></i> Clasher Discussion & Tips
         </h4>
 
         <form onsubmit="window.handleAddReview(event)" class="space-y-3 mb-4">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-slate-300">Rate Layout:</span>
             <div class="flex items-center gap-2 text-base text-amber-400 cursor-pointer" id="starRatingSelect">
-              <i class="fa-solid fa-star" onclick="window.setStarRating(1)"></i>
-              <i class="fa-solid fa-star" onclick="window.setStarRating(2)"></i>
-              <i class="fa-solid fa-star" onclick="window.setStarRating(3)"></i>
-              <i class="fa-solid fa-star" onclick="window.setStarRating(4)"></i>
-              <i class="fa-solid fa-star" onclick="window.setStarRating(5)"></i>
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400" onclick="window.setStarRating(1)"></i>
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400" onclick="window.setStarRating(2)"></i>
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400" onclick="window.setStarRating(3)"></i>
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400" onclick="window.setStarRating(4)"></i>
+              <i data-lucide="star" class="w-4 h-4 fill-amber-400" onclick="window.setStarRating(5)"></i>
             </div>
             <input type="hidden" id="reviewStarValue" value="5" />
           </div>
@@ -592,7 +621,7 @@
       <button onclick="window.closeModal('postClanModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
       
       <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2">
-        <i class="fa-solid fa-flag"></i> Post Clan Recruitment
+        <i data-lucide="flag" class="w-5 h-5 text-amber-400"></i> Post Clan Recruitment
       </h3>
       <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Showcase your clan to recruit active war & CWL clashers.</p>
 
@@ -649,15 +678,15 @@
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('uploadModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
       <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Upload Layout & Strategy
+        <i data-lucide="cloud-upload" class="w-5 h-5 text-amber-400"></i> Upload Layout & Strategy
       </h3>
       <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Paste layout copy link for instant auto-detection & watermark protection.</p>
 
       <form onsubmit="window.handleBaseUpload(event)" class="space-y-3">
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="block text-xs font-bold text-amber-400">
-              <i class="fa-solid fa-link mr-1"></i> In-Game Copy Link (clashofclans.com)
+            <label class="block text-xs font-bold text-amber-400 inline-flex items-center gap-1">
+              <i data-lucide="link" class="w-3.5 h-3.5"></i> In-Game Copy Link (clashofclans.com)
             </label>
             <span id="linkValidationBadge" class="hidden text-[10px] font-bold px-2 py-0.2 rounded"></span>
           </div>
@@ -755,8 +784,8 @@
           <label class="block text-xs font-bold text-slate-300 mb-1">Player Tag (With #)</label>
           <div class="flex gap-2">
             <input type="text" id="signupTag" placeholder="#P9L80YQ2" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white uppercase outline-none focus:border-amber-400 font-mono" />
-            <button type="button" onclick="window.syncTagInSignup()" class="bg-amber-500 text-black px-3 rounded-xl text-xs font-black shrink-0 hover:bg-amber-400">
-              <i class="fa-solid fa-bolt"></i> Sync
+            <button type="button" onclick="window.syncTagInSignup()" class="bg-amber-500 text-black px-3 rounded-xl text-xs font-black shrink-0 hover:bg-amber-400 inline-flex items-center gap-1">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i> Sync
             </button>
           </div>
         </div>
@@ -782,11 +811,25 @@
   </div>
 
   <script>
-    // Update Home Zone Levels to include TH 5 to TH 18 in app.js integration
-    window.CUSTOM_ZONE_LEVELS = {
-      home: ["ALL", "TH 18", "TH 17", "TH 16", "TH 15", "TH 14", "TH 13", "TH 12", "TH 11", "TH 10", "TH 9", "TH 8", "TH 7", "TH 6", "TH 5"],
-      builder: ["ALL", "BH 10", "BH 9", "BH 8", "BH 7", "BH 6", "BH 5", "BH 4"],
-      capital: ["ALL", "Capital Peak", "Dragon Cliffs", "Balloon Lagoon", "Skeleton Park", "Golem Quarry", "Wizard Valley", "Barbarian Camp"]
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    window.triggerPermanentAppInstall = async function() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          window.showToast("⚡ ClashZone successfully installed!");
+        }
+        deferredPrompt = null;
+      } else {
+        // Agar direct prompt available nahi hai toh guide modal khol do
+        window.openModal('pwaGuideModal');
+      }
     };
   </script>
   <script type="module" src="app.js"></script>
