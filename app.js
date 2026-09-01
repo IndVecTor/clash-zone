@@ -106,8 +106,6 @@ async function fetchLiveSupercellPlayer(rawTag) {
   if (!tag.startsWith('#')) tag = '#' + tag;
 
   const cleanTag = encodeURIComponent(tag);
-  
-  // Public Clash of Clans API proxy with full CORS support
   const apiUrl = `https://cocproxy.royaleapi.dev/v1/players/${cleanTag}`;
 
   const response = await fetch(apiUrl, {
@@ -118,7 +116,6 @@ async function fetchLiveSupercellPlayer(rawTag) {
     if (response.status === 404) {
       throw new Error("Player Tag not found! Check your in-game tag.");
     }
-    // Fallback Mock generator for instant preview if proxy rate-limits
     return {
       name: "Chief " + tag.replace('#', ''),
       tag: tag,
@@ -202,7 +199,7 @@ window.syncTagInSignup = async function() {
 };
 
 // ==========================================
-// 4. AUTH STATE LISTENER & USER DASHBOARD
+// 4. AUTH STATE LISTENER & USER DASHBOARD (TOP UPLOAD BUTTON REMOVED)
 // ==========================================
 onAuthStateChanged(auth, async (user) => {
   const headerAuth = document.getElementById("headerAuthArea");
@@ -213,13 +210,9 @@ onAuthStateChanged(auth, async (user) => {
     
     if (headerAuth) {
       headerAuth.innerHTML = `
-        <button onclick="window.openModal('uploadModal')" class="bg-amber-500 hover:bg-amber-400 text-black px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-cyber-gold">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
-          <span>Upload</span>
-        </button>
-        <button onclick="window.openEditProfileModal()" class="flex items-center gap-2 bg-czPanel border border-slate-700 hover:border-amber-400/50 px-3 py-1.5 rounded-xl text-xs transition">
+        <button onclick="window.openEditProfileModal()" class="flex items-center gap-2 bg-czPanel border border-slate-700 hover:border-amber-400/50 px-3.5 py-1.5 rounded-xl text-xs transition shadow-md">
           <i class="fa-solid fa-circle-user text-amber-400 text-sm"></i>
-          <span class="font-bold text-white max-w-[90px] truncate" id="headerUserName">${defaultName}</span>
+          <span class="font-bold text-white max-w-[110px] truncate" id="headerUserName">${defaultName}</span>
         </button>
       `;
     }
@@ -250,7 +243,6 @@ onAuthStateChanged(auth, async (user) => {
             leagueBadge.className = `${league.color} text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 border`;
           }
 
-          // Heroes level display
           if (currentUserProfile.heroes && currentUserProfile.heroes.length > 0) {
             currentUserProfile.heroes.forEach(h => {
               if (h.name.includes("King")) document.getElementById("heroBK").innerText = h.level;
