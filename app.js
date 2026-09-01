@@ -54,11 +54,18 @@ let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases")) || [];
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases")) || [];
 let userFollowedCreators = JSON.parse(localStorage.getItem("cz_followed_creators")) || [];
 
+// Expanded Town Hall Levels: TH 5 to TH 18
 const ZONE_LEVELS = {
-  home: ["ALL", "TH 18", "TH 17", "TH 16", "TH 15", "TH 14", "TH 13", "TH 12", "TH 11"],
-  builder: ["ALL", "BH 10", "BH 9", "BH 8", "BH 7", "BH 6"],
+  home: ["ALL", "TH 18", "TH 17", "TH 16", "TH 15", "TH 14", "TH 13", "TH 12", "TH 11", "TH 10", "TH 9", "TH 8", "TH 7", "TH 6", "TH 5"],
+  builder: ["ALL", "BH 10", "BH 9", "BH 8", "BH 7", "BH 6", "BH 5", "BH 4"],
   capital: ["ALL", "Capital Peak", "Dragon Cliffs", "Balloon Lagoon", "Skeleton Park", "Golem Quarry", "Wizard Valley", "Barbarian Camp"]
 };
+
+function renderAllIcons() {
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+}
 
 function getLeagueRank(trophies = 0) {
   if (trophies >= 5000) return { name: "Legend League", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" };
@@ -80,11 +87,12 @@ window.showToast = function(message, type = "success") {
   toast.className = `glass-card pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border ${isSuccess ? 'border-amber-400/80 shadow-cyber-gold' : 'border-rose-500/80 shadow-rose-500/20'} shadow-2xl transition-all duration-300 transform translate-x-10 opacity-0 text-xs font-bold`;
   
   toast.innerHTML = `
-    <i class="fa-solid ${isSuccess ? 'fa-circle-check text-amber-400 text-base' : 'fa-triangle-exclamation text-rose-400 text-base'}"></i>
+    <i data-lucide="${isSuccess ? 'check-circle' : 'alert-triangle'}" class="w-4 h-4 ${isSuccess ? 'text-amber-400' : 'text-rose-400'}"></i>
     <span class="text-white">${message}</span>
   `;
 
   container.appendChild(toast);
+  renderAllIcons();
   setTimeout(() => toast.classList.remove("translate-x-10", "opacity-0"), 10);
   setTimeout(() => {
     toast.classList.add("translate-x-10", "opacity-0");
@@ -276,7 +284,8 @@ window.handleLiveSupercellSync = async function() {
   }
 
   syncBtn.disabled = true;
-  syncBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Syncing...`;
+  syncBtn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Syncing...`;
+  renderAllIcons();
 
   try {
     const liveData = await fetchLiveSupercellPlayer(rawTag);
@@ -290,7 +299,8 @@ window.handleLiveSupercellSync = async function() {
     window.showToast("Sync Error: " + err.message, "error");
   } finally {
     syncBtn.disabled = false;
-    syncBtn.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> Sync Live`;
+    syncBtn.innerHTML = `<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sync Live`;
+    renderAllIcons();
   }
 };
 
@@ -327,10 +337,11 @@ onAuthStateChanged(auth, async (user) => {
     if (headerAuth) {
       headerAuth.innerHTML = `
         <button onclick="window.switchMainHubView('profile')" class="flex items-center gap-2 bg-czPanel border border-slate-700 hover:border-amber-400/50 px-3.5 py-1.5 rounded-xl text-xs transition shadow-md">
-          <i class="fa-solid fa-circle-user text-amber-400 text-sm"></i>
+          <i data-lucide="user-circle" class="w-4 h-4 text-amber-400"></i>
           <span class="font-bold text-white max-w-[110px] truncate" id="headerUserName">${defaultName}</span>
         </button>
       `;
+      renderAllIcons();
     }
 
     if (userProfileStrip) {
@@ -346,10 +357,10 @@ onAuthStateChanged(auth, async (user) => {
           document.getElementById("dashTHBadge").innerText = currentUserProfile.townHallLevel || "TH 16";
           document.getElementById("dashClanInfo").innerText = `Clan: ${currentUserProfile.clanName || 'Solo'} | Tag: ${currentUserProfile.tag || '#CLASH'}`;
           document.getElementById("dashTrophies").innerText = `🏆 ${trophies}`;
-          document.getElementById("dashWarStars").innerHTML = `<i class="fa-solid fa-star text-[10px]"></i> ${currentUserProfile.warStars || 0} War Stars`;
+          document.getElementById("dashWarStars").innerHTML = `<i data-lucide="star" class="w-3 h-3 fill-amber-400 inline"></i> ${currentUserProfile.warStars || 0} War Stars`;
           
           const followers = currentUserProfile.followersCount || 0;
-          document.getElementById("dashFollowersCount").innerHTML = `<i class="fa-solid fa-users text-[10px]"></i> ${followers} Followers`;
+          document.getElementById("dashFollowersCount").innerHTML = `<i data-lucide="users" class="w-3 h-3 inline"></i> ${followers} Followers`;
 
           const verifiedBadge = document.getElementById("dashVerifiedBadge");
           if (currentUserProfile.isSupercellVerified) verifiedBadge.classList.remove("hidden");
@@ -375,6 +386,7 @@ onAuthStateChanged(auth, async (user) => {
               if (h.name.includes("Champion")) document.getElementById("heroRC").innerText = h.level;
             });
           }
+          renderAllIcons();
         }
       } catch (e) {}
     }
@@ -383,10 +395,11 @@ onAuthStateChanged(auth, async (user) => {
     if (headerAuth) {
       headerAuth.innerHTML = `
         <button onclick="window.openModal('authModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-amber-400 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-md">
-          <i class="fa-solid fa-user-lock"></i>
+          <i data-lucide="user-lock" class="w-4 h-4"></i>
           <span>Login / Register</span>
         </button>
       `;
+      renderAllIcons();
     }
     if (userProfileStrip) userProfileStrip.classList.add("hidden");
   }
@@ -398,17 +411,6 @@ onAuthStateChanged(auth, async (user) => {
 window.switchZone = function(zone) {
   currentZone = zone;
   currentTH = "ALL";
-
-  ['Home', 'Builder', 'Capital'].forEach(z => {
-    const btn = document.getElementById(`headerZone${z}`);
-    const mBtn = document.getElementById(`mHeaderZone${z}`);
-    if (btn) {
-      btn.className = z.toLowerCase() === zone ? "px-3 py-1 rounded-lg font-bold bg-amber-500 text-black transition" : "px-3 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition";
-    }
-    if (mBtn) {
-      mBtn.className = z.toLowerCase() === zone ? "px-3 py-1 rounded-lg font-bold bg-amber-500 text-black text-[11px] transition" : "px-3 py-1 rounded-lg font-bold text-slate-400 text-[11px] transition";
-    }
-  });
 
   renderLevelFilters();
   renderBasesUI();
@@ -470,6 +472,7 @@ window.switchMainHubView = function(viewName) {
     vProfile.classList.remove("hidden");
     populateProfileForm();
   }
+  renderAllIcons();
 };
 
 // ==========================================
@@ -505,9 +508,9 @@ function renderRankingsUI() {
 
   container.innerHTML = ranked.map((c, idx) => {
     let rankBadge = `<span class="font-bold text-slate-400 text-xs w-6">#${idx + 1}</span>`;
-    if (idx === 0) rankBadge = `<span class="text-amber-400 text-base w-6"><i class="fa-solid fa-trophy"></i></span>`;
-    if (idx === 1) rankBadge = `<span class="text-slate-300 text-base w-6"><i class="fa-solid fa-medal"></i></span>`;
-    if (idx === 2) rankBadge = `<span class="text-amber-600 text-base w-6"><i class="fa-solid fa-award"></i></span>`;
+    if (idx === 0) rankBadge = `<span class="text-amber-400 text-base w-6"><i data-lucide="trophy" class="w-4 h-4 inline"></i></span>`;
+    if (idx === 1) rankBadge = `<span class="text-slate-300 text-base w-6"><i data-lucide="medal" class="w-4 h-4 inline"></i></span>`;
+    if (idx === 2) rankBadge = `<span class="text-amber-600 text-base w-6"><i data-lucide="award" class="w-4 h-4 inline"></i></span>`;
 
     const isPro = c.uploads >= 10;
     const isFollowing = userFollowedCreators.some(f => f.key === c.key);
@@ -522,7 +525,7 @@ function renderRankingsUI() {
           <div class="min-w-0">
             <div class="flex items-center gap-1.5 flex-wrap">
               <span class="text-white font-bold truncate">${c.name}</span>
-              ${c.isVerified ? '<span class="text-emerald-400 text-[10px]"><i class="fa-solid fa-circle-check"></i></span>' : ''}
+              ${c.isVerified ? '<span class="text-emerald-400 text-[10px]"><i data-lucide="check-circle" class="w-3 h-3 inline"></i></span>' : ''}
               ${isPro ? '<span class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 text-[9px] font-black px-1.5 py-0.2 rounded uppercase">Pro</span>' : ''}
             </div>
             <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
@@ -530,7 +533,7 @@ function renderRankingsUI() {
               <span>•</span>
               <span>${c.uploads} Layouts</span>
               <span>•</span>
-              <span class="text-cyan-400 font-bold"><i class="fa-solid fa-users text-[9px]"></i> ${c.followers}</span>
+              <span class="text-cyan-400 font-bold"><i data-lucide="users" class="w-3 h-3 inline"></i> ${c.followers}</span>
             </div>
           </div>
         </div>
@@ -541,15 +544,16 @@ function renderRankingsUI() {
       </div>
     `;
   }).join('');
+  renderAllIcons();
 }
 
-// Intercept openModal for rankings to render fresh
 const originalOpenModal = window.openModal;
 window.openModal = function(id) {
   if (id === 'rankingsModal') {
     renderRankingsUI();
   }
   if (originalOpenModal) originalOpenModal(id);
+  renderAllIcons();
 };
 
 // ==========================================
@@ -563,11 +567,12 @@ function renderDirectVaultUI() {
   if (savedList.length === 0) {
     container.innerHTML = `
       <div class="glass-card rounded-3xl p-10 text-center text-slate-500">
-        <i class="fa-regular fa-bookmark text-4xl mb-3 text-slate-600"></i>
+        <i data-lucide="bookmark" class="w-10 h-10 mx-auto mb-3 text-slate-600"></i>
         <h3 class="text-base font-bold text-slate-300">Your Saved Vault is Empty</h3>
         <p class="text-xs text-slate-500 mt-1">Bookmark layouts from the feed to quickly copy them during war prep!</p>
       </div>
     `;
+    renderAllIcons();
     return;
   }
 
@@ -586,15 +591,16 @@ function renderDirectVaultUI() {
 
       <div class="flex items-center gap-2 shrink-0">
         <button onclick="window.copyBaseLink('${b.id}', '${b.link}')" class="bg-amber-500 hover:bg-amber-400 text-black px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-cyber-gold">
-          <i class="fa-solid fa-copy"></i>
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
           <span class="hidden sm:inline">Copy Link</span>
         </button>
         <button onclick="window.handleBookmarkBase('${b.id}'); renderDirectVaultUI();" class="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition text-xs" title="Remove">
-          <i class="fa-solid fa-trash-can"></i>
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
         </button>
       </div>
     </div>
   `).join('');
+  renderAllIcons();
 }
 
 function populateProfileForm() {
@@ -644,7 +650,7 @@ window.openBaseDetailsModal = function(baseId) {
 
   const bmBtn = document.getElementById("modalBookmarkBtn");
   const isBookmarked = userBookmarkedBases.includes(base.id);
-  bmBtn.innerHTML = `<i class="fa-${isBookmarked ? 'solid text-amber-400' : 'regular'} fa-bookmark"></i>`;
+  bmBtn.innerHTML = `<i data-lucide="bookmark" class="w-4 h-4 ${isBookmarked ? 'fill-amber-400 text-amber-400' : ''}"></i>`;
   bmBtn.onclick = () => {
     window.handleBookmarkBase(base.id);
     window.openBaseDetailsModal(baseId);
@@ -672,6 +678,7 @@ window.openBaseDetailsModal = function(baseId) {
 
   renderReviewsList(base.reviews || []);
   window.openModal('baseDetailsModal');
+  renderAllIcons();
 };
 
 window.handleFollowCreator = async function(creatorName, creatorUid) {
@@ -728,10 +735,6 @@ function renderReviewsList(reviews) {
 
 window.setStarRating = function(stars) {
   document.getElementById("reviewStarValue").value = stars;
-  const starsContainer = document.getElementById("starRatingSelect");
-  starsContainer.querySelectorAll("i").forEach((icon, idx) => {
-    icon.className = idx < stars ? "fa-solid fa-star" : "fa-regular fa-star text-slate-600";
-  });
 };
 
 window.handleAddReview = async function(e) {
@@ -782,7 +785,8 @@ function renderClansUI() {
   const container = document.getElementById("clansContainer");
   if (!container) return;
   if (allFetchedClans.length === 0) {
-    container.innerHTML = `<div class="col-span-full py-16 text-center text-slate-500"><i class="fa-solid fa-flag-checkered text-4xl mb-3 text-slate-600"></i><h3 class="text-base font-bold text-slate-300">No clans listed yet</h3></div>`;
+    container.innerHTML = `<div class="col-span-full py-16 text-center text-slate-500"><i data-lucide="flag-off" class="w-10 h-10 mx-auto mb-3 text-slate-600"></i><h3 class="text-base font-bold text-slate-300">No clans listed yet</h3></div>`;
+    renderAllIcons();
     return;
   }
   container.innerHTML = allFetchedClans.map(clan => `
@@ -790,19 +794,20 @@ function renderClansUI() {
       <div>
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-2">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white text-lg font-bold shadow-md"><i class="fa-solid fa-shield"></i></div>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white text-lg font-bold shadow-md"><i data-lucide="shield" class="w-5 h-5"></i></div>
             <div><h3 class="font-bold text-white text-base tracking-wide leading-tight">${clan.name}</h3><span class="text-[10px] text-amber-400 font-mono">${clan.tag}</span></div>
           </div>
           <span class="bg-slate-800 text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-700">Req: ${clan.minTH}</span>
         </div>
         <p class="text-xs text-slate-300 my-3 line-clamp-2">${clan.desc}</p>
         <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-3 bg-czDark p-2 rounded-xl border border-slate-800/80">
-          <span><i class="fa-solid fa-trophy text-amber-400 mr-1"></i>${clan.minTrophies || 0}+</span><span>•</span><span class="truncate">Leader: ${clan.leaderName}</span>
+          <span><i data-lucide="trophy" class="w-3 h-3 text-amber-400 inline"></i> ${clan.minTrophies || 0}+</span><span>•</span><span class="truncate">Leader: ${clan.leaderName}</span>
         </div>
       </div>
-      <a href="${clan.link}" target="_blank" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black font-black py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 uppercase tracking-wider transition shadow-cyber-gold"><i class="fa-solid fa-door-open"></i> Join In-Game</a>
+      <a href="${clan.link}" target="_blank" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black font-black py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 uppercase tracking-wider transition shadow-cyber-gold"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Join In-Game</a>
     </div>
   `).join('');
+  renderAllIcons();
 }
 
 window.handleRegisterClan = async function(e) {
@@ -882,7 +887,8 @@ function renderBasesUI() {
   if (countText) countText.innerText = `${filtered.length} Layouts`;
 
   if (filtered.length === 0) {
-    container.innerHTML = `<div class="col-span-full py-16 text-center text-slate-500"><i class="fa-solid fa-shield-cat text-4xl mb-3 text-slate-600"></i><h3 class="text-base font-bold text-slate-300">No layouts found</h3></div>`;
+    container.innerHTML = `<div class="col-span-full py-16 text-center text-slate-500"><i data-lucide="shield-alert" class="w-10 h-10 mx-auto mb-3 text-slate-600"></i><h3 class="text-base font-bold text-slate-300">No layouts found</h3></div>`;
+    renderAllIcons();
     return;
   }
 
@@ -900,14 +906,14 @@ function renderBasesUI() {
           <img src="${base.image}" alt="${base.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80'" />
           <span class="absolute top-2.5 left-2.5 bg-czDark/95 text-amber-400 border border-amber-400/40 text-[11px] font-black px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-cyber-gold">${base.th}</span>
           <span class="absolute top-2.5 right-2.5 bg-black/85 text-white text-[11px] font-bold px-2 py-0.5 rounded-lg border border-slate-700">${base.type}</span>
-          ${hasProof ? '<span class="absolute bottom-2.5 left-2.5 bg-emerald-500/90 text-black text-[9px] font-black px-2 py-0.5 rounded-md"><i class="fa-solid fa-shield-halved mr-1"></i>Proof</span>' : ''}
+          ${hasProof ? '<span class="absolute bottom-2.5 left-2.5 bg-emerald-500/90 text-black text-[9px] font-black px-2 py-0.5 rounded-md">Proof</span>' : ''}
         </div>
         <div class="p-4 flex flex-col flex-grow justify-between">
           <div>
             <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
               <div class="flex items-center gap-1.5 truncate max-w-[150px]">
-                <span class="text-amber-400 font-bold truncate"><i class="fa-solid fa-circle-user mr-1"></i>${base.uploaderName || 'Chief'}</span>
-                ${base.isSupercellVerified ? '<span class="text-emerald-400 text-[10px]"><i class="fa-solid fa-circle-check"></i></span>' : ''}
+                <span class="text-amber-400 font-bold truncate">${base.uploaderName || 'Chief'}</span>
+                ${base.isSupercellVerified ? '<span class="text-emerald-400 text-[10px]"><i data-lucide="check-circle" class="w-3 h-3 inline"></i></span>' : ''}
                 ${isPro ? '<span class="text-[9px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 px-1 rounded font-black">Pro</span>' : ''}
               </div>
               <button onclick="window.handleFollowCreator('${base.uploaderName}', '${base.uploaderUid}')" class="text-[11px] ${isFollowingCreator ? 'text-slate-400' : 'text-amber-400 font-bold hover:underline'}">
@@ -915,23 +921,24 @@ function renderBasesUI() {
               </button>
             </div>
             <h3 class="font-bold text-sm text-white line-clamp-2 mb-2 leading-snug cursor-pointer hover:text-amber-400 transition" onclick="window.openBaseDetailsModal('${base.id}')">${base.title}</h3>
-            ${base.ccTroops ? `<div class="mb-3 text-[11px] bg-czDark/60 p-1.5 rounded-lg text-slate-300 truncate border border-slate-800/80"><i class="fa-solid fa-castle text-amber-400 mr-1"></i><b>CC:</b> ${base.ccTroops}</div>` : ''}
+            ${base.ccTroops ? `<div class="mb-3 text-[11px] bg-czDark/60 p-1.5 rounded-lg text-slate-300 truncate border border-slate-800/80"><b class="text-amber-400">CC:</b> ${base.ccTroops}</div>` : ''}
           </div>
           <div>
             <div class="flex items-center justify-between text-xs text-slate-400 mb-3 bg-czDark/80 p-2 rounded-xl border border-slate-800">
-              <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1.5 ${isLiked ? 'text-rose-500 font-bold' : 'text-slate-400 hover:text-rose-400'} transition"><i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart text-sm"></i><span id="likeCount-${base.id}">${base.likesCount || 0}</span></button>
-              <div class="flex items-center gap-1.5 text-slate-400"><i class="fa-solid fa-download text-emerald-400"></i><span id="dlCount-${base.id}">${base.downloadsCount || 0}</span></div>
-              <button onclick="window.handleBookmarkBase('${base.id}')" class="${isBookmarked ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'} text-sm transition"><i class="fa-${isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i></button>
-              <button onclick="window.shareOnWhatsApp('${base.title}', '${base.link}')" class="text-emerald-400 hover:text-emerald-300 transition"><i class="fa-brands fa-whatsapp text-sm"></i></button>
+              <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1.5 ${isLiked ? 'text-rose-500 font-bold' : 'text-slate-400 hover:text-rose-400'} transition"><i data-lucide="heart" class="w-4 h-4 ${isLiked ? 'fill-rose-500' : ''}"></i><span id="likeCount-${base.id}">${base.likesCount || 0}</span></button>
+              <div class="flex items-center gap-1.5 text-slate-400"><i data-lucide="download" class="w-4 h-4 text-emerald-400"></i><span id="dlCount-${base.id}">${base.downloadsCount || 0}</span></div>
+              <button onclick="window.handleBookmarkBase('${base.id}')" class="${isBookmarked ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'} transition"><i data-lucide="bookmark" class="w-4 h-4 ${isBookmarked ? 'fill-amber-400' : ''}"></i></button>
+              <button onclick="window.shareOnWhatsApp('${base.title}', '${base.link}')" class="text-emerald-400 hover:text-emerald-300 transition"><i data-lucide="share-2" class="w-4 h-4"></i></button>
             </div>
             <button onclick="window.copyBaseLink('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500/10 to-yellow-500/10 hover:from-amber-500 hover:to-yellow-500 hover:text-black text-amber-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-amber-500/30 transition shadow-md">
-              <i class="fa-solid fa-copy"></i><span>Copy In-Game Link</span>
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i><span>Copy In-Game Link</span>
             </button>
           </div>
         </div>
       </div>
     `;
   }).join('');
+  renderAllIcons();
 }
 
 window.handleLikeBase = async function(baseId) {
@@ -1002,7 +1009,7 @@ window.handleBaseUpload = async function(e) {
   const proofFile = proofInput?.files[0];
   const submitBtn = document.getElementById("submitBaseBtn");
   submitBtn.disabled = true;
-  submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading...`;
+  submitBtn.innerHTML = `Uploading...`;
 
   try {
     const creatorIGN = currentUserProfile?.name || user.displayName || user.email.split('@')[0];
@@ -1112,7 +1119,7 @@ window.setTHFilter = function(th) {
 
 window.setTypeFilter = function(type) { currentType = type; renderBasesUI(); };
 window.filterBases = function() { renderBasesUI(); };
-window.openModal = function(id) { const m = document.getElementById(id); if(m){ m.classList.remove("hidden"); m.classList.add("flex"); } };
+window.openModal = function(id) { const m = document.getElementById(id); if(m){ m.classList.remove("hidden"); m.classList.add("flex"); } renderAllIcons(); };
 window.closeModal = function(id) { const m = document.getElementById(id); if(m){ m.classList.add("hidden"); m.classList.remove("flex"); } };
 
 window.switchAuthTab = function(type) {
@@ -1126,4 +1133,5 @@ document.addEventListener("DOMContentLoaded", () => {
   window.updateUploadLevelOptions();
   loadBasesFromFirestore();
   loadClansFromFirestore();
+  renderAllIcons();
 });
