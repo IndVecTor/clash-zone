@@ -46,8 +46,16 @@ let currentSort = "latest";
 let allFetchedBases = [];
 let currentUserProfile = null;
 
-// User's locally saved likes
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases")) || [];
+
+// Calculate Rank Title based on Trophies
+function getLeagueRank(trophies = 0) {
+  if (trophies >= 5000) return { name: "Legend League", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" };
+  if (trophies >= 4100) return { name: "Titan League", color: "bg-rose-500/20 text-rose-300 border-rose-500/40" };
+  if (trophies >= 3200) return { name: "Champions League", color: "bg-amber-500/20 text-amber-300 border-amber-500/40" };
+  if (trophies >= 2600) return { name: "Masters League", color: "bg-slate-500/20 text-slate-300 border-slate-500/40" };
+  return { name: "Challenger", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" };
+}
 
 // ==========================================
 // 2. CYBER TOAST NOTIFICATION
@@ -58,7 +66,7 @@ window.showToast = function(message, type = "success") {
 
   const toast = document.createElement("div");
   const isSuccess = type === "success";
-  toast.className = `glass-card pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border ${isSuccess ? 'border-amber-400/80 shadow-amber-500/20' : 'border-rose-500/80 shadow-rose-500/20'} shadow-2xl transition-all duration-300 transform translate-x-10 opacity-0 text-xs font-bold`;
+  toast.className = `glass-card pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border ${isSuccess ? 'border-amber-400/80 shadow-cyber-gold' : 'border-rose-500/80 shadow-rose-500/20'} shadow-2xl transition-all duration-300 transform translate-x-10 opacity-0 text-xs font-bold`;
   
   toast.innerHTML = `
     <i class="fa-solid ${isSuccess ? 'fa-circle-check text-amber-400 text-base' : 'fa-triangle-exclamation text-rose-400 text-base'}"></i>
@@ -89,7 +97,7 @@ onAuthStateChanged(auth, async (user) => {
     
     if (headerAuth) {
       headerAuth.innerHTML = `
-        <button onclick="window.openModal('uploadModal')" class="bg-amber-500 hover:bg-amber-400 text-black px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-lg shadow-amber-500/20">
+        <button onclick="window.openModal('uploadModal')" class="bg-amber-500 hover:bg-amber-400 text-black px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-cyber-gold">
           <i class="fa-solid fa-cloud-arrow-up"></i>
           <span>Upload</span>
         </button>
@@ -106,10 +114,19 @@ onAuthStateChanged(auth, async (user) => {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           currentUserProfile = userDoc.data();
+          const trophies = currentUserProfile.trophies || 5000;
+          const league = getLeagueRank(trophies);
+
           document.getElementById("dashPlayerName").innerText = currentUserProfile.name || defaultName;
           document.getElementById("dashTHBadge").innerText = currentUserProfile.townHallLevel || "TH 16";
           document.getElementById("dashClanInfo").innerText = `Clan: ${currentUserProfile.clanName || 'Solo'} | Tag: ${currentUserProfile.tag || '#CLASH'}`;
-          document.getElementById("dashTrophies").innerText = `🏆 ${currentUserProfile.trophies || 5000}`;
+          document.getElementById("dashTrophies").innerText = `🏆 ${trophies}`;
+          
+          const leagueBadge = document.getElementById("dashLeagueBadge");
+          if (leagueBadge) {
+            leagueBadge.innerText = league.name;
+            leagueBadge.className = `${league.color} text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 border`;
+          }
         } else {
           currentUserProfile = {
             name: defaultName,
@@ -289,7 +306,6 @@ function renderBasesUI() {
     return matchTH && matchType && matchSearch;
   });
 
-  // Sorting
   if (currentSort === "likes") {
     filtered.sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
   } else if (currentSort === "downloads") {
@@ -312,21 +328,21 @@ function renderBasesUI() {
   container.innerHTML = filtered.map(base => {
     const isLiked = userLikedBases.includes(base.id);
     return `
-      <div class="glass-card rounded-2xl overflow-hidden transition-all duration-300 flex flex-col group shadow-xl hover:border-amber-400/60">
+      <div class="glass-card rounded-2xl overflow-hidden transition-all duration-300 flex flex-col group shadow-cyber-card hover:border-amber-400/60 hover:-translate-y-1">
         <!-- Image with Click-to-Zoom -->
         <div class="h-48 relative overflow-hidden bg-czDark cursor-pointer" onclick="window.openLightbox('${base.image}')">
           <img src="${base.image}" alt="${base.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80'" />
           
-          <span class="absolute top-2.5 left-2.5 bg-czDark/90 text-amber-400 border border-amber-400/40 text-[11px] font-black px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-md">
+          <span class="absolute top-2.5 left-2.5 bg-czDark/95 text-amber-400 border border-amber-400/40 text-[11px] font-black px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-cyber-gold">
             ${base.th}
           </span>
           <span class="absolute top-2.5 right-2.5 bg-black/85 text-white text-[11px] font-bold px-2 py-0.5 rounded-lg border border-slate-700">
             ${base.type}
           </span>
 
-          <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
-            <span class="bg-black/80 text-amber-400 text-xs px-3 py-1.5 rounded-xl border border-amber-400/50 flex items-center gap-1.5 font-bold">
-              <i class="fa-solid fa-expand"></i> View Full Base
+          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+            <span class="bg-black/90 text-amber-400 text-xs px-3 py-1.5 rounded-xl border border-amber-400/50 flex items-center gap-1.5 font-bold shadow-cyber-gold">
+              <i class="fa-solid fa-expand"></i> Inspect HD
             </span>
           </div>
         </div>
@@ -335,14 +351,14 @@ function renderBasesUI() {
           <div>
             <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
               <span class="text-amber-400 font-bold truncate max-w-[140px]"><i class="fa-solid fa-circle-user mr-1"></i> ${base.uploaderName || 'Chief'}</span>
-              <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-shield-check mr-1"></i>Verified</span>
+              <span class="text-emerald-400 font-semibold text-[11px]"><i class="fa-solid fa-shield-check mr-1"></i>Verified</span>
             </div>
             <h3 class="font-bold text-sm text-white line-clamp-2 mb-3 leading-snug">${base.title}</h3>
           </div>
 
           <div>
             <!-- Stats: Likes, Downloads & WhatsApp Share -->
-            <div class="flex items-center justify-between text-xs text-slate-400 mb-3 bg-czDark/60 p-2 rounded-xl border border-slate-800">
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-3 bg-czDark/80 p-2 rounded-xl border border-slate-800">
               <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1.5 ${isLiked ? 'text-rose-500 font-bold' : 'text-slate-400 hover:text-rose-400'} transition">
                 <i class="fa-${isLiked ? 'solid' : 'regular'} fa-heart text-sm"></i>
                 <span id="likeCount-${base.id}">${base.likesCount || 0}</span>
@@ -350,7 +366,7 @@ function renderBasesUI() {
               
               <div class="flex items-center gap-1.5 text-slate-400">
                 <i class="fa-solid fa-download text-emerald-400"></i>
-                <span id="dlCount-${base.id}">${base.downloadsCount || 0} copied</span>
+                <span id="dlCount-${base.id}">${base.downloadsCount || 0}</span>
               </div>
 
               <!-- WhatsApp Direct Share -->
@@ -360,7 +376,7 @@ function renderBasesUI() {
             </div>
 
             <!-- Copy Link Button -->
-            <button onclick="window.copyBaseLink('${base.id}', '${base.link}')" class="w-full bg-czPanel hover:bg-amber-500 hover:text-black text-amber-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700 hover:border-amber-400 transition shadow-md">
+            <button onclick="window.copyBaseLink('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500/10 to-yellow-500/10 hover:from-amber-500 hover:to-yellow-500 hover:text-black text-amber-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-amber-500/30 hover:border-transparent transition shadow-md">
               <i class="fa-solid fa-copy"></i>
               <span>Copy In-Game Link</span>
             </button>
@@ -388,7 +404,7 @@ window.handleLikeBase = async function(baseId) {
       userLikedBases.push(baseId);
       await updateDoc(baseRef, { likesCount: increment(1) });
       if (countSpan) countSpan.innerText = parseInt(countSpan.innerText) + 1;
-      window.showToast("Layout liked! ❤️");
+      window.showToast("Layout upvoted! ❤️");
     }
     localStorage.setItem("cz_liked_bases", JSON.stringify(userLikedBases));
     renderBasesUI();
@@ -403,7 +419,7 @@ window.copyBaseLink = async function(baseId, link) {
   try {
     await updateDoc(doc(db, "bases", baseId), { downloadsCount: increment(1) });
     const dlSpan = document.getElementById(`dlCount-${baseId}`);
-    if (dlSpan) dlSpan.innerText = `${parseInt(dlSpan.innerText) + 1} copied`;
+    if (dlSpan) dlSpan.innerText = `${parseInt(dlSpan.innerText) + 1}`;
   } catch (e) {
     console.warn("Counter update error:", e);
   }
@@ -445,7 +461,7 @@ window.closeLightbox = function() {
 };
 
 // ==========================================
-// 8. IMAGE COMPRESSION & BASE UPLOAD (WITH VALIDATION)
+// 8. IMAGE COMPRESSION & BASE UPLOAD
 // ==========================================
 function compressImage(file, maxWidth = 900, quality = 0.7) {
   return new Promise((resolve, reject) => {
@@ -487,7 +503,7 @@ window.handleBaseUpload = async function(e) {
 
   const rawLink = document.getElementById("uploadLink").value.trim();
   if (!rawLink.includes("link.clashofclans.com")) {
-    window.showToast("❌ Sirf official 'link.clashofclans.com' base links allowed hain!", "error");
+    window.showToast("❌ Sirf official 'link.clashofclans.com' links allowed hain!", "error");
     return;
   }
 
