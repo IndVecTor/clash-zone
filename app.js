@@ -1,225 +1,195 @@
-document.addEventListener("DOMContentLoaded", () => {
-  syncAppState();
-  if (document.getElementById("leaderboardRows")) {
-    renderLeaderboard();
+// Sample Database of CocBases style layouts
+const initialBases = [
+  {
+    id: 1,
+    th: "TH 18",
+    type: "War",
+    title: "Anti 3-Star CWL Pro Ring Base",
+    downloads: 1420,
+    rating: 4.9,
+    img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80",
+    link: "https://link.clashofclans.com/en?action=OpenLayout&id=TH18_WAR_01"
+  },
+  {
+    id: 2,
+    th: "TH 17",
+    type: "Anti 3-Star",
+    title: "Anti-Root Rider & Zap Lalo Defense",
+    downloads: 980,
+    rating: 4.8,
+    img: "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=600&q=80",
+    link: "https://link.clashofclans.com/en?action=OpenLayout&id=TH17_ANTI3_02"
+  },
+  {
+    id: 3,
+    th: "TH 16",
+    type: "Trophy",
+    title: "Legend League 5800+ Push Base",
+    downloads: 2310,
+    rating: 4.9,
+    img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80",
+    link: "https://link.clashofclans.com/en?action=OpenLayout&id=TH16_LEGEND_03"
+  },
+  {
+    id: 4,
+    th: "TH 15",
+    type: "Farming",
+    title: "Dark Elixir Vault Defender Base",
+    downloads: 870,
+    rating: 4.7,
+    img: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80",
+    link: "https://link.clashofclans.com/en?action=OpenLayout&id=TH15_FARM_04"
+  },
+  {
+    id: 5,
+    th: "TH 11",
+    type: "War",
+    title: "Anti-Electro Dragon Island Base",
+    downloads: 3450,
+    rating: 4.9,
+    img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80",
+    link: "https://link.clashofclans.com/en?action=OpenLayout&id=TH11_WAR_05"
+  },
+  {
+    id: 6,
+    th: "BH 10",
+    type: "Trophy",
+    title: "Stage 2 Anti-Baby Dragon Layout",
+    downloads: 1120,
+    rating: 4.8,
+    img: "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=600&q=80",
+    link: "https://link.clashofclans.com/en?action=OpenLayout&id=BH10_TROPHY_06"
   }
+];
+
+let currentTH = "ALL";
+let currentType = "ALL";
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!localStorage.getItem("cz_bases")) {
+    localStorage.setItem("cz_bases", JSON.stringify(initialBases));
+  }
+  renderBases();
 });
 
-function syncAppState() {
-  const user = JSON.parse(localStorage.getItem("cz_user"));
-  const topNav = document.getElementById("topNavActions");
-  const userStrip = document.getElementById("userProfileStrip");
-  const centerUpload = document.getElementById("centerUploadContainer");
-  const bottomProfileBtn = document.getElementById("bottomProfileBtn");
-  const bottomProfileText = document.getElementById("bottomProfileText");
+function renderBases() {
+  const container = document.getElementById("basesContainer");
+  if (!container) return;
 
-  if (user) {
-    if (topNav) {
-      topNav.innerHTML = `
-        <button class="btn btn-outline" onclick="window.location.href='wallet.html'"><i class="fa-solid fa-coins"></i> ₹${user.wallet || 0}</button>
-        <button class="btn btn-outline" style="border-color:#ef4444; color:#ef4444;" onclick="logout()"><i class="fa-solid fa-power-off"></i></button>
-      `;
-    }
-    if (userStrip) userStrip.style.display = "flex";
-    if (centerUpload) centerUpload.style.display = "block";
+  let bases = JSON.parse(localStorage.getItem("cz_bases")) || initialBases;
+  const search = (document.getElementById("searchInput")?.value || "").toLowerCase();
 
-    const dashName = document.getElementById("dashName");
-    const dashDetails = document.getElementById("dashDetails");
-    const dashXP = document.getElementById("dashXP");
+  const filtered = bases.filter(base => {
+    const matchTH = currentTH === "ALL" || base.th === currentTH;
+    const matchType = currentType === "ALL" || base.type.toLowerCase().includes(currentType.toLowerCase());
+    const matchSearch = base.title.toLowerCase().includes(search) || base.th.toLowerCase().includes(search) || base.type.toLowerCase().includes(search);
+    return matchTH && matchType && matchSearch;
+  });
 
-    if (dashName) dashName.innerText = user.name;
-    if (dashDetails) dashDetails.innerText = `${user.th || 'TH 16'} | Clan: ${user.clan || 'Solo'}`;
-    if (dashXP) dashXP.innerText = `${user.xp || 100} XP`;
+  const countText = document.getElementById("baseCountText");
+  if (countText) countText.innerText = `Showing ${filtered.length} layouts`;
 
-    if (bottomProfileBtn) {
-      bottomProfileBtn.onclick = () => openModal('profileModal');
-      bottomProfileText.innerText = "Profile";
-    }
-  } else {
-    if (topNav) {
-      topNav.innerHTML = `
-        <button class="btn btn-gold" onclick="openAuthModal('login')"><i class="fa-solid fa-user"></i> Login</button>
-      `;
-    }
-    if (userStrip) userStrip.style.display = "none";
-    if (centerUpload) centerUpload.style.display = "none";
-
-    if (bottomProfileBtn) {
-      bottomProfileBtn.onclick = () => openAuthModal('login');
-      bottomProfileText.innerText = "Login";
-    }
-  }
-}
-
-function switchAuth(type) {
-  if (type === 'login') {
-    document.getElementById("loginForm").style.display = "block";
-    document.getElementById("signupForm").style.display = "none";
-    document.getElementById("btnTabLogin").classList.add("active");
-    document.getElementById("btnTabSignup").classList.remove("active");
-  } else {
-    document.getElementById("loginForm").style.display = "none";
-    document.getElementById("signupForm").style.display = "block";
-    document.getElementById("btnTabSignup").classList.add("active");
-    document.getElementById("btnTabLogin").classList.remove("active");
-  }
-}
-
-function doSignup() {
-  const name = document.getElementById("regName").value.trim();
-  const mobile = document.getElementById("regMobile").value.trim();
-  const tag = document.getElementById("regTag").value.trim();
-  const pass = document.getElementById("regPass").value.trim();
-
-  if (!name || mobile.length !== 10 || !tag || pass.length < 4) {
-    alert("Saari jankari sahi bharein! (Mobile 10-digit, Password min 4 chars)");
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full py-16 text-center text-slate-500">
+        <i class="fa-solid fa-chess-board text-4xl mb-2 text-slate-600"></i>
+        <p>No base layouts found matching your criteria.</p>
+      </div>
+    `;
     return;
   }
 
-  let users = JSON.parse(localStorage.getItem("cz_all_users")) || [];
-  if (users.find(u => u.mobile === mobile)) {
-    alert("Mobile number pehle se registered hai! Kripya Login karein.");
-    switchAuth('login');
-    return;
-  }
+  container.innerHTML = filtered.map(base => `
+    <div class="bg-czCard border border-slate-800 hover:border-amber-400/60 rounded-2xl overflow-hidden transition duration-300 flex flex-col group">
+      <!-- Thumbnail & Badge -->
+      <div class="h-44 relative overflow-hidden bg-slate-900">
+        <img src="${base.img}" alt="${base.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+        <span class="absolute top-2.5 left-2.5 bg-czDark/90 text-amber-400 border border-amber-400/40 text-[11px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-md">
+          ${base.th}
+        </span>
+        <span class="absolute top-2.5 right-2.5 bg-black/80 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md">
+          ${base.type}
+        </span>
+      </div>
 
-  const newUser = {
-    name, mobile, tag, pass,
-    wallet: 0,
-    xp: 100,
-    th: "TH 16",
-    clan: "New Challenger"
-  };
+      <!-- Card Details -->
+      <div class="p-4 flex flex-col flex-grow justify-between">
+        <div>
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+            <span><i class="fa-solid fa-download text-amber-400 mr-1"></i> ${base.downloads}+ Copies</span>
+            <span><i class="fa-solid fa-star text-amber-400 mr-1"></i> ${base.rating}</span>
+          </div>
+          <h3 class="font-bold text-sm sm:text-base text-white line-clamp-1 mb-4">${base.title}</h3>
+        </div>
 
-  users.push(newUser);
-  localStorage.setItem("cz_all_users", JSON.stringify(users));
-  localStorage.setItem("cz_user", JSON.stringify(newUser));
-
-  closeModal("authModal");
-  syncAppState();
-  if (document.getElementById("leaderboardRows")) renderLeaderboard();
-  alert("🎉 Account create ho gaya! +100 XP points jud gaye!");
-}
-
-function doLogin() {
-  const mobile = document.getElementById("logMobile").value.trim();
-  const pass = document.getElementById("logPass").value.trim();
-
-  let users = JSON.parse(localStorage.getItem("cz_all_users")) || [];
-  const user = users.find(u => u.mobile === mobile && u.pass === pass);
-
-  if (user) {
-    localStorage.setItem("cz_user", JSON.stringify(user));
-    closeModal("authModal");
-    syncAppState();
-    if (document.getElementById("leaderboardRows")) renderLeaderboard();
-    alert(`Welcome back, Chief ${user.name}!`);
-  } else {
-    alert("Mobile ya Password galat hai!");
-  }
-}
-
-function logout() {
-  localStorage.removeItem("cz_user");
-  syncAppState();
-}
-
-function saveProfile() {
-  let user = JSON.parse(localStorage.getItem("cz_user"));
-  if (!user) return;
-
-  user.th = document.getElementById("profTH").value;
-  user.clan = document.getElementById("profClan").value || "Solo";
-  user.xp = (user.xp || 100) + 150;
-
-  localStorage.setItem("cz_user", JSON.stringify(user));
-
-  let users = JSON.parse(localStorage.getItem("cz_all_users")) || [];
-  users = users.map(u => u.mobile === user.mobile ? user : u);
-  localStorage.setItem("cz_all_users", JSON.stringify(users));
-
-  closeModal("profileModal");
-  syncAppState();
-  if (document.getElementById("leaderboardRows")) renderLeaderboard();
-  alert(`✅ Profile update ho gayi! +150 XP bonus points jud gaye! Total: ${user.xp} XP`);
-}
-
-function renderLeaderboard() {
-  const rows = document.getElementById("leaderboardRows");
-  if (!rows) return;
-  let users = JSON.parse(localStorage.getItem("cz_all_users")) || [];
-
-  let list = [
-    { name: "Apex Predator", th: "TH 16", clan: "Team Liquid", xp: 950 },
-    { name: "ShadowKing", th: "TH 16", clan: "Dark Nebula", xp: 820 },
-    { name: "DevilHunter", th: "TH 15", clan: "Indian Legends", xp: 640 },
-    ...users
-  ];
-
-  list.sort((a,b) => (b.xp || 0) - (a.xp || 0));
-
-  rows.innerHTML = list.map((p, idx) => `
-    <tr>
-      <td>${idx === 0 ? '🥇 #1' : idx === 1 ? '🥈 #2' : idx === 2 ? '🥉 #3' : '#' + (idx + 1)}</td>
-      <td><b>${p.name}</b></td>
-      <td>${p.th || 'TH 16'}</td>
-      <td>${p.clan || 'Solo'}</td>
-      <td style="color:var(--gold); font-weight:700;">${p.xp || 100} XP</td>
-    </tr>
+        <!-- 1-Click Copy Button -->
+        <button onclick="copyBaseLink('${base.link}')" class="w-full bg-slate-800 hover:bg-amber-500 hover:text-black text-amber-400 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700 hover:border-amber-400 transition">
+          <i class="fa-solid fa-copy"></i>
+          <span>Copy Base Link</span>
+        </button>
+      </div>
+    </div>
   `).join('');
 }
 
-function checkAccess(type) {
-  const user = localStorage.getItem("cz_user");
-  if (!user) {
-    alert("Pehle Login ya Sign Up karein!");
-    openAuthModal('login');
-  } else {
-    if (type === 'tournament' || type === 'wallet') {
-      window.location.href = "wallet.html";
-    }
-  }
+function setTHFilter(th) {
+  currentTH = th;
+  document.querySelectorAll(".base-filter-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.innerText === th || (th === 'ALL' && btn.innerText === 'ALL BASES'));
+  });
+  renderBases();
 }
 
-function publishBase() {
-  const th = document.getElementById("newBaseTH").value;
-  const type = document.getElementById("newBaseType").value;
-  const link = document.getElementById("newBaseLink").value.trim();
+function setTypeFilter(type) {
+  currentType = type;
+  renderBases();
+}
 
-  if (!link) {
-    alert("Base ka link dalein!");
-    return;
-  }
+function filterBases() {
+  renderBases();
+}
 
-  const grid = document.getElementById("baseGrid");
-  if (grid) {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div class="card-img-wrapper">
-        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=500&q=80" alt="Base">
-        <span class="card-badge">${th}</span>
-      </div>
-      <div class="card-body">
-        <div class="card-title">${type}</div>
-        <button class="btn btn-outline" style="width: 100%; justify-content: center;" onclick="window.open('${link}','_blank')"><i class="fa-solid fa-copy"></i> Copy Link</button>
-      </div>
-    `;
-    grid.prepend(card);
-  }
+function copyBaseLink(link) {
+  navigator.clipboard.writeText(link).then(() => {
+    alert("✅ Base Link Copied! Opening in Clash of Clans layout editor...");
+    window.open(link, "_blank");
+  }).catch(() => {
+    window.open(link, "_blank");
+  });
+}
 
-  let user = JSON.parse(localStorage.getItem("cz_user"));
-  if (user) {
-    user.xp = (user.xp || 100) + 50;
-    localStorage.setItem("cz_user", JSON.stringify(user));
-    syncAppState();
-    if (document.getElementById("leaderboardRows")) renderLeaderboard();
-  }
+function handleBaseUpload(e) {
+  e.preventDefault();
+  const th = document.getElementById("uploadTH").value;
+  const type = document.getElementById("uploadType").value;
+  const title = document.getElementById("uploadTitle").value.trim();
+  const link = document.getElementById("uploadLink").value.trim();
 
+  let bases = JSON.parse(localStorage.getItem("cz_bases")) || initialBases;
+  bases.unshift({
+    id: Date.now(),
+    th,
+    type,
+    title,
+    downloads: 1,
+    rating: 5.0,
+    img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80",
+    link
+  });
+
+  localStorage.setItem("cz_bases", JSON.stringify(bases));
   closeModal("uploadModal");
-  alert("Base publish ho gaya aur +50 XP bonus points jud gaye!");
+  e.target.reset();
+  renderBases();
+  alert("🎉 Base layout published to ClashZone successfully!");
 }
 
-function openModal(id) { document.getElementById(id).style.display = "flex"; }
-function closeModal(id) { document.getElementById(id).style.display = "none"; }
-function openAuthModal(t) { openModal('authModal'); switchAuth(t); }
+function openModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) modal.style.display = "flex";
+}
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) modal.style.display = "none";
+}
