@@ -38,15 +38,6 @@
           boxShadow: {
             'neon-gold': '0 0 20px rgba(245, 158, 11, 0.25)',
             'cyber-card': '0 10px 30px -10px rgba(0, 0, 0, 0.9)',
-          },
-          keyframes: {
-            marquee: {
-              '0%': { transform: 'translateX(0%)' },
-              '100%': { transform: 'translateX(-50%)' }
-            }
-          },
-          animation: {
-            marquee: 'marquee 22s linear infinite',
           }
         }
       }
@@ -94,10 +85,6 @@
     .bnav-btn.active { color: #fbbf24; transform: translateY(-3px); }
     .bnav-dot { opacity: 0; transform: scale(0); transition: all 0.25s ease; }
     .bnav-btn.active .bnav-dot { opacity: 1; transform: scale(1); }
-    
-    .marquee-container:hover .marquee-track {
-      animation-play-state: paused;
-    }
   </style>
 </head>
 <body class="text-slate-100 min-h-screen pb-32 selection:bg-amber-500 selection:text-black">
@@ -143,121 +130,11 @@
     <!-- VIEW 1: FEED SECTION -->
     <div id="viewFeedSection">
       
-      <!-- COMPACT HERO AVATARS AUTO-SCROLLING BAR -->
-      <section class="py-3 w-full relative overflow-hidden glass-panel rounded-2xl mb-4 shadow-cyber-card border-amber-500/30 px-3">
-        
-        <div class="marquee-container relative w-full overflow-hidden py-1">
-          <!-- Gradient Fade Edges -->
-          <div class="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#070c18] to-transparent z-10 pointer-events-none"></div>
-          <div class="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#070c18] to-transparent z-10 pointer-events-none"></div>
-
-          <div class="marquee-track flex items-center gap-3 w-max animate-marquee">
-            <!-- Heroes Set 1 -->
-            <div class="flex items-center gap-3">
-              
-              <!-- Barbarian King -->
-              <div class="bg-czDark/90 border border-amber-500/40 px-3 py-1.5 rounded-xl flex items-center gap-2.5 shrink-0 shadow-sm">
-                <img src="https://static.wikia.nocookie.net/clashofclans/images/f/f7/Barbarian_King_info.png" alt="Barbarian King" class="w-8 h-8 rounded-lg object-contain bg-amber-500/10 p-0.5 border border-amber-500/30" onerror="this.src='https://api.iconify.design/game-icons:king.svg?color=%23fbbf24'" />
-                <div>
-                  <h4 class="text-[11px] font-black text-white leading-tight">Barbarian King</h4>
-                  <span class="text-[9px] text-amber-400 font-bold block">Iron Fist</span>
-                </div>
-              </div>
-
-              <!-- Archer Queen -->
-              <div class="bg-czDark/90 border border-rose-500/40 px-3 py-1.5 rounded-xl flex items-center gap-2.5 shrink-0 shadow-sm">
-                <img src="https://static.wikia.nocookie.net/clashofclans/images/d/d4/Archer_Queen_info.png" alt="Archer Queen" class="w-8 h-8 rounded-lg object-contain bg-rose-500/10 p-0.5 border border-rose-500/30" onerror="this.src='https://api.iconify.design/game-icons:archery-target.svg?color=%23f43f5e'" />
-                <div>
-                  <h4 class="text-[11px] font-black text-white leading-tight">Archer Queen</h4>
-                  <span class="text-[9px] text-rose-400 font-bold block">Giant Arrow</span>
-                </div>
-              </div>
-
-              <!-- Grand Warden -->
-              <div class="bg-czDark/90 border border-cyan-500/40 px-3 py-1.5 rounded-xl flex items-center gap-2.5 shrink-0 shadow-sm">
-                <img src="https://static.wikia.nocookie.net/clashofclans/images/3/36/Grand_Warden_info.png" alt="Grand Warden" class="w-8 h-8 rounded-lg object-contain bg-cyan-500/10 p-0.5 border border-cyan-500/30" onerror="this.src='https://api.iconify.design/game-icons:wizard-staff.svg?color=%2322d3ee'" />
-                <div>
-                  <h4 class="text-[11px] font-black text-white leading-tight">Grand Warden</h4>
-                  <span class="text-[9px] text-cyan-400 font-bold block">Eternal Tome</span>
-                </div>
-              </div>
-
-              <!-- Royal Champion -->
-              <div class="bg-czDark/90 border border-emerald-500/40 px-3 py-1.5 rounded-xl flex items-center gap-2.5 shrink-0 shadow-sm">
-                <img src="https://static.wikia.nocookie.net/clashofclans/images/2/22/Royal_Champion_info.png" alt="Royal Champion" class="w-8 h-8 rounded-lg object-contain bg-emerald-500/10 p-0.5 border border-emerald-500/30" onerror="this.src='https://api.iconify.design/game-icons:shield.svg?color=%2334d399'" />
-                <div>
-                  <h4 class="text-[11px] font-black text-white leading-tight">Royal Champion</h4>
-                  <span class="text-[9px] text-emerald-400 font-bold block">Seeking Shield</span>
-                </div>
-              </div>
-
-              <!-- Dragon Duke -->
-              <div class="bg-czDark/90 border border-purple-500/40 px-3 py-1.5 rounded-xl flex items-center gap-2.5 shrink-0 shadow-sm">
-                <img src="https://static.wikia.nocookie.net/clashofclans/images/e/ef/Dragon_Duke_info.png" alt="Dragon Duke" class="w-8 h-8 rounded-lg object-contain bg-purple-500/10 p-0.5 border border-purple-500/30" onerror="this.src='https://api.iconify.design/game-icons:dragon-head.svg?color=%23c084fc'" />
-                <div>
-                  <h4 class="text-[11px] font-black text-white leading-tight">Dragon Duke</h4>
-                  <span class="text-[9px] text-purple-400 font-bold block">Royal Rampage</span>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Duplicate Set for Seamless Infinite Loop -->
-            <div class="flex items-center gap-3">
-              
-              <!-- Barbarian King -->
-              <div class="bg-czDark/90 border border-amber-500/40 px-3 py-1.5 rounded-xl flex items-center gap-2.5 shrink-0 shadow-sm">
-                <img src="https://static.wikia.nocookie.net/clashofclans/images/f/f7/Barbarian_King_info.png" alt="Barbarian King" class="w-8 h-8 rounded-lg object-contain bg-amber-500/10 p-0.5 border border-amber-500/30" onerror="this.src='https://api.iconify.design/game-icons:king.svg?color=%23fbbf24'" />
-                <div>
-                  <h4 class="text-[11px] font-black text-white leading-tight">Barbarian King</h4>
-                  <span class="text-[9px] text-amber-400 font-bold block">Iron Fist</span>
-                </div>
-              </div>
-
-              <!-- Archer Queen -->
-              <div class="bg-czDark/90 border border-rose-500/40 px-3 py-1.5 rounded-xl flex items-center gap-2.5 shrink-0 shadow-sm">
-                <img src="https://static.wikia.nocookie.net/clashofclans/images/d/d4/Archer_Queen_info.png" alt="Archer Queen" class="w-8 h-8 rounded-lg object-contain bg-rose-500/10 p-0.5 border border-rose-500/30" onerror="this.src='https://api.iconify.design/game-icons:archery-target.svg?color=%23f43f5e'" />
-                <div>
-                  <h4 class="text-[11px] font-black text-white leading-tight">Archer Queen</h4>
-                  <span class="text-[9px] text-rose-400 font-bold block">Giant Arrow</span>
-                </div>
-              </div>
-
-              <!-- Grand Warden -->
-              <div class="bg-czDark/90 border border-cyan-500/40 px-3 py-1.5 rounded-xl flex items-center gap-2.5 shrink-0 shadow-sm">
-                <img src="https://static.wikia.nocookie.net/clashofclans/images/3/36/Grand_Warden_info.png" alt="Grand Warden" class="w-8 h-8 rounded-lg object-contain bg-cyan-500/10 p-0.5 border border-cyan-500/30" onerror="this.src='https://api.iconify.design/game-icons:wizard-staff.svg?color=%2322d3ee'" />
-                <div>
-                  <h4 class="text-[11px] font-black text-white leading-tight">Grand Warden</h4>
-                  <span class="text-[9px] text-cyan-400 font-bold block">Eternal Tome</span>
-                </div>
-              </div>
-
-              <!-- Royal Champion -->
-              <div class="bg-czDark/90 border border-emerald-500/40 px-3 py-1.5 rounded-xl flex items-center gap-2.5 shrink-0 shadow-sm">
-                <img src="https://static.wikia.nocookie.net/clashofclans/images/2/22/Royal_Champion_info.png" alt="Royal Champion" class="w-8 h-8 rounded-lg object-contain bg-emerald-500/10 p-0.5 border border-emerald-500/30" onerror="this.src='https://api.iconify.design/game-icons:shield.svg?color=%2334d399'" />
-                <div>
-                  <h4 class="text-[11px] font-black text-white leading-tight">Royal Champion</h4>
-                  <span class="text-[9px] text-emerald-400 font-bold block">Seeking Shield</span>
-                </div>
-              </div>
-
-              <!-- Dragon Duke -->
-              <div class="bg-czDark/90 border border-purple-500/40 px-3 py-1.5 rounded-xl flex items-center gap-2.5 shrink-0 shadow-sm">
-                <img src="https://static.wikia.nocookie.net/clashofclans/images/e/ef/Dragon_Duke_info.png" alt="Dragon Duke" class="w-8 h-8 rounded-lg object-contain bg-purple-500/10 p-0.5 border border-purple-500/30" onerror="this.src='https://api.iconify.design/game-icons:dragon-head.svg?color=%23c084fc'" />
-                <div>
-                  <h4 class="text-[11px] font-black text-white leading-tight">Dragon Duke</h4>
-                  <span class="text-[9px] text-purple-400 font-bold block">Royal Rampage</span>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        <!-- Compact Search Bar -->
-        <div class="max-w-sm mx-auto mt-2 bg-czDark border border-amber-500/40 rounded-xl px-2.5 py-1.5 flex items-center gap-2 shadow-sm">
-          <i data-lucide="search" class="text-amber-400 w-3.5 h-3.5 shrink-0"></i>
-          <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall (TH5 - TH18)..." class="w-full bg-transparent border-none text-white text-xs outline-none placeholder-slate-500 font-semibold min-w-0" />
+      <!-- COMPACT SEARCH BAR ONLY (NO SCROLL HERO) -->
+      <section class="py-2.5 w-full mb-3">
+        <div class="max-w-md mx-auto bg-czDark border border-amber-500/40 rounded-2xl px-3 py-2 flex items-center gap-2.5 shadow-sm">
+          <i data-lucide="search" class="text-amber-400 w-4 h-4 shrink-0"></i>
+          <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall (TH5 - TH18), Creator..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
         </div>
       </section>
 
@@ -362,7 +239,7 @@
       </div>
     </div>
 
-    <!-- VIEW 4: PRO PROFILE PAGE -->
+    <!-- VIEW 4: BRAND-NEW REDESIGNED PROFILE PAGE (IMAGE LEFT, STATS RIGHT) -->
     <div id="viewProfileSection" class="hidden py-6 max-w-3xl mx-auto">
       <div id="profileLoggedOutView" class="hidden glass-panel rounded-3xl p-8 text-center">
         <div class="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-500/40">
@@ -376,56 +253,62 @@
       </div>
 
       <div id="profileLoggedInView" class="space-y-6">
-        <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-cyber-card border-amber-500/30">
-          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-            <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 p-[2px] shadow-neon-gold shrink-0">
-              <div class="w-full h-full bg-czDark rounded-[22px] flex items-center justify-center text-amber-400 text-4xl font-black">
+        
+        <!-- Brand-New Profile Header Card (Left Image, Right Stats & Name) -->
+        <div class="glass-panel rounded-3xl p-6 sm:p-7 shadow-cyber-card border-amber-500/30">
+          <div class="flex items-center gap-5 sm:gap-8">
+            
+            <!-- Left Side: Circular Profile Image / Avatar -->
+            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 p-[2px] shadow-neon-gold shrink-0">
+              <div class="w-full h-full bg-czDark rounded-full flex items-center justify-center text-amber-400 text-3xl font-black overflow-hidden">
                 <span id="profileAvatarInitial">C</span>
               </div>
             </div>
 
-            <div class="flex-1 text-center sm:text-left min-w-0 w-full">
-              <div class="flex items-center justify-center sm:justify-start gap-3 flex-wrap mb-2">
-                <h2 id="profileIGN" class="text-xl sm:text-2xl font-black text-white truncate">Chief Player</h2>
-                <span id="profileTHBadge" class="bg-amber-500 text-black text-[10px] font-black px-2.5 py-0.5 rounded-lg uppercase">TH 16</span>
+            <!-- Right Side: Name, TH Badge & Stats Counters -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2.5 flex-wrap mb-1">
+                <h2 id="profileIGN" class="text-lg sm:text-xl font-black text-white truncate">Chief Player</h2>
+                <span id="profileTHBadge" class="bg-amber-500 text-black text-[10px] font-black px-2 py-0.5 rounded-md uppercase">TH 16</span>
               </div>
-              <p id="profileTagClan" class="text-xs text-slate-400 mb-4 font-mono">Clan: Solo | #CLASH</p>
+              <p id="profileTagClan" class="text-xs text-slate-400 font-mono mb-3 truncate">#CLASH | Solo</p>
 
-              <div class="flex items-center justify-center sm:justify-start gap-6 mb-4 bg-czDark/80 p-3.5 rounded-2xl border border-slate-800">
-                <div class="text-center px-2">
-                  <b id="statPostsCount" class="text-white text-base sm:text-lg font-black block">0</b>
-                  <span class="text-[10px] text-slate-400 uppercase tracking-wider">Posts</span>
+              <!-- Stats Row (Posts, Followers, Trophies) on Right Side -->
+              <div class="grid grid-cols-3 gap-2 bg-czDark/90 p-2.5 rounded-xl border border-slate-800 text-center">
+                <div>
+                  <b id="statPostsCount" class="text-white text-sm sm:text-base font-black block">0</b>
+                  <span class="text-[9px] text-slate-400 uppercase tracking-wider">Posts</span>
                 </div>
-                <div class="w-[1px] h-8 bg-slate-800"></div>
-                <div class="text-center px-2">
-                  <b id="statFollowersCount" class="text-cyan-400 text-base sm:text-lg font-black block">0</b>
-                  <span class="text-[10px] text-slate-400 uppercase tracking-wider">Followers</span>
+                <div class="border-x border-slate-800">
+                  <b id="statFollowersCount" class="text-cyan-400 text-sm sm:text-base font-black block">0</b>
+                  <span class="text-[9px] text-slate-400 uppercase tracking-wider">Followers</span>
                 </div>
-                <div class="w-[1px] h-8 bg-slate-800"></div>
-                <div class="text-center px-2">
-                  <b id="statTrophiesCount" class="text-amber-400 text-base sm:text-lg font-black block">🏆 5000</b>
-                  <span class="text-[10px] text-slate-400 uppercase tracking-wider">Trophies</span>
+                <div>
+                  <b id="statTrophiesCount" class="text-amber-400 text-sm sm:text-base font-black block">🏆 5K</b>
+                  <span class="text-[9px] text-slate-400 uppercase tracking-wider">Trophies</span>
                 </div>
-              </div>
-
-              <!-- Pro Builder Badge Progress Bar -->
-              <div class="bg-czDark p-3 rounded-2xl border border-slate-800 mb-5 text-xs">
-                <div class="flex items-center justify-between mb-1.5 font-bold">
-                  <span class="text-amber-400 flex items-center gap-1.5"><i data-lucide="award" class="w-3.5 h-3.5"></i> Pro Builder Badge Progress</span>
-                  <span id="proBadgeProgressText" class="text-slate-400">0 / 10 Uploads</span>
-                </div>
-                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                  <div id="proBadgeProgressBar" class="bg-gradient-to-r from-amber-500 to-yellow-400 h-full transition-all duration-500" style="width: 0%;"></div>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-3">
-                <button onclick="window.openModal('editProfileModal')" class="flex-1 bg-czDark hover:bg-slate-800 border border-amber-500/40 text-amber-400 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-sm flex items-center justify-center gap-2">
-                  <i data-lucide="user-pen" class="w-4 h-4"></i> Edit Profile & Sync
-                </button>
-                <button onclick="window.handleLogout()" class="px-4 py-3 bg-rose-500/10 hover:bg-rose-500 text-rose-400 rounded-xl transition text-xs font-bold">Logout</button>
               </div>
             </div>
+
+          </div>
+
+          <!-- Pro Builder Badge Progress Bar -->
+          <div class="bg-czDark p-3 rounded-2xl border border-slate-800 mt-5 text-xs">
+            <div class="flex items-center justify-between mb-1.5 font-bold">
+              <span class="text-amber-400 flex items-center gap-1.5"><i data-lucide="award" class="w-3.5 h-3.5"></i> Pro Builder Badge Progress</span>
+              <span id="proBadgeProgressText" class="text-slate-400">0 / 10 Uploads</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div id="proBadgeProgressBar" class="bg-gradient-to-r from-amber-500 to-yellow-400 h-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-3 mt-4">
+            <button onclick="window.openModal('editProfileModal')" class="flex-1 bg-czDark hover:bg-slate-800 border border-amber-500/40 text-amber-400 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-sm flex items-center justify-center gap-2">
+              <i data-lucide="user-pen" class="w-4 h-4"></i> Edit Profile & Sync
+            </button>
+            <button onclick="window.handleLogout()" class="px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white rounded-xl transition text-xs font-bold">Logout</button>
           </div>
         </div>
 
