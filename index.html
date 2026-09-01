@@ -103,8 +103,8 @@
             <b id="dashTrophies" class="text-amber-400 text-sm font-black">🏆 5000</b>
           </div>
           <button onclick="window.openEditProfileModal()" class="bg-amber-500 hover:bg-amber-400 text-black px-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition flex-1 sm:flex-initial shadow-lg shadow-amber-500/20">
-            <i class="fa-solid fa-pen-to-square"></i>
-            <span>Edit Profile</span>
+            <i class="fa-solid fa-user-gear"></i>
+            <span>Profile & Settings</span>
           </button>
         </div>
       </div>
@@ -189,14 +189,9 @@
         <i class="fa-solid fa-plus"></i>
       </button>
 
-      <button onclick="window.handleBottomNavProfileClick()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white text-xs font-bold px-3 py-1">
+      <button onclick="window.openEditProfileModal()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white text-xs font-bold px-3 py-1">
         <i class="fa-solid fa-id-card text-lg"></i>
         <span>Profile</span>
-      </button>
-
-      <button onclick="window.handleBottomNavAuthClick()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white text-xs font-bold px-3 py-1" id="navAuthBtn">
-        <i class="fa-solid fa-user text-lg"></i>
-        <span>Account</span>
       </button>
     </div>
   </nav>
@@ -325,15 +320,15 @@
     </div>
   </div>
 
-  <!-- EDIT PROFILE MODAL (FULL CUSTOMIZATION) -->
+  <!-- PROFILE MODAL (WITH LOGOUT AT THE BOTTOM) -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-4 z-50" id="editProfileModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-md p-6 relative shadow-2xl">
       <button onclick="window.closeModal('editProfileModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
       
       <h3 class="gaming-title text-xl text-amber-400 flex items-center gap-2">
-        <i class="fa-solid fa-id-badge"></i> Edit Chief Profile
+        <i class="fa-solid fa-id-badge"></i> Player Profile
       </h3>
-      <p class="text-xs text-slate-400 mb-4 mt-0.5">Update your in-game details, clan, and trophies anytime.</p>
+      <p class="text-xs text-slate-400 mb-4 mt-0.5">Manage your Clash of Clans credentials & settings.</p>
 
       <form onsubmit="window.handleSaveProfile(event)" class="space-y-3.5">
         <div>
@@ -374,9 +369,18 @@
         </div>
 
         <button type="submit" id="btnSaveProfile" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black py-3 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-lg shadow-amber-500/20">
-          Save Profile Details
+          Save Changes
         </button>
       </form>
+
+      <!-- LOGOUT AT THE BOTTOM OF PROFILE MODAL -->
+      <div class="mt-4 pt-3 border-t border-slate-800">
+        <button onclick="window.handleLogout()" class="w-full bg-rose-500/10 hover:bg-rose-500 hover:text-white border border-rose-500/30 text-rose-400 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
+          <i class="fa-solid fa-power-off"></i>
+          <span>Logout Account</span>
+        </button>
+      </div>
+
     </div>
   </div>
 

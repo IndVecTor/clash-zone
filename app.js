@@ -48,7 +48,6 @@ let currentUserProfile = null;
 onAuthStateChanged(auth, async (user) => {
   const headerAuth = document.getElementById("headerAuthArea");
   const userProfileStrip = document.getElementById("userProfileStrip");
-  const navAuthBtn = document.getElementById("navAuthBtn");
 
   if (user) {
     const defaultName = user.displayName || user.email.split('@')[0];
@@ -60,20 +59,11 @@ onAuthStateChanged(auth, async (user) => {
           <i class="fa-solid fa-cloud-arrow-up"></i>
           <span>Upload</span>
         </button>
-        <div class="flex items-center gap-2 bg-czPanel border border-slate-700 px-3 py-1.5 rounded-xl text-xs">
-          <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <button onclick="window.openEditProfileModal()" class="flex items-center gap-2 bg-czPanel border border-slate-700 hover:border-amber-400/50 px-3 py-1.5 rounded-xl text-xs transition">
+          <i class="fa-solid fa-circle-user text-amber-400 text-sm"></i>
           <span class="font-bold text-white max-w-[100px] truncate" id="headerUserName">${defaultName}</span>
-          <button onclick="window.handleLogout()" class="text-rose-400 hover:text-rose-300 ml-1" title="Logout"><i class="fa-solid fa-power-off"></i></button>
-        </div>
+        </button>
       `;
-    }
-
-    if (navAuthBtn) {
-      navAuthBtn.innerHTML = `
-        <i class="fa-solid fa-user-check text-emerald-400 text-lg"></i>
-        <span>Logout</span>
-      `;
-      navAuthBtn.setAttribute("onclick", "window.handleLogout()");
     }
 
     // Load User Profile from Firestore
@@ -111,13 +101,6 @@ onAuthStateChanged(auth, async (user) => {
           <span>Login / Register</span>
         </button>
       `;
-    }
-    if (navAuthBtn) {
-      navAuthBtn.innerHTML = `
-        <i class="fa-solid fa-user text-lg"></i>
-        <span>Account</span>
-      `;
-      navAuthBtn.setAttribute("onclick", "window.openModal('authModal')");
     }
     if (userProfileStrip) userProfileStrip.classList.add("hidden");
   }
@@ -176,7 +159,7 @@ window.handleSaveProfile = async function(e) {
     alert("❌ Error: " + err.message);
   } finally {
     saveBtn.disabled = false;
-    saveBtn.innerHTML = `Save Profile Details`;
+    saveBtn.innerHTML = `Save Changes`;
   }
 };
 
@@ -449,22 +432,6 @@ window.copyBaseLink = function(link) {
   }).catch(() => {
     window.open(link, "_blank");
   });
-};
-
-window.handleBottomNavProfileClick = function() {
-  if (auth.currentUser) {
-    window.openEditProfileModal();
-  } else {
-    window.openModal('authModal');
-  }
-};
-
-window.handleBottomNavAuthClick = function() {
-  if (auth.currentUser) {
-    window.handleLogout();
-  } else {
-    window.openModal('authModal');
-  }
 };
 
 window.openModal = function(id) {
