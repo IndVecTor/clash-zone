@@ -15,7 +15,7 @@
   <!-- Tailwind & Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   
   <script>
     tailwind.config = {
@@ -54,9 +54,13 @@
       background-size: 100% 100%, 32px 32px, 32px 32px;
       font-family: 'Rajdhani', sans-serif;
     }
-    .gaming-title { font-family: 'Orbitron', sans-serif; letter-spacing: 1.5px; }
+    .gaming-logo { 
+      font-family: 'Orbitron', sans-serif; 
+      letter-spacing: 2px;
+      text-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
+    }
     .gold-gradient {
-      background: linear-gradient(135deg, #ffffff 0%, #fbbf24 45%, #d97706 100%);
+      background: linear-gradient(135deg, #fffbeb 0%, #fbbf24 40%, #d97706 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -97,36 +101,34 @@
   <!-- TOAST NOTIFICATION -->
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- CLEAN TOP HEADER (NO CLUTTER) -->
+  <!-- ULTRA-CLEAN TOP BAR (ONLY BRAND NAME + TOP NOTIFICATION BELL) -->
   <header class="sticky top-0 z-40 bg-czDark/95 backdrop-blur-xl border-b border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
       
-      <!-- Brand Logo -->
-      <a href="index.html" class="flex items-center gap-2.5 shrink-0">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-yellow-400 p-[1.5px] shadow-cyber-gold shrink-0">
-          <div class="w-full h-full bg-czDark rounded-[10px] flex items-center justify-center">
-            <i class="fa-solid fa-shield-halved text-amber-400 text-base"></i>
+      <!-- Brand Logo with New Gaming Font Style -->
+      <a href="index.html" class="flex items-center gap-2.5 shrink-0 group">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 via-yellow-500 to-amber-300 p-[1.5px] shadow-cyber-gold shrink-0 group-hover:scale-105 transition">
+          <div class="w-full h-full bg-czDark rounded-[14px] flex items-center justify-center">
+            <i class="fa-solid fa-shield-halved text-amber-400 text-lg"></i>
           </div>
         </div>
-        <div class="truncate">
-          <span class="gaming-title text-lg sm:text-xl font-black gold-gradient tracking-wider block leading-none">CLASHZONE</span>
-          <span class="text-[8px] sm:text-[9px] uppercase tracking-widest text-slate-400 font-bold block">Supercell Verified Hub</span>
+        <div class="flex flex-col">
+          <span class="gaming-logo text-xl sm:text-2xl font-black gold-gradient tracking-widest uppercase leading-none">CLASH<span class="text-white">ZONE</span></span>
+          <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold block mt-0.5">Verified Base Hub</span>
         </div>
       </a>
 
-      <!-- Header Action Controls (Only Essential Auth & Install) -->
+      <!-- Right Side Top Controls: Notification Bell & PWA Install -->
       <div class="flex items-center gap-2 shrink-0">
-        <button id="pwaInstallBtn" onclick="window.triggerAppInstall()" class="hidden bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-3 py-1.5 rounded-xl text-xs font-black items-center gap-1.5 transition shadow-cyber-gold animate-pulse">
+        <button onclick="window.openModal('notificationsModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-slate-300 w-10 h-10 rounded-xl text-xs flex items-center justify-center transition relative shadow-sm" title="Platform & User Alerts">
+          <i class="fa-solid fa-bell text-amber-400 text-sm"></i>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-cyber-gold"></span>
+        </button>
+
+        <button id="pwaInstallBtn" onclick="window.triggerAppInstall()" class="hidden bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-3 py-2 rounded-xl text-xs font-black items-center gap-1.5 transition shadow-cyber-gold animate-pulse">
           <i class="fa-solid fa-download"></i>
           <span>Install</span>
         </button>
-        
-        <div id="headerAuthArea">
-          <button onclick="window.openModal('authModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-amber-400 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-user-lock"></i>
-            <span>Login</span>
-          </button>
-        </div>
       </div>
     </div>
   </header>
@@ -134,7 +136,7 @@
   <!-- MAIN CONTAINER -->
   <div class="max-w-7xl mx-auto px-4 pt-4 w-full overflow-hidden">
 
-    <!-- USER PROFILE HUD -->
+    <!-- USER PROFILE HUD (If Logged In) -->
     <div id="userProfileStrip" class="hidden mb-5 glass-card rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-cyber-card w-full border-amber-500/25">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         <div class="flex items-center gap-3.5 min-w-0">
@@ -196,11 +198,11 @@
         </div>
       </section>
 
-      <!-- SYSTEMATIC SUB-HEADER BAR: ZONES + RANKINGS + NOTIFICATIONS + CWL TIMER -->
+      <!-- SYSTEMATIC SUB-HEADER BAR: ZONES + RANKINGS -->
       <section class="py-2 w-full">
         <div class="glass-card rounded-2xl p-2 sm:p-2.5 flex flex-col md:flex-row items-center justify-between gap-3 shadow-md">
           
-          <!-- Left: Zone Selector (Home / Builder / Capital) -->
+          <!-- Left: Zone Selector -->
           <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
             <button onclick="window.switchZone('home')" id="zoneTabHome" class="zone-tab-btn active px-3.5 py-1.5 bg-czDark border border-slate-700 rounded-xl text-xs font-bold shrink-0 transition flex items-center gap-1.5">
               <i class="fa-solid fa-house-laptop text-amber-400"></i> Home Village
@@ -213,26 +215,12 @@
             </button>
           </div>
 
-          <!-- Right: Pro Rankings, Notifications & CWL Season Countdown -->
+          <!-- Right: Pro Rankings Modal Button -->
           <div class="flex items-center gap-2 w-full md:w-auto justify-end shrink-0">
-            <!-- Rankings Modal Button -->
-            <button onclick="window.openModal('rankingsModal')" class="bg-czDark hover:bg-slate-800 border border-amber-500/40 text-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+            <button onclick="window.openModal('rankingsModal')" class="bg-czDark hover:bg-slate-800 border border-amber-500/40 text-amber-400 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm w-full md:w-auto justify-center">
               <i class="fa-solid fa-trophy text-amber-400"></i>
-              <span>Rankings</span>
+              <span>Pro Builders Rankings</span>
             </button>
-
-            <!-- Notifications Bell -->
-            <button onclick="window.openModal('notificationsModal')" class="bg-czDark hover:bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition relative">
-              <i class="fa-solid fa-bell text-amber-400"></i>
-              <span>Updates</span>
-              <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-            </button>
-
-            <!-- CWL Timer Badge -->
-            <div class="hidden sm:flex items-center gap-1.5 bg-czDark border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-400">
-              <i class="fa-solid fa-hourglass-half text-[10px] animate-spin" style="animation-duration: 6s;"></i>
-              <span>CWL: <b class="text-white font-mono">5d 12h</b></span>
-            </div>
           </div>
 
         </div>
@@ -402,28 +390,35 @@
     </div>
   </div>
 
-  <!-- NOTIFICATIONS MODAL -->
+  <!-- PLATFORM & USER NOTIFICATIONS MODAL -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="notificationsModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-md p-5 sm:p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('notificationsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
       
       <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2 mb-3">
-        <i class="fa-solid fa-bell"></i> Latest Updates & Alerts
+        <i class="fa-solid fa-bell"></i> ClashZone Site & User Alerts
       </h3>
 
       <div class="space-y-2.5 text-xs">
         <div class="bg-czDark p-3 rounded-2xl border border-slate-800 flex items-start gap-2.5">
-          <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
+          <i class="fa-solid fa-shield-halved text-amber-400 mt-0.5 text-base"></i>
           <div>
-            <b class="text-white block">CWL Season Active</b>
-            <span class="text-slate-400">Make sure your war base is up to date before prep day locks!</span>
+            <b class="text-white block">Supercell API Verification Active</b>
+            <span class="text-slate-400">Your player tag sync is active and creator watermark protection is enabled for your uploaded base layouts.</span>
           </div>
         </div>
         <div class="bg-czDark p-3 rounded-2xl border border-slate-800 flex items-start gap-2.5">
-          <i class="fa-solid fa-fire text-amber-400 mt-0.5"></i>
+          <i class="fa-solid fa-bookmark text-cyan-400 mt-0.5 text-base"></i>
           <div>
-            <b class="text-white block">New Town Hall 17 Meta</b>
-            <span class="text-slate-400">Over 45+ anti-root rider layouts added by verified creators today.</span>
+            <b class="text-white block">Saved Vault Synchronized</b>
+            <span class="text-slate-400">All bookmarked defense maps are safely stored in your local vault for instant 1-tap war copy.</span>
+          </div>
+        </div>
+        <div class="bg-czDark p-3 rounded-2xl border border-slate-800 flex items-start gap-2.5">
+          <i class="fa-solid fa-fire text-emerald-400 mt-0.5 text-base"></i>
+          <div>
+            <b class="text-white block">New Town Hall Meta Added</b>
+            <span class="text-slate-400">Community uploaded 30+ anti-3-star layouts today. Check the feed for latest anti-edrag setups.</span>
           </div>
         </div>
       </div>
