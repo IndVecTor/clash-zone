@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ClashZone | Esports Base Layouts, Live Supercell Sync & Clan Hub</title>
   
-  <!-- PWA & Mobile Optimization -->
+  <!-- PWA & Mobile Optimization with Custom Icon -->
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f59e0b" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="ClashZone" />
+  <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f6e1.png" />
 
   <!-- Tailwind & Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +35,7 @@
             body: ['Rajdhani', 'sans-serif'],
           },
           boxShadow: {
-            'cyber-gold': '0 0 20px rgba(245, 158, 11, 0.35)',
+            'cyber-gold': '0 0 25px rgba(245, 158, 11, 0.4)',
             'cyber-card': '0 10px 30px -10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(245, 158, 11, 0.08)',
           }
         }
@@ -48,7 +49,7 @@
       width: 100%;
       background-color: #050811;
       background-image: 
-        radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.1) 0%, transparent 55%),
         linear-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(245, 158, 11, 0.03) 1px, transparent 1px);
       background-size: 100% 100%, 32px 32px, 32px 32px;
@@ -101,11 +102,10 @@
   <!-- TOAST NOTIFICATION -->
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- ULTRA-CLEAN TOP BAR (ONLY BRAND NAME + TOP NOTIFICATION BELL) -->
+  <!-- ULTRA-CLEAN TOP BAR -->
   <header class="sticky top-0 z-40 bg-czDark/95 backdrop-blur-xl border-b border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
       
-      <!-- Brand Logo with New Gaming Font Style -->
       <a href="index.html" class="flex items-center gap-2.5 shrink-0 group">
         <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 via-yellow-500 to-amber-300 p-[1.5px] shadow-cyber-gold shrink-0 group-hover:scale-105 transition">
           <div class="w-full h-full bg-czDark rounded-[14px] flex items-center justify-center">
@@ -118,7 +118,6 @@
         </div>
       </a>
 
-      <!-- Right Side Top Controls: Notification Bell & PWA Install -->
       <div class="flex items-center gap-2 shrink-0">
         <button onclick="window.openModal('notificationsModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-slate-300 w-10 h-10 rounded-xl text-xs flex items-center justify-center transition relative shadow-sm" title="Platform & User Alerts">
           <i class="fa-solid fa-bell text-amber-400 text-sm"></i>
@@ -136,7 +135,7 @@
   <!-- MAIN CONTAINER -->
   <div class="max-w-7xl mx-auto px-4 pt-4 w-full overflow-hidden">
 
-    <!-- USER PROFILE HUD (If Logged In) -->
+    <!-- USER PROFILE HUD -->
     <div id="userProfileStrip" class="hidden mb-5 glass-card rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-cyber-card w-full border-amber-500/25">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
         <div class="flex items-center gap-3.5 min-w-0">
@@ -182,19 +181,48 @@
       </div>
     </div>
 
-    <!-- VIEW 1: FEED SECTION (HOME / BASES) -->
+    <!-- VIEW 1: FEED SECTION (REDESIGNED HIGH-IMPACT HERO HOME PAGE) -->
     <div id="viewFeedSection">
-      <section class="py-2 sm:py-4 text-center w-full">
-        <h1 class="gaming-title text-2xl sm:text-5xl font-black text-white uppercase tracking-wider leading-tight">
-          Meta Defense <span class="gold-gradient">& Capital Maps</span>
-        </h1>
-        <p class="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto mt-1 mb-4 px-2">
-          Verified Town Hall, Builder Base 2.0 & Clan Capital Districts with CC setups & Army Copy links.
-        </p>
+      
+      <!-- HERO BANNER SECTION -->
+      <section class="py-6 sm:py-10 text-center w-full relative overflow-hidden glass-card rounded-3xl mb-5 shadow-cyber-card border-amber-500/30 px-4">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div class="max-w-xl mx-auto glass-card rounded-2xl p-2 flex items-center gap-2 shadow-cyber-card focus-within:border-amber-400/60 transition w-full">
-          <i class="fa-solid fa-magnifying-glass text-slate-400 ml-2.5 text-xs sm:text-sm shrink-0"></i>
-          <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall, Capital District, Creator, Tag..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
+        <div class="relative z-10 max-w-2xl mx-auto">
+          <span class="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] sm:text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest inline-flex items-center gap-1.5 mb-3">
+            <i class="fa-solid fa-bolt text-amber-400"></i> Esports Pro Layout Vault • TH 5 to TH 18
+          </span>
+
+          <h1 class="gaming-logo text-3xl sm:text-6xl font-black text-white uppercase tracking-wider leading-tight mb-3">
+            UNBEATABLE <span class="gold-gradient">DEFENSE MAPS</span>
+          </h1>
+
+          <p class="text-slate-300 text-xs sm:text-sm max-w-lg mx-auto mb-6 leading-relaxed">
+            Instant 1-tap copy links for War, CWL, Anti-3 Star, and Farming bases with automated creator watermark protection & Supercell API sync.
+          </p>
+
+          <!-- Quick Search Bar inside Hero -->
+          <div class="max-w-md mx-auto bg-czDark border border-amber-500/40 rounded-2xl p-2 flex items-center gap-2 shadow-cyber-gold">
+            <i class="fa-solid fa-magnifying-glass text-amber-400 ml-2.5 text-sm shrink-0"></i>
+            <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall (TH5 - TH18), Creator, Tag..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
+          </div>
+
+          <!-- Quick Live Stats Ribbon -->
+          <div class="grid grid-cols-3 gap-2 mt-6 max-w-md mx-auto text-center">
+            <div class="bg-czDark/80 border border-slate-800 p-2 rounded-xl">
+              <span class="text-[9px] text-slate-400 block uppercase font-bold">Total Layouts</span>
+              <b class="text-amber-400 text-sm sm:text-base font-black">1,420+</b>
+            </div>
+            <div class="bg-czDark/80 border border-slate-800 p-2 rounded-xl">
+              <span class="text-[9px] text-slate-400 block uppercase font-bold">Active Clans</span>
+              <b class="text-cyan-400 text-sm sm:text-base font-black">380+</b>
+            </div>
+            <div class="bg-czDark/80 border border-slate-800 p-2 rounded-xl">
+              <span class="text-[9px] text-slate-400 block uppercase font-bold">Verified Pros</span>
+              <b class="text-emerald-400 text-sm sm:text-base font-black">95+</b>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -226,7 +254,7 @@
         </div>
       </section>
 
-      <!-- STICKY FILTER BAR -->
+      <!-- STICKY FILTER BAR (TH 5 TO TH 18) -->
       <div class="sticky top-16 z-30 bg-czDark/95 backdrop-blur-xl py-2 -mx-4 px-4 border-b border-czBorder/60 shadow-md">
         <div class="flex items-center justify-between gap-2 overflow-x-auto pb-2 scrollbar-none mb-1">
           <div class="flex items-center gap-2">
@@ -390,7 +418,7 @@
     </div>
   </div>
 
-  <!-- PLATFORM & USER NOTIFICATIONS MODAL -->
+  <!-- NOTIFICATIONS MODAL -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="notificationsModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-md p-5 sm:p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('notificationsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
@@ -418,7 +446,7 @@
           <i class="fa-solid fa-fire text-emerald-400 mt-0.5 text-base"></i>
           <div>
             <b class="text-white block">New Town Hall Meta Added</b>
-            <span class="text-slate-400">Community uploaded 30+ anti-3-star layouts today. Check the feed for latest anti-edrag setups.</span>
+            <span class="text-slate-400">Community uploaded TH5 to TH18 layouts today. Check the feed for latest anti-edrag setups.</span>
           </div>
         </div>
       </div>
@@ -753,6 +781,14 @@
     </div>
   </div>
 
+  <script>
+    // Update Home Zone Levels to include TH 5 to TH 18 in app.js integration
+    window.CUSTOM_ZONE_LEVELS = {
+      home: ["ALL", "TH 18", "TH 17", "TH 16", "TH 15", "TH 14", "TH 13", "TH 12", "TH 11", "TH 10", "TH 9", "TH 8", "TH 7", "TH 6", "TH 5"],
+      builder: ["ALL", "BH 10", "BH 9", "BH 8", "BH 7", "BH 6", "BH 5", "BH 4"],
+      capital: ["ALL", "Capital Peak", "Dragon Cliffs", "Balloon Lagoon", "Skeleton Park", "Golem Quarry", "Wizard Valley", "Barbarian Camp"]
+    };
+  </script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
