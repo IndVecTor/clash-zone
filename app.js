@@ -24,9 +24,6 @@ import {
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-// ==========================================
-// 1. FIREBASE CONFIGURATION
-// ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyAV0YgGeolSq8FQ3P7jRJEwF5VNjSDWsmA",
   authDomain: "clash-zone-d82d8.firebaseapp.com",
@@ -115,9 +112,7 @@ function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 900, 
   });
 }
 
-// ==========================================
-// 2. LIVE SUPERCELL API SYNC
-// ==========================================
+// LIVE SUPERCELL API SYNC
 async function fetchLiveSupercellPlayer(rawTag) {
   let tag = rawTag.trim().toUpperCase().replace(/O/g, '0');
   if (!tag.startsWith('#')) tag = '#' + tag;
@@ -133,10 +128,7 @@ async function fetchLiveSupercellPlayer(rawTag) {
   for (let proxyUrl of proxies) {
     try {
       const response = await fetch(proxyUrl);
-      if (response.ok) {
-        data = await response.json();
-        break;
-      }
+      if (response.ok) { data = await response.json(); break; }
     } catch (e) { continue; }
   }
 
@@ -181,9 +173,6 @@ window.handleLiveSupercellSync = async function() {
   }
 };
 
-// ==========================================
-// 3. AUTH STATE & PROFILE RENDER
-// ==========================================
 onAuthStateChanged(auth, async (user) => {
   const profileLoggedOut = document.getElementById("profileLoggedOutView");
   const profileLoggedIn = document.getElementById("profileLoggedInView");
@@ -280,9 +269,6 @@ function renderUserSavedVault() {
   `).join('');
 }
 
-// ==========================================
-// 4. ZONE & LEVEL SELECTORS
-// ==========================================
 window.switchZone = function(zone) {
   currentZone = zone;
   currentTH = "ALL";
@@ -307,9 +293,6 @@ window.updateUploadLevelOptions = function() {
   thSelect.innerHTML = levels.map(l => `<option value="${l}">${l}</option>`).join('');
 };
 
-// ==========================================
-// 5. NAVIGATION SWITCHER
-// ==========================================
 window.switchMainHubView = function(viewName) {
   ['Feed', 'Vault', 'Clans', 'Profile'].forEach(tab => {
     document.getElementById(`bnav${tab}`)?.classList.remove('active');
@@ -322,7 +305,7 @@ window.switchMainHubView = function(viewName) {
 
   if (viewName === 'feed') document.getElementById("viewFeedSection")?.classList.remove("hidden");
   else if (viewName === 'vault') { document.getElementById("viewVaultSection")?.classList.remove("hidden"); renderDirectVaultUI(); }
-  else if (viewName === 'clans') document.getElementById("viewClansSection")?.classList.remove("hidden");
+  else if (viewName === 'clans') { document.getElementById("viewClansSection")?.classList.remove("hidden"); loadClansFromFirestore(); }
   else if (viewName === 'profile') { document.getElementById("viewProfileSection")?.classList.remove("hidden"); populateProfileFormModal(); }
   renderAllIcons();
 };
@@ -362,7 +345,7 @@ function populateProfileFormModal() {
 }
 
 // ==========================================
-// 6. BASE DETAILS POPUP MODAL (FIXED)
+// 6. BASE DETAILS POPUP MODAL WITH WHATSAPP SHARING
 // ==========================================
 window.openBaseDetailsModal = function(baseId) {
   const base = allFetchedBases.find(b => b.id === baseId);
@@ -375,6 +358,9 @@ window.openBaseDetailsModal = function(baseId) {
     modal.className = "fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto";
     document.body.appendChild(modal);
   }
+
+  const shareText = encodeURIComponent(`⚡ Check out this ${base.th} Clash of Clans layout "${base.title}" on ClashZone!\nCopy Link: ${base.link}`);
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${shareText}`;
 
   modal.innerHTML = `
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-xl p-6 relative shadow-cyber-card my-auto space-y-4">
@@ -395,6 +381,9 @@ window.openBaseDetailsModal = function(baseId) {
         <button onclick="window.copyBaseLink('${base.id}', '${base.link}')" class="flex-1 bg-amber-500 text-black py-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-neon-gold">
           <i data-lucide="copy" class="w-4 h-4"></i> Copy In-Game Link
         </button>
+        <a href="${whatsappUrl}" target="_blank" class="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 px-4 py-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-emerald-500 hover:text-black transition">
+          <i data-lucide="share-2" class="w-4 h-4"></i> WhatsApp
+        </a>
       </div>
     </div>
   `;
@@ -404,43 +393,72 @@ window.openBaseDetailsModal = function(baseId) {
   renderAllIcons();
 };
 
-function renderRankingsUI() {
-  const container = document.getElementById("rankingsListContainer");
+// ==========================================
+// 7. ENHANCED CLAN SHOWCASE HUB
+// ==========================================
+async function loadClansFromFirestore() {
+  const container = document.getElementById("clansContainer");
   if (!container) return;
-  const creatorsMap = {};
-  allFetchedBases.forEach(base => {
-    const key = base.uploaderUid || base.uploaderName;
-    if (!creatorsMap[key]) creatorsMap[key] = { name: base.uploaderName || 'Chief', uploads: 0, thLevel: base.th || "TH 16" };
-    creatorsMap[key].uploads += 1;
-  });
-  const ranked = Object.values(creatorsMap).sort((a, b) => b.uploads - a.uploads);
-  if (ranked.length === 0) { container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No creators ranked yet.</p>`; return; }
-  container.innerHTML = ranked.map((c, idx) => `
-    <div class="flex items-center justify-between bg-czDark p-3 rounded-2xl border border-slate-800 text-xs">
-      <div class="flex items-center gap-3">
-        <span class="font-bold text-amber-400 text-xs w-6">#${idx + 1}</span>
-        <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold">${c.name.charAt(0).toUpperCase()}</div>
-        <div><span class="text-white font-bold block">${c.name}</span><span class="text-[10px] text-slate-400">${c.uploads} Layouts • ${c.thLevel}</span></div>
+  try {
+    const q = query(collection(db, "clans"), orderBy("createdAt", "desc"));
+    const querySnapshot = await getDocs(q);
+    allFetchedClans = [];
+    querySnapshot.forEach(docSnap => allFetchedClans.push({ id: docSnap.id, ...docSnap.data() }));
+    renderClansUI();
+  } catch (error) {
+    allFetchedClans = [];
+    renderClansUI();
+  }
+}
+
+function renderClansUI() {
+  const container = document.getElementById("clansContainer");
+  if (!container) return;
+  if (allFetchedClans.length === 0) {
+    container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-xs">No clans listed yet. Click 'Register Your Clan' above!</div>`;
+    renderAllIcons();
+    return;
+  }
+  container.innerHTML = allFetchedClans.map(clan => `
+    <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between border-slate-800 shadow-cyber-card">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-black text-white text-base">${clan.name}</h3>
+          <span class="bg-amber-500/20 text-amber-400 font-mono text-[10px] px-2 py-0.5 rounded border border-amber-500/30">${clan.tag}</span>
+        </div>
+        <p class="text-xs text-slate-300 my-3 leading-relaxed">${clan.desc}</p>
       </div>
+      <a href="${clan.link}" target="_blank" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black font-black py-2.5 rounded-xl text-xs text-center uppercase tracking-wider transition shadow-neon-gold">Join Clan In-Game</a>
     </div>
   `).join('');
   renderAllIcons();
 }
 
-window.openModal = function(id) {
-  if (id === 'rankingsModal') renderRankingsUI();
-  document.getElementById(id)?.classList.remove("hidden");
-  document.getElementById(id)?.classList.add("flex");
-  renderAllIcons();
-};
+window.handleClanUpload = async function(e) {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) { window.showToast("Please login first!", "error"); window.openModal('authModal'); return; }
 
-window.closeModal = function(id) { 
-  document.getElementById(id)?.classList.add("hidden"); 
-  document.getElementById(id)?.classList.remove("flex"); 
+  const clanData = {
+    name: document.getElementById("clanNameInput").value.trim(),
+    tag: document.getElementById("clanTagInput").value.trim().toUpperCase(),
+    link: document.getElementById("clanLinkInput").value.trim(),
+    desc: document.getElementById("clanDescInput").value.trim(),
+    uploaderUid: user.uid,
+    createdAt: serverTimestamp()
+  };
+
+  try {
+    await addDoc(collection(db, "clans"), clanData);
+    window.closeModal('postClanModal');
+    e.target.reset();
+    await loadClansFromFirestore();
+    window.showToast("✅ Clan registered successfully!");
+  } catch (err) { window.showToast("Error: " + err.message, "error"); }
 };
 
 // ==========================================
-// 7. BASES LOADERS
+// 8. BASES LOADERS
 // ==========================================
 async function loadBasesFromFirestore() {
   const container = document.getElementById("basesContainer");
@@ -607,5 +625,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderLevelFilters();
   window.updateUploadLevelOptions();
   loadBasesFromFirestore();
+  loadClansFromFirestore();
   renderAllIcons();
 });

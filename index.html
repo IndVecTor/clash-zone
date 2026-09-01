@@ -155,9 +155,20 @@
       <div class="max-w-4xl mx-auto space-y-4" id="directVaultContainer"></div>
     </div>
 
-    <!-- VIEW 3: CLANS -->
+    <!-- VIEW 3: ENHANCED CLANS HUB -->
     <div id="viewClansSection" class="hidden py-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="clansContainer"></div>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 class="gaming-title text-2xl sm:text-3xl font-black text-white gold-gradient">Clan Showcase Hub</h2>
+          <p class="text-xs text-slate-400 mt-1">Recruit top-tier war clashers or find your dream competitive clan.</p>
+        </div>
+        <button onclick="window.openModal('postClanModal')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-neon-gold shrink-0 inline-flex items-center gap-2">
+          <i data-lucide="plus" class="w-4 h-4"></i> Register Your Clan
+        </button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="clansContainer">
+        <p class="text-xs text-slate-500 text-center py-12 col-span-full">Loading competitive clans...</p>
+      </div>
     </div>
 
     <!-- VIEW 4: PROFILE -->
@@ -222,7 +233,22 @@
     </div>
   </nav>
 
-  <!-- EDIT PROFILE MODAL (Supports Device Image File Selection) -->
+  <!-- POST CLAN MODAL -->
+  <div class="fixed inset-0 bg-black/95 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="postClanModal">
+    <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-md p-6 relative shadow-cyber-card my-auto">
+      <button onclick="window.closeModal('postClanModal')" class="absolute top-4 right-4 text-slate-400">✕</button>
+      <h3 class="text-xl text-amber-400 font-bold mb-4">Register Your Clan</h3>
+      <form onsubmit="window.handleClanUpload(event)" class="space-y-3">
+        <input type="text" id="clanNameInput" placeholder="Clan Name" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
+        <input type="text" id="clanTagInput" placeholder="Clan Tag (#2PP0Q)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white font-mono" />
+        <input type="url" id="clanLinkInput" placeholder="In-Game Join Link" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
+        <textarea id="clanDescInput" placeholder="Clan description, requirements, war frequency..." rows="3" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white"></textarea>
+        <button type="submit" class="w-full bg-amber-500 text-black py-3 rounded-xl font-bold text-xs uppercase">Publish Clan</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE MODAL -->
   <div class="fixed inset-0 bg-black/95 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="editProfileModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-md p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('editProfileModal')" class="absolute top-4 right-4 text-slate-400">✕</button>
@@ -239,17 +265,14 @@
         <input type="text" id="editTH" placeholder="Town Hall Level" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
         <input type="text" id="editClan" placeholder="Clan Name" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
         <input type="number" id="editTrophies" placeholder="Trophies" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white" />
-        
         <div>
           <label class="text-[10px] text-slate-400 font-bold block mb-1">Select Profile Photo from Device</label>
           <input type="file" id="editAvatarFile" accept="image/*" class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300" />
         </div>
-
         <div>
           <label class="text-[10px] text-slate-400 font-bold block mb-1">Bio / Description</label>
           <textarea id="editBio" placeholder="Write something about your clan or base building style..." rows="2" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white"></textarea>
         </div>
-
         <button type="submit" class="w-full bg-amber-500 text-black py-3 rounded-xl font-bold text-xs">Save Profile</button>
       </form>
     </div>
