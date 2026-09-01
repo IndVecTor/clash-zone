@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -9,51 +9,39 @@ export default async function handler(req, res) {
 
   const { tag } = req.query;
   if (!tag) {
-    return res.status(400).json({ error: "Player Tag is required" });
+    return res.status(400).json({ error: "Tag is required" });
   }
 
-  // Clean and format tag: O -> 0, uppercase, prepend #
+  // Sanitize Tag: O -> 0, remove invalid symbols
   let cleanTag = tag.trim().toUpperCase().replace(/O/g, "0").replace(/[^A-Z0-9]/g, "");
   const formattedTag = "#" + cleanTag;
   const encodedTag = encodeURIComponent(formattedTag);
 
-  const COC_API_KEY = process.env.COC_API_KEY;
+  // Reliable CoC proxy sources
+  const proxyEndpoints = [
+    `https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`)}`,
+    `https://corsproxy.io/?url=${encodeURIComponent(`https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`)}`
+  ];
 
-  // 1. Try Official Supercell API (if key is set in Vercel)
-  if (COC_API_KEY) {
+  for (const url of proxyEndpoints) {
     try {
-      const supercellRes = await fetch(`https://api.clashofclans.com/v1/players/${encodedTag}`, {
-        headers: {
-          "Accept": "application/json",
-          "Authorization": `Bearer ${COC_API_KEY.trim()}`
-        }
+      const response = await fetch(url, {
+        headers: { "Accept": "application/json" }
       });
 
-      if (supercellRes.ok) {
-        const data = await supercellRes.json();
-        return res.status(200).json(data);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && (data.name || data.tag)) {
+          return res.status(200).json(data);
+        }
       }
     } catch (e) {
-      console.warn("Supercell direct API failed, trying proxy...", e);
+      console.warn("Proxy attempt failed:", url);
     }
   }
 
-  // 2. Fallback to RoyaleAPI Public Proxy
-  try {
-    const proxyRes = await fetch(`https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`, {
-      headers: { "Accept": "application/json" }
-    });
-
-    if (proxyRes.ok) {
-      const data = await proxyRes.json();
-      return res.status(200).json(data);
-    } else {
-      const errData = await proxyRes.json().catch(() => ({}));
-      return res.status(proxyRes.status).json({ 
-        error: errData.message || "Player tag Supercell server par nahi mila! Tag check karein." 
-      });
-    }
-  } catch (err) {
-    return res.status(500).json({ error: "Supercell server connect nahi ho pa raha hai. Kripya thodi der baad try karein." });
-  }
+  return res.status(404).json({
+    error: "Player Tag Supercell par nahi mila. Kripya apna tag dobara verify karein."
+  });
 }

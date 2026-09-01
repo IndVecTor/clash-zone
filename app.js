@@ -82,8 +82,8 @@ onAuthStateChanged(auth, async (user) => {
           document.getElementById("dashPlayerName").innerText = u.name || displayName;
           document.getElementById("dashTHBadge").innerText = u.townHallLevel || "TH --";
           document.getElementById("dashClanInfo").innerText = `Clan: ${u.clanName || 'No Clan'} | Tag: ${u.tag || '---'}`;
-          document.getElementById("dashTrophies").innerText = `🏆 ${u.trophies || 0}`;
-          document.getElementById("dashWarStars").innerText = `⭐ ${u.warStars || 0}`;
+          document.getElementById("dashTrophies").innerText = `🏆 ${u.trophies ?? 0}`;
+          document.getElementById("dashWarStars").innerText = `⭐ ${u.warStars ?? 0}`;
         } else {
           document.getElementById("dashPlayerName").innerText = displayName;
         }
@@ -112,7 +112,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ==========================================
-// 3. REAL COC PLAYER TAG SYNC (NO DUMMY FALLBACK)
+// 3. REAL COC PLAYER TAG SYNC
 // ==========================================
 window.handleSyncCoCProfile = async function(e) {
   e.preventDefault();
@@ -130,8 +130,13 @@ window.handleSyncCoCProfile = async function(e) {
     return;
   }
 
-  // Convert letter O to number 0 and sanitize
+  // Tag cleanup: letter O ko number 0 me badalna aur extra symbols hatana
   let cleanTag = rawTag.replace(/O/g, "0").replace(/[^A-Z0-9]/g, "");
+  if (!cleanTag) {
+    alert("Kripya valid Tag format dalein (jaise #P9L80YQ2)");
+    return;
+  }
+
   const formattedTag = "#" + cleanTag;
   const encodedTag = encodeURIComponent(formattedTag);
 
@@ -141,10 +146,11 @@ window.handleSyncCoCProfile = async function(e) {
 
   let responseData = null;
 
-  // Endpoint order: 1. Serverless API Route -> 2. Public RoyaleAPI Proxy
+  // Direct and proxy endpoints
   const endpoints = [
     `/api/player?tag=${encodedTag}`,
-    `https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`
+    `https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://cocproxy.royaleapi.dev/v1/players/${encodedTag}`)}`
   ];
 
   for (const url of endpoints) {
@@ -152,21 +158,21 @@ window.handleSyncCoCProfile = async function(e) {
       const res = await fetch(url);
       if (res.ok) {
         const json = await res.json();
-        if (json && json.name) {
+        if (json && (json.name || json.tag)) {
           responseData = json;
           break;
         }
       }
     } catch (err) {
-      console.warn("Sync fetch attempt failed on:", url, err);
+      console.warn("Fetch attempt failed on URL:", url, err);
     }
   }
 
-  // If real player data is NOT found, throw an error. No fake dummy data.
+  // Strict check: No fake data fallback
   if (!responseData || !responseData.name) {
     syncBtn.disabled = false;
     syncBtn.innerHTML = `<i class="fa-solid fa-bolt mr-1"></i> Fetch & Sync Live Stats`;
-    alert("❌ Player Tag nahi mila! Kripya sahi Clash of Clans Player Tag dalein (jaise #P9L80YQ2). Letter O ki jagah 0 (Zero) use karein.");
+    alert("❌ Supercell server par yeh Player Tag nahi mila!\n\nKripya in-game profile se direct Tag copy karke dalein (Letter O nahi, 0 number hona chahiye).");
     return;
   }
 
@@ -174,19 +180,19 @@ window.handleSyncCoCProfile = async function(e) {
     const cocProfile = {
       tag: responseData.tag || formattedTag,
       name: responseData.name,
-      townHallLevel: responseData.townHallLevel ? `TH ${responseData.townHallLevel}` : "TH 16",
+      townHallLevel: responseData.townHallLevel ? `TH ${responseData.townHallLevel}` : "TH --",
       clanName: responseData.clan ? responseData.clan.name : "No Clan",
-      trophies: responseData.trophies || 0,
-      warStars: responseData.warStars || 0,
+      trophies: responseData.trophies ?? 0,
+      warStars: responseData.warStars ?? 0,
       syncedAt: serverTimestamp()
     };
 
-    // Save authentic player data to Firestore
+    // Save accurate player data to Firestore
     await setDoc(doc(db, "users", user.uid), cocProfile, { merge: true });
     await updateProfile(user, { displayName: cocProfile.name });
 
     window.closeModal('profileSyncModal');
-    alert(`🎉 Account Linked!\nChief: ${cocProfile.name}\nTown Hall: ${cocProfile.townHallLevel}\nClan: ${cocProfile.clanName}\nTrophies: ${cocProfile.trophies}`);
+    alert(`🎉 Account Linked!\nChief: ${cocProfile.name}\nTown Hall: ${cocProfile.townHallLevel}\nClan: ${cocProfile.clanName}\nTrophies: ${cocProfile.trophies}\nWar Stars: ${cocProfile.warStars}`);
     location.reload();
 
   } catch (err) {
