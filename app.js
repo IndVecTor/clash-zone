@@ -19,6 +19,7 @@ import {
   updateDoc, 
   increment, 
   arrayUnion, 
+  arrayRemove,
   query, 
   orderBy, 
   serverTimestamp 
@@ -48,20 +49,18 @@ let currentSort = "latest";
 let allFetchedBases = [];
 let allFetchedClans = [];
 let currentUserProfile = null;
-let currentReviewBaseId = null;
+let currentActiveBase = null;
 
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases")) || [];
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases")) || [];
 let userFollowedCreators = JSON.parse(localStorage.getItem("cz_followed_creators")) || [];
 
-// Zone definitions
 const ZONE_LEVELS = {
   home: ["ALL", "TH 18", "TH 17", "TH 16", "TH 15", "TH 14", "TH 13", "TH 12", "TH 11"],
   builder: ["ALL", "BH 10", "BH 9", "BH 8", "BH 7", "BH 6"],
   capital: ["ALL", "Capital Peak", "Dragon Cliffs", "Balloon Lagoon", "Skeleton Park", "Golem Quarry", "Wizard Valley", "Barbarian Camp"]
 };
 
-// League rank calculation
 function getLeagueRank(trophies = 0) {
   if (trophies >= 5000) return { name: "Legend League", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" };
   if (trophies >= 4100) return { name: "Titan League", color: "bg-rose-500/20 text-rose-300 border-rose-500/40" };
@@ -88,10 +87,7 @@ window.showToast = function(message, type = "success") {
 
   container.appendChild(toast);
 
-  setTimeout(() => {
-    toast.classList.remove("translate-x-10", "opacity-0");
-  }, 10);
-
+  setTimeout(() => toast.classList.remove("translate-x-10", "opacity-0"), 10);
   setTimeout(() => {
     toast.classList.add("translate-x-10", "opacity-0");
     setTimeout(() => toast.remove(), 300);
@@ -105,7 +101,6 @@ window.handleSmartLinkValidation = function(rawLink) {
   const badge = document.getElementById("linkValidationBadge");
   const linkInput = document.getElementById("uploadLink");
   const zoneSelect = document.getElementById("uploadZone");
-  const thSelect = document.getElementById("uploadTH");
 
   if (!rawLink || rawLink.trim() === '') {
     if (badge) badge.className = "hidden";
@@ -117,7 +112,6 @@ window.handleSmartLinkValidation = function(rawLink) {
   const isOfficial = cleanLink.startsWith("https://link.clashofclans.com/") || cleanLink.startsWith("http://link.clashofclans.com/");
   const isLayoutAction = cleanLink.includes("action=OpenLayout");
 
-  // Check for duplicate link
   const isDuplicate = allFetchedBases.some(b => b.link && b.link.trim() === cleanLink);
 
   if (isDuplicate) {
@@ -142,7 +136,6 @@ window.handleSmartLinkValidation = function(rawLink) {
       linkInput.classList.add("border-emerald-500");
     }
 
-    // Auto-detect Builder Base vs Home Village from link parameters
     if (cleanLink.toLowerCase().includes("builder") || cleanLink.includes("id=BB")) {
       if (zoneSelect && zoneSelect.value !== "builder") {
         zoneSelect.value = "builder";
@@ -169,7 +162,7 @@ window.handleSmartLinkValidation = function(rawLink) {
 };
 
 // ==========================================
-// 4. CREATOR BRANDING & WATERMARK ENGINE
+// 4. CREATOR WATERMARK ENGINE
 // ==========================================
 function compressAndWatermarkImage(file, creatorName = "Chief", isVerified = false, maxWidth = 900, quality = 0.72) {
   return new Promise((resolve, reject) => {
@@ -192,29 +185,24 @@ function compressAndWatermarkImage(file, creatorName = "Chief", isVerified = fal
         elem.height = height;
         const ctx = elem.getContext('2d');
 
-        // Draw Base Image
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Watermark Box Config
         const padding = 16;
         const badgeHeight = 32;
         const badgeWidth = Math.min(width * 0.55, 270);
         const x = width - badgeWidth - padding;
         const y = height - badgeHeight - padding;
 
-        // Gradient Background for Watermark
         ctx.save();
         ctx.fillStyle = "rgba(5, 8, 17, 0.88)";
         ctx.beginPath();
         ctx.roundRect(x, y, badgeWidth, badgeHeight, 8);
         ctx.fill();
 
-        // Border Accent
         ctx.strokeStyle = "rgba(245, 158, 11, 0.6)";
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // Text Branding
         ctx.font = "bold 11px Rajdhani, Orbitron, sans-serif";
         ctx.fillStyle = "#fbbf24";
         ctx.fillText("⚡ CLASHZONE", x + 10, y + 20);
@@ -239,7 +227,7 @@ function compressAndWatermarkImage(file, creatorName = "Chief", isVerified = fal
 }
 
 // ==========================================
-// 5. LIVE SUPERCELL API PLAYER SYNC ENGINE
+// 5. LIVE SUPERCELL API SYNC
 // ==========================================
 async function fetchLiveSupercellPlayer(rawTag) {
   let tag = rawTag.trim().toUpperCase().replace(/O/g, '0');
@@ -253,9 +241,6 @@ async function fetchLiveSupercellPlayer(rawTag) {
   });
 
   if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error("Player Tag not found! Check your in-game tag.");
-    }
     return {
       name: "Chief " + tag.replace('#', ''),
       tag: tag,
@@ -292,7 +277,7 @@ window.handleLiveSupercellSync = async function() {
   const rawTag = tagInput.value.trim();
 
   if (!rawTag || rawTag.length < 3) {
-    window.showToast("Please enter a valid Player Tag (e.g. #P9L80YQ2)", "error");
+    window.showToast("Please enter a valid Player Tag", "error");
     return;
   }
 
@@ -301,16 +286,13 @@ window.handleLiveSupercellSync = async function() {
 
   try {
     const liveData = await fetchLiveSupercellPlayer(rawTag);
-    
     document.getElementById("editName").value = liveData.name;
     document.getElementById("editTH").value = "TH " + liveData.townHallLevel;
     document.getElementById("editTrophies").value = liveData.trophies;
     document.getElementById("editClan").value = liveData.clan?.name || "Solo";
     document.getElementById("editWarStars").value = liveData.warStars;
-
-    window.showToast(`⚡ Live API Sync Verified: ${liveData.name}!`);
+    window.showToast(`⚡ Live API Sync: ${liveData.name}!`);
   } catch (err) {
-    console.error("Supercell sync error:", err);
     window.showToast("Sync Error: " + err.message, "error");
   } finally {
     syncBtn.disabled = false;
@@ -339,7 +321,7 @@ window.syncTagInSignup = async function() {
 };
 
 // ==========================================
-// 6. AUTH STATE LISTENER & USER DASHBOARD
+// 6. AUTH STATE & USER DASHBOARD
 // ==========================================
 onAuthStateChanged(auth, async (user) => {
   const headerAuth = document.getElementById("headerAuthArea");
@@ -372,9 +354,20 @@ onAuthStateChanged(auth, async (user) => {
           document.getElementById("dashTrophies").innerText = `🏆 ${trophies}`;
           document.getElementById("dashWarStars").innerHTML = `<i class="fa-solid fa-star text-[10px]"></i> ${currentUserProfile.warStars || 0} War Stars`;
           
+          const followers = currentUserProfile.followersCount || 0;
+          document.getElementById("dashFollowersCount").innerHTML = `<i class="fa-solid fa-users text-[10px]"></i> ${followers} Followers`;
+
           const verifiedBadge = document.getElementById("dashVerifiedBadge");
           if (currentUserProfile.isSupercellVerified) {
             verifiedBadge.classList.remove("hidden");
+          }
+
+          // PRO BUILDER BADGE (10+ UPLOADS)
+          const userBasesCount = allFetchedBases.filter(b => b.uploaderUid === user.uid).length;
+          const builderBadge = document.getElementById("dashBuilderBadge");
+          if (builderBadge) {
+            if (userBasesCount >= 10) builderBadge.classList.remove("hidden");
+            else builderBadge.classList.add("hidden");
           }
 
           const leagueBadge = document.getElementById("dashLeagueBadge");
@@ -399,7 +392,8 @@ onAuthStateChanged(auth, async (user) => {
             clanName: "Solo",
             tag: "#CLASH",
             trophies: 5000,
-            warStars: 0
+            warStars: 0,
+            followersCount: 0
           };
           document.getElementById("dashPlayerName").innerText = defaultName;
         }
@@ -504,19 +498,113 @@ window.switchMainHubView = function(viewName) {
 };
 
 // ==========================================
-// 9. BOOKMARKS & CREATOR FOLLOWS
+// 9. FULL BASE DETAILS HUB (OPEN MODAL ON CLICK)
 // ==========================================
-window.handleFollowCreator = function(creatorName, creatorUid) {
+window.openBaseDetailsModal = function(baseId) {
+  const base = allFetchedBases.find(b => b.id === baseId);
+  if (!base) return;
+  currentActiveBase = base;
+
+  document.getElementById("modalBaseImg").src = base.image;
+  document.getElementById("modalBaseTH").innerText = base.th;
+  document.getElementById("modalBaseType").innerText = base.type;
+  document.getElementById("modalBaseTitle").innerText = base.title;
+  document.getElementById("modalBaseUploader").innerText = `Chief ${base.uploaderName || 'Clasher'}`;
+
+  // Badges
+  const verifiedTag = document.getElementById("modalUploaderVerified");
+  const proTag = document.getElementById("modalUploaderPro");
+  
+  if (base.isSupercellVerified) verifiedTag.classList.remove("hidden");
+  else verifiedTag.classList.add("hidden");
+
+  const creatorUploads = allFetchedBases.filter(b => (b.uploaderUid && b.uploaderUid === base.uploaderUid) || b.uploaderName === base.uploaderName).length;
+  if (creatorUploads >= 10) proTag.classList.remove("hidden");
+  else proTag.classList.add("hidden");
+
+  // Follow Button in Details
+  const followBtn = document.getElementById("modalFollowBtn");
+  const creatorKey = base.uploaderUid || base.uploaderName;
+  const isFollowing = userFollowedCreators.some(f => f.key === creatorKey);
+
+  followBtn.innerText = isFollowing ? "Following" : "+ Follow Creator";
+  followBtn.className = isFollowing ? "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700" : "px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-black shadow-cyber-gold";
+  followBtn.onclick = () => {
+    window.handleFollowCreator(base.uploaderName, base.uploaderUid);
+    window.openBaseDetailsModal(baseId);
+  };
+
+  // Bookmark Button in Details
+  const bmBtn = document.getElementById("modalBookmarkBtn");
+  const isBookmarked = userBookmarkedBases.includes(base.id);
+  bmBtn.innerHTML = `<i class="fa-${isBookmarked ? 'solid text-amber-400' : 'regular'} fa-bookmark"></i>`;
+  bmBtn.onclick = () => {
+    window.handleBookmarkBase(base.id);
+    window.openBaseDetailsModal(baseId);
+  };
+
+  // CC Troops
+  const ccText = document.getElementById("modalCCText");
+  ccText.innerText = base.ccTroops || "No specific CC required";
+
+  // Defense Proof
+  const proofBox = document.getElementById("modalProofBox");
+  const proofImg = document.getElementById("modalProofImg");
+  if (base.defenseProof) {
+    proofImg.src = base.defenseProof;
+    proofBox.classList.remove("hidden");
+  } else {
+    proofBox.classList.add("hidden");
+  }
+
+  // Copy In-game Link
+  const copyBaseBtn = document.getElementById("modalCopyBaseBtn");
+  copyBaseBtn.onclick = () => window.copyBaseLink(base.id, base.link);
+
+  // Army Link
+  const copyArmyBtn = document.getElementById("modalCopyArmyBtn");
+  if (base.armyLink) {
+    copyArmyBtn.classList.remove("hidden");
+    copyArmyBtn.classList.add("flex");
+    copyArmyBtn.onclick = () => window.copyArmyLink(base.armyLink);
+  } else {
+    copyArmyBtn.classList.add("hidden");
+  }
+
+  // Reviews
+  renderReviewsList(base.reviews || []);
+
+  window.openModal('baseDetailsModal');
+};
+
+// ==========================================
+// 10. FOLLOW & CREATOR PROFILE SYSTEM
+// ==========================================
+window.handleFollowCreator = async function(creatorName, creatorUid) {
   const key = creatorUid || creatorName;
-  if (userFollowedCreators.some(c => c.key === key)) {
+  const isFollowing = userFollowedCreators.some(c => c.key === key);
+
+  if (isFollowing) {
     userFollowedCreators = userFollowedCreators.filter(c => c.key !== key);
     window.showToast(`Unfollowed ${creatorName}`);
+    if (creatorUid) {
+      try {
+        await updateDoc(doc(db, "users", creatorUid), { followersCount: increment(-1) });
+      } catch (e) {}
+    }
   } else {
-    userFollowedCreators.push({ key, name: creatorName });
+    userFollowedCreators.push({ key, name: creatorName, uid: creatorUid || null });
     window.showToast(`Now following ${creatorName}! 🏆`);
+    if (creatorUid) {
+      try {
+        await updateDoc(doc(db, "users", creatorUid), { followersCount: increment(1) });
+      } catch (e) {}
+    }
   }
+
   localStorage.setItem("cz_followed_creators", JSON.stringify(userFollowedCreators));
   renderBasesUI();
+  renderLeaderboardUI();
 };
 
 window.handleBookmarkBase = function(baseId) {
@@ -581,7 +669,7 @@ function renderSavedBasesList() {
 
   container.innerHTML = savedList.map(b => `
     <div class="flex items-center justify-between bg-czDark p-2 rounded-xl border border-slate-800 text-xs">
-      <div class="flex items-center gap-2 min-w-0 cursor-pointer" onclick="window.copyBaseLink('${b.id}', '${b.link}')">
+      <div class="flex items-center gap-2 min-w-0 cursor-pointer" onclick="window.openBaseDetailsModal('${b.id}')">
         <span class="bg-amber-500/20 text-amber-400 font-bold px-1.5 py-0.5 rounded text-[10px] shrink-0">${b.th}</span>
         <span class="text-white truncate font-medium max-w-[170px]">${b.title}</span>
       </div>
@@ -607,12 +695,17 @@ function renderFollowingList() {
   }
 
   container.innerHTML = userFollowedCreators.map(c => `
-    <div class="flex items-center justify-between bg-czDark p-2 rounded-xl border border-slate-800 text-xs">
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-circle-user text-amber-400 text-base"></i>
-        <span class="text-white font-bold">${c.name}</span>
+    <div class="flex items-center justify-between bg-czDark p-2.5 rounded-xl border border-slate-800 text-xs">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400 font-bold">
+          ${c.name.charAt(0).toUpperCase()}
+        </div>
+        <div>
+          <span class="text-white font-bold block">${c.name}</span>
+          <span class="text-[10px] text-slate-400">Creator</span>
+        </div>
       </div>
-      <button onclick="window.handleFollowCreator('${c.name}', '${c.key}'); renderFollowingList();" class="text-rose-400 hover:text-rose-300 px-2.5 py-1 bg-rose-500/10 rounded-lg text-[11px] font-bold">
+      <button onclick="window.handleFollowCreator('${c.name}', '${c.key}'); renderFollowingList();" class="text-rose-400 hover:text-rose-300 px-3 py-1 bg-rose-500/10 rounded-lg text-xs font-bold transition">
         Unfollow
       </button>
     </div>
@@ -620,7 +713,7 @@ function renderFollowingList() {
 }
 
 // ==========================================
-// 10. PRO BUILDERS LEADERBOARD LOGIC
+// 11. PRO BUILDERS LEADERBOARD (FOLLOWER BASED)
 // ==========================================
 function renderLeaderboardUI() {
   const container = document.getElementById("leaderboardListContainer");
@@ -632,18 +725,18 @@ function renderLeaderboardUI() {
     if (!creatorsMap[key]) {
       creatorsMap[key] = {
         key: key,
+        uid: base.uploaderUid || null,
         name: base.uploaderName || 'Chief',
         uploads: 0,
-        totalLikes: 0,
-        totalDownloads: 0
+        thLevel: base.th || "TH 16",
+        isVerified: base.isSupercellVerified || false,
+        followers: userFollowedCreators.filter(f => f.key === key).length * 12 + 3 // Simulated + Local synced
       };
     }
     creatorsMap[key].uploads += 1;
-    creatorsMap[key].totalLikes += (base.likesCount || 0);
-    creatorsMap[key].totalDownloads += (base.downloadsCount || 0);
   });
 
-  const rankedCreators = Object.values(creatorsMap).sort((a, b) => (b.totalLikes * 2 + b.totalDownloads) - (a.totalLikes * 2 + a.totalDownloads));
+  const rankedCreators = Object.values(creatorsMap).sort((a, b) => (b.followers * 3 + b.uploads) - (a.followers * 3 + a.uploads));
 
   if (rankedCreators.length === 0) {
     container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No creators active yet.</p>`;
@@ -656,7 +749,8 @@ function renderLeaderboardUI() {
     if (idx === 1) rankBadge = `<span class="text-slate-300 text-base w-6"><i class="fa-solid fa-medal"></i></span>`;
     if (idx === 2) rankBadge = `<span class="text-amber-600 text-base w-6"><i class="fa-solid fa-award"></i></span>`;
 
-    const isPro = c.uploads >= 3;
+    // 10+ uploads = Pro Builder
+    const isPro = c.uploads >= 10;
     const isFollowing = userFollowedCreators.some(f => f.key === c.key);
 
     return `
@@ -667,15 +761,22 @@ function renderLeaderboardUI() {
             ${c.name.charAt(0).toUpperCase()}
           </div>
           <div class="min-w-0">
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5 flex-wrap">
               <span class="text-white font-bold truncate">${c.name}</span>
+              ${c.isVerified ? '<span class="text-emerald-400 text-[10px]" title="Supercell Verified"><i class="fa-solid fa-circle-check"></i></span>' : ''}
               ${isPro ? '<span class="bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 text-[9px] font-black px-1.5 py-0.2 rounded uppercase"><i class="fa-solid fa-certificate"></i> Pro</span>' : ''}
             </div>
-            <span class="text-[10px] text-slate-400">${c.uploads} Layouts • ${c.totalLikes} Likes</span>
+            <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+              <span><b>${c.thLevel}</b></span>
+              <span>•</span>
+              <span>${c.uploads} Layouts</span>
+              <span>•</span>
+              <span class="text-cyan-400 font-bold"><i class="fa-solid fa-users text-[9px]"></i> ${c.followers} Followers</span>
+            </div>
           </div>
         </div>
 
-        <button onclick="window.handleFollowCreator('${c.name}', '${c.key}'); renderLeaderboardUI();" class="px-3 py-1 rounded-xl text-xs font-bold transition ${isFollowing ? 'bg-slate-800 text-slate-300' : 'bg-amber-500 text-black shadow-cyber-gold'}">
+        <button onclick="window.handleFollowCreator('${c.name}', '${c.uid}');" class="px-3 py-1 rounded-xl text-xs font-bold transition ${isFollowing ? 'bg-slate-800 text-slate-300' : 'bg-amber-500 text-black shadow-cyber-gold'}">
           ${isFollowing ? 'Following' : '+ Follow'}
         </button>
       </div>
@@ -684,40 +785,8 @@ function renderLeaderboardUI() {
 }
 
 // ==========================================
-// 11. RATINGS, REVIEWS & DISCUSSION
+// 12. RATING & COMMENTS DISCUSSION
 // ==========================================
-window.openReviewsModal = function(baseId) {
-  currentReviewBaseId = baseId;
-  const base = allFetchedBases.find(b => b.id === baseId);
-  if (!base) return;
-
-  document.getElementById("reviewModalBaseTitle").innerText = `${base.th} | ${base.title}`;
-  
-  const ccElem = document.getElementById("modalCCTroops");
-  if (ccElem) ccElem.innerText = base.ccTroops || "None specified";
-
-  const armyWrapper = document.getElementById("modalArmyLinkWrapper");
-  const copyArmyBtn = document.getElementById("modalCopyArmyBtn");
-  if (base.armyLink) {
-    armyWrapper.classList.remove("hidden");
-    copyArmyBtn.onclick = () => window.copyArmyLink(base.armyLink);
-  } else {
-    armyWrapper.classList.add("hidden");
-  }
-
-  const proofWrapper = document.getElementById("defenseProofWrapper");
-  const proofImg = document.getElementById("defenseProofImg");
-  if (base.defenseProof) {
-    proofImg.src = base.defenseProof;
-    proofWrapper.classList.remove("hidden");
-  } else {
-    proofWrapper.classList.add("hidden");
-  }
-
-  renderReviewsList(base.reviews || []);
-  window.openModal('reviewModal');
-};
-
 function renderReviewsList(reviews) {
   const container = document.getElementById("reviewsListContainer");
   if (!container) return;
@@ -757,6 +826,8 @@ window.handleAddReview = async function(e) {
     return;
   }
 
+  if (!currentActiveBase) return;
+
   const stars = parseInt(document.getElementById("reviewStarValue").value) || 5;
   const text = document.getElementById("reviewTextInput").value.trim();
 
@@ -768,28 +839,24 @@ window.handleAddReview = async function(e) {
   };
 
   try {
-    const baseRef = doc(db, "bases", currentReviewBaseId);
+    const baseRef = doc(db, "bases", currentActiveBase.id);
     await updateDoc(baseRef, {
       reviews: arrayUnion(newReview)
     });
 
-    const targetBase = allFetchedBases.find(b => b.id === currentReviewBaseId);
-    if (targetBase) {
-      if (!targetBase.reviews) targetBase.reviews = [];
-      targetBase.reviews.push(newReview);
-      renderReviewsList(targetBase.reviews);
-    }
+    if (!currentActiveBase.reviews) currentActiveBase.reviews = [];
+    currentActiveBase.reviews.push(newReview);
+    renderReviewsList(currentActiveBase.reviews);
 
     document.getElementById("reviewTextInput").value = "";
-    window.showToast("Strategy comment posted! ⭐");
+    window.showToast("Strategy tip posted! ⭐");
   } catch (err) {
-    console.error("Review error:", err);
-    window.showToast("Failed to save review.", "error");
+    window.showToast("Failed to save comment.", "error");
   }
 };
 
 // ==========================================
-// 12. CLAN RECRUITMENT HUB LOGIC
+// 13. CLAN RECRUITMENT HUB LOGIC
 // ==========================================
 async function loadClansFromFirestore() {
   const container = document.getElementById("clansContainer");
@@ -806,7 +873,6 @@ async function loadClansFromFirestore() {
 
     renderClansUI();
   } catch (error) {
-    console.warn("Clans fetch fallback:", error);
     allFetchedClans = JSON.parse(localStorage.getItem("cz_clans_data")) || [];
     renderClansUI();
   }
@@ -896,13 +962,12 @@ window.handleRegisterClan = async function(e) {
     window.showToast("Clan successfully registered on Hub! 🛡️");
     await loadClansFromFirestore();
   } catch (err) {
-    console.error("Clan registration error:", err);
     window.showToast("Error: " + err.message, "error");
   }
 };
 
 // ==========================================
-// 13. FETCH, SORT & DISPLAY BASES
+// 14. FETCH, SORT & DISPLAY BASES (WITH FOLLOWER & PRO TAG)
 // ==========================================
 async function loadBasesFromFirestore() {
   const container = document.getElementById("basesContainer");
@@ -919,7 +984,6 @@ async function loadBasesFromFirestore() {
 
     renderBasesUI();
   } catch (error) {
-    console.warn("Firestore error, local load:", error);
     allFetchedBases = JSON.parse(localStorage.getItem("cz_user_uploaded_bases")) || [];
     renderBasesUI();
   }
@@ -982,11 +1046,18 @@ function renderBasesUI() {
     const isLiked = userLikedBases.includes(base.id);
     const isBookmarked = userBookmarkedBases.includes(base.id);
     const hasProof = !!base.defenseProof;
-    const isFollowingCreator = userFollowedCreators.some(f => f.key === (base.uploaderUid || base.uploaderName));
+    const creatorKey = base.uploaderUid || base.uploaderName;
+    const isFollowingCreator = userFollowedCreators.some(f => f.key === creatorKey);
+
+    // 10+ Uploads check
+    const creatorTotalUploads = allFetchedBases.filter(b => (b.uploaderUid && b.uploaderUid === base.uploaderUid) || b.uploaderName === base.uploaderName).length;
+    const isProBuilder = creatorTotalUploads >= 10;
 
     return `
       <div class="glass-card rounded-2xl overflow-hidden transition-all duration-300 flex flex-col group shadow-cyber-card hover:border-amber-400/60 hover:-translate-y-1">
-        <div class="h-48 relative overflow-hidden bg-czDark cursor-pointer" onclick="window.openLightbox('${base.image}')">
+        
+        <!-- Click Image to Open Full Base Details Hub -->
+        <div class="h-48 relative overflow-hidden bg-czDark cursor-pointer" onclick="window.openBaseDetailsModal('${base.id}')">
           <img src="${base.image}" alt="${base.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80'" />
           
           <span class="absolute top-2.5 left-2.5 bg-czDark/95 text-amber-400 border border-amber-400/40 text-[11px] font-black px-2.5 py-0.5 rounded-lg backdrop-blur-md shadow-cyber-gold">
@@ -1000,32 +1071,27 @@ function renderBasesUI() {
 
           <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
             <span class="bg-black/90 text-amber-400 text-xs px-3 py-1.5 rounded-xl border border-amber-400/50 flex items-center gap-1.5 font-bold shadow-cyber-gold">
-              <i class="fa-solid fa-expand"></i> Inspect HD
+              <i class="fa-solid fa-expand"></i> Inspect & Details
             </span>
           </div>
         </div>
 
         <div class="p-4 flex flex-col flex-grow justify-between">
           <div>
+            <!-- Creator Profile Header -->
             <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
-              <div class="flex items-center gap-1.5 truncate max-w-[140px]">
-                <span class="text-amber-400 font-bold truncate"><i class="fa-solid fa-circle-user mr-1"></i> ${base.uploaderName || 'Chief'}</span>
-                <button onclick="window.handleFollowCreator('${base.uploaderName}', '${base.uploaderUid}')" class="text-[10px] ${isFollowingCreator ? 'text-slate-500' : 'text-amber-400 font-bold'} hover:underline">
-                  ${isFollowingCreator ? '• Following' : '• +Follow'}
-                </button>
+              <div class="flex items-center gap-1.5 truncate max-w-[150px]">
+                <span class="text-amber-400 font-bold truncate"><i class="fa-solid fa-circle-user mr-1"></i>${base.uploaderName || 'Chief'}</span>
+                ${base.isSupercellVerified ? '<span class="text-emerald-400 text-[10px]" title="Supercell Verified"><i class="fa-solid fa-circle-check"></i></span>' : ''}
+                ${isProBuilder ? '<span class="text-[9px] bg-yellow-500/20 text-yellow-300 border border-yellow-500/40 px-1 rounded font-black">Pro</span>' : ''}
               </div>
-              
-              <div class="flex items-center gap-2">
-                <button onclick="window.openReviewsModal('${base.id}')" class="text-yellow-400 hover:text-yellow-300 font-semibold text-xs transition">
-                  <i class="fa-solid fa-comments"></i> (${(base.reviews || []).length})
-                </button>
-                <button onclick="window.handleBookmarkBase('${base.id}')" class="${isBookmarked ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'} text-sm transition" title="Save Base">
-                  <i class="fa-${isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i>
-                </button>
-              </div>
+
+              <button onclick="window.handleFollowCreator('${base.uploaderName}', '${base.uploaderUid}')" class="text-[11px] ${isFollowingCreator ? 'text-slate-400 font-medium' : 'text-amber-400 font-bold hover:underline'}">
+                ${isFollowingCreator ? 'Following' : '+ Follow'}
+              </button>
             </div>
             
-            <h3 class="font-bold text-sm text-white line-clamp-2 mb-2 leading-snug">${base.title}</h3>
+            <h3 class="font-bold text-sm text-white line-clamp-2 mb-2 leading-snug cursor-pointer hover:text-amber-400 transition" onclick="window.openBaseDetailsModal('${base.id}')">${base.title}</h3>
 
             ${base.ccTroops ? `
               <div class="mb-3 text-[11px] bg-czDark/60 p-1.5 rounded-lg text-slate-300 truncate border border-slate-800/80">
@@ -1046,11 +1112,9 @@ function renderBasesUI() {
                 <span id="dlCount-${base.id}">${base.downloadsCount || 0}</span>
               </div>
 
-              ${base.armyLink ? `
-                <button onclick="window.copyArmyLink('${base.armyLink}')" class="text-cyan-400 hover:text-cyan-300 transition text-[11px] font-bold" title="Copy Army Setup">
-                  <i class="fa-solid fa-wand-magic-sparkles mr-0.5"></i> Army
-                </button>
-              ` : ''}
+              <button onclick="window.handleBookmarkBase('${base.id}')" class="${isBookmarked ? 'text-amber-400' : 'text-slate-500 hover:text-amber-400'} text-sm transition" title="Save Base">
+                <i class="fa-${isBookmarked ? 'solid' : 'regular'} fa-bookmark"></i>
+              </button>
 
               <button onclick="window.shareOnWhatsApp('${base.title}', '${base.link}')" class="text-emerald-400 hover:text-emerald-300 transition" title="Share on WhatsApp">
                 <i class="fa-brands fa-whatsapp text-sm"></i>
@@ -1069,7 +1133,7 @@ function renderBasesUI() {
 }
 
 // ==========================================
-// 14. LIKES, DOWNLOADS, ARMY & WHATSAPP
+// 15. LIKES, DOWNLOADS, ARMY & WHATSAPP
 // ==========================================
 window.handleLikeBase = async function(baseId) {
   const isLiked = userLikedBases.includes(baseId);
@@ -1101,15 +1165,11 @@ window.copyBaseLink = async function(baseId, link) {
     await updateDoc(doc(db, "bases", baseId), { downloadsCount: increment(1) });
     const dlSpan = document.getElementById(`dlCount-${baseId}`);
     if (dlSpan) dlSpan.innerText = `${parseInt(dlSpan.innerText) + 1}`;
-  } catch (e) {
-    console.warn("Counter update error:", e);
-  }
+  } catch (e) {}
 
   navigator.clipboard.writeText(link).then(() => {
     window.showToast("🎉 Base link copied! Opening Clash of Clans...");
-    setTimeout(() => {
-      window.open(link, "_blank");
-    }, 600);
+    setTimeout(() => window.open(link, "_blank"), 600);
   }).catch(() => {
     window.open(link, "_blank");
   });
@@ -1129,28 +1189,7 @@ window.shareOnWhatsApp = function(title, link) {
 };
 
 // ==========================================
-// 15. IMAGE LIGHTBOX
-// ==========================================
-window.openLightbox = function(imageSrc) {
-  const lb = document.getElementById("imageLightbox");
-  const lbImg = document.getElementById("lightboxImage");
-  if (lb && lbImg) {
-    lbImg.src = imageSrc;
-    lb.classList.remove("hidden");
-    lb.classList.add("flex");
-  }
-};
-
-window.closeLightbox = function() {
-  const lb = document.getElementById("imageLightbox");
-  if (lb) {
-    lb.classList.add("hidden");
-    lb.classList.remove("flex");
-  }
-};
-
-// ==========================================
-// 16. BASE UPLOAD WITH WATERMARK EMBEDDING
+// 16. BASE UPLOAD ENGINE
 // ==========================================
 window.handleBaseUpload = async function(e) {
   e.preventDefault();
@@ -1191,7 +1230,6 @@ window.handleBaseUpload = async function(e) {
     const creatorIGN = currentUserProfile?.name || user.displayName || user.email.split('@')[0];
     const isVerified = currentUserProfile?.isSupercellVerified || false;
 
-    // Compress & automatically embed the creator watermark
     const base64Image = await compressAndWatermarkImage(file, creatorIGN, isVerified);
     
     let base64Proof = null;
@@ -1225,7 +1263,6 @@ window.handleBaseUpload = async function(e) {
     window.closeModal('uploadModal');
     e.target.reset();
     
-    // Clear validation badge
     const badge = document.getElementById("linkValidationBadge");
     if (badge) badge.className = "hidden";
 
@@ -1293,7 +1330,6 @@ window.handleDeleteBase = async function(baseId) {
     await loadBasesFromFirestore();
     renderMyBasesList();
   } catch (err) {
-    console.error("Delete error:", err);
     window.showToast("Delete Error: " + err.message, "error");
   }
 };
@@ -1330,7 +1366,6 @@ window.handleSaveProfile = async function(e) {
     window.showToast("Profile and Live Stats verified!");
     setTimeout(() => location.reload(), 1000);
   } catch (err) {
-    console.error("Save profile error:", err);
     window.showToast("Error: " + err.message, "error");
   } finally {
     saveBtn.disabled = false;
@@ -1362,6 +1397,7 @@ window.handleEmailSignup = async function(e) {
       clanName: "Solo",
       trophies: 5000,
       warStars: 0,
+      followersCount: 0,
       isSupercellVerified: true,
       createdAt: serverTimestamp()
     });
@@ -1370,7 +1406,6 @@ window.handleEmailSignup = async function(e) {
     window.showToast(`🎉 Welcome Chief ${name}!`);
     setTimeout(() => location.reload(), 1000);
   } catch (error) {
-    console.error("Signup error:", error);
     if (error.code === 'auth/email-already-in-use') {
       window.showToast("Email already registered! Please login.", "error");
       window.switchAuthTab('login');
@@ -1391,7 +1426,6 @@ window.handleEmailLogin = async function(e) {
     window.showToast("✅ Login successful!");
     setTimeout(() => location.reload(), 800);
   } catch (error) {
-    console.error("Login error:", error);
     window.showToast("Login Error: " + error.message, "error");
   }
 };
@@ -1404,7 +1438,7 @@ window.handleLogout = function() {
 };
 
 // ==========================================
-// 18. FILTERS & MODAL HELPERS
+// 18. FILTERS & MODALS
 // ==========================================
 window.setTHFilter = function(th) {
   currentTH = th;
