@@ -41,7 +41,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let currentZone = "home"; // 'home' | 'builder' | 'capital'
+let currentZone = "home";
 let currentTH = "ALL";
 let currentType = "ALL";
 let currentSort = "latest";
@@ -99,7 +99,147 @@ window.showToast = function(message, type = "success") {
 };
 
 // ==========================================
-// 3. LIVE SUPERCELL API PLAYER SYNC ENGINE
+// 3. SMART LINK VALIDATION & AUTO DETECTION
+// ==========================================
+window.handleSmartLinkValidation = function(rawLink) {
+  const badge = document.getElementById("linkValidationBadge");
+  const linkInput = document.getElementById("uploadLink");
+  const zoneSelect = document.getElementById("uploadZone");
+  const thSelect = document.getElementById("uploadTH");
+
+  if (!rawLink || rawLink.trim() === '') {
+    if (badge) badge.className = "hidden";
+    if (linkInput) linkInput.classList.remove("border-emerald-500", "border-rose-500");
+    return;
+  }
+
+  const cleanLink = rawLink.trim();
+  const isOfficial = cleanLink.startsWith("https://link.clashofclans.com/") || cleanLink.startsWith("http://link.clashofclans.com/");
+  const isLayoutAction = cleanLink.includes("action=OpenLayout");
+
+  // Check for duplicate link
+  const isDuplicate = allFetchedBases.some(b => b.link && b.link.trim() === cleanLink);
+
+  if (isDuplicate) {
+    if (badge) {
+      badge.innerText = "Duplicate Link (Already Uploaded)";
+      badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40";
+    }
+    if (linkInput) {
+      linkInput.classList.remove("border-emerald-500");
+      linkInput.classList.add("border-rose-500");
+    }
+    return;
+  }
+
+  if (isOfficial && isLayoutAction) {
+    if (badge) {
+      badge.innerText = "✓ Valid Official Layout Link";
+      badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+    }
+    if (linkInput) {
+      linkInput.classList.remove("border-rose-500");
+      linkInput.classList.add("border-emerald-500");
+    }
+
+    // Auto-detect Builder Base vs Home Village from link parameters
+    if (cleanLink.toLowerCase().includes("builder") || cleanLink.includes("id=BB")) {
+      if (zoneSelect && zoneSelect.value !== "builder") {
+        zoneSelect.value = "builder";
+        window.updateUploadLevelOptions();
+        window.showToast("Auto-detected: Builder Base Layout 🔨");
+      }
+    } else if (cleanLink.toLowerCase().includes("capital") || cleanLink.includes("id=CC")) {
+      if (zoneSelect && zoneSelect.value !== "capital") {
+        zoneSelect.value = "capital";
+        window.updateUploadLevelOptions();
+        window.showToast("Auto-detected: Clan Capital Layout 🏛️");
+      }
+    }
+  } else {
+    if (badge) {
+      badge.innerText = "Invalid Official Link Format";
+      badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40";
+    }
+    if (linkInput) {
+      linkInput.classList.remove("border-emerald-500");
+      linkInput.classList.add("border-rose-500");
+    }
+  }
+};
+
+// ==========================================
+// 4. CREATOR BRANDING & WATERMARK ENGINE
+// ==========================================
+function compressAndWatermarkImage(file, creatorName = "Chief", isVerified = false, maxWidth = 900, quality = 0.72) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const elem = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        elem.width = width;
+        elem.height = height;
+        const ctx = elem.getContext('2d');
+
+        // Draw Base Image
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Watermark Box Config
+        const padding = 16;
+        const badgeHeight = 32;
+        const badgeWidth = Math.min(width * 0.55, 270);
+        const x = width - badgeWidth - padding;
+        const y = height - badgeHeight - padding;
+
+        // Gradient Background for Watermark
+        ctx.save();
+        ctx.fillStyle = "rgba(5, 8, 17, 0.88)";
+        ctx.beginPath();
+        ctx.roundRect(x, y, badgeWidth, badgeHeight, 8);
+        ctx.fill();
+
+        // Border Accent
+        ctx.strokeStyle = "rgba(245, 158, 11, 0.6)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Text Branding
+        ctx.font = "bold 11px Rajdhani, Orbitron, sans-serif";
+        ctx.fillStyle = "#fbbf24";
+        ctx.fillText("⚡ CLASHZONE", x + 10, y + 20);
+
+        ctx.font = "600 10px Rajdhani, sans-serif";
+        ctx.fillStyle = "#ffffff";
+        const brandText = `| by ${creatorName.substring(0, 14)}`;
+        ctx.fillText(brandText, x + 95, y + 20);
+
+        if (isVerified) {
+          ctx.fillStyle = "#10b981";
+          ctx.fillText("✓", x + badgeWidth - 16, y + 20);
+        }
+
+        ctx.restore();
+        resolve(elem.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = (error) => reject(error);
+    };
+    reader.onerror = (error) => reject(error);
+  });
+}
+
+// ==========================================
+// 5. LIVE SUPERCELL API PLAYER SYNC ENGINE
 // ==========================================
 async function fetchLiveSupercellPlayer(rawTag) {
   let tag = rawTag.trim().toUpperCase().replace(/O/g, '0');
@@ -199,7 +339,7 @@ window.syncTagInSignup = async function() {
 };
 
 // ==========================================
-// 4. AUTH STATE LISTENER & USER DASHBOARD (TOP UPLOAD BUTTON REMOVED)
+// 6. AUTH STATE LISTENER & USER DASHBOARD
 // ==========================================
 onAuthStateChanged(auth, async (user) => {
   const headerAuth = document.getElementById("headerAuthArea");
@@ -283,7 +423,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ==========================================
-// 5. ZONE & LEVEL SELECTOR
+// 7. ZONE & LEVEL SELECTOR
 // ==========================================
 window.switchZone = function(zone) {
   currentZone = zone;
@@ -328,7 +468,7 @@ window.updateUploadLevelOptions = function() {
 };
 
 // ==========================================
-// 6. MAIN HUB VIEW SWITCHER
+// 8. MAIN HUB VIEW SWITCHER
 // ==========================================
 window.switchMainHubView = function(viewName) {
   const vBases = document.getElementById("viewBasesSection");
@@ -364,7 +504,7 @@ window.switchMainHubView = function(viewName) {
 };
 
 // ==========================================
-// 7. BOOKMARKS & CREATOR FOLLOWS
+// 9. BOOKMARKS & CREATOR FOLLOWS
 // ==========================================
 window.handleFollowCreator = function(creatorName, creatorUid) {
   const key = creatorUid || creatorName;
@@ -480,7 +620,7 @@ function renderFollowingList() {
 }
 
 // ==========================================
-// 8. PRO BUILDERS LEADERBOARD LOGIC
+// 10. PRO BUILDERS LEADERBOARD LOGIC
 // ==========================================
 function renderLeaderboardUI() {
   const container = document.getElementById("leaderboardListContainer");
@@ -544,7 +684,7 @@ function renderLeaderboardUI() {
 }
 
 // ==========================================
-// 9. RATINGS, REVIEWS & DISCUSSION
+// 11. RATINGS, REVIEWS & DISCUSSION
 // ==========================================
 window.openReviewsModal = function(baseId) {
   currentReviewBaseId = baseId;
@@ -649,7 +789,7 @@ window.handleAddReview = async function(e) {
 };
 
 // ==========================================
-// 10. CLAN RECRUITMENT HUB LOGIC
+// 12. CLAN RECRUITMENT HUB LOGIC
 // ==========================================
 async function loadClansFromFirestore() {
   const container = document.getElementById("clansContainer");
@@ -762,7 +902,7 @@ window.handleRegisterClan = async function(e) {
 };
 
 // ==========================================
-// 11. FETCH, SORT & DISPLAY BASES
+// 13. FETCH, SORT & DISPLAY BASES
 // ==========================================
 async function loadBasesFromFirestore() {
   const container = document.getElementById("basesContainer");
@@ -929,7 +1069,7 @@ function renderBasesUI() {
 }
 
 // ==========================================
-// 12. LIKES, DOWNLOADS, ARMY & WHATSAPP
+// 14. LIKES, DOWNLOADS, ARMY & WHATSAPP
 // ==========================================
 window.handleLikeBase = async function(baseId) {
   const isLiked = userLikedBases.includes(baseId);
@@ -989,7 +1129,7 @@ window.shareOnWhatsApp = function(title, link) {
 };
 
 // ==========================================
-// 13. IMAGE LIGHTBOX
+// 15. IMAGE LIGHTBOX
 // ==========================================
 window.openLightbox = function(imageSrc) {
   const lb = document.getElementById("imageLightbox");
@@ -1010,37 +1150,8 @@ window.closeLightbox = function() {
 };
 
 // ==========================================
-// 14. IMAGE COMPRESSION & BASE UPLOAD
+// 16. BASE UPLOAD WITH WATERMARK EMBEDDING
 // ==========================================
-function compressImage(file, maxWidth = 900, quality = 0.7) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target.result;
-      img.onload = () => {
-        const elem = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
-
-        elem.width = width;
-        elem.height = height;
-        const ctx = elem.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        resolve(elem.toDataURL('image/jpeg', quality));
-      };
-      img.onerror = (error) => reject(error);
-    };
-    reader.onerror = (error) => reject(error);
-  });
-}
-
 window.handleBaseUpload = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
@@ -1051,8 +1162,14 @@ window.handleBaseUpload = async function(e) {
   }
 
   const rawLink = document.getElementById("uploadLink").value.trim();
-  if (!rawLink.includes("link.clashofclans.com")) {
-    window.showToast("Only official 'link.clashofclans.com' links allowed!", "error");
+  if (!rawLink.includes("link.clashofclans.com") || !rawLink.includes("action=OpenLayout")) {
+    window.showToast("Only official 'link.clashofclans.com' layout links allowed!", "error");
+    return;
+  }
+
+  const isDuplicate = allFetchedBases.some(b => b.link && b.link.trim() === rawLink);
+  if (isDuplicate) {
+    window.showToast("This base layout link has already been uploaded!", "error");
     return;
   }
 
@@ -1068,13 +1185,18 @@ window.handleBaseUpload = async function(e) {
 
   const submitBtn = document.getElementById("submitBaseBtn");
   submitBtn.disabled = true;
-  submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading...`;
+  submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Branding & Uploading...`;
 
   try {
-    const base64Image = await compressImage(file);
+    const creatorIGN = currentUserProfile?.name || user.displayName || user.email.split('@')[0];
+    const isVerified = currentUserProfile?.isSupercellVerified || false;
+
+    // Compress & automatically embed the creator watermark
+    const base64Image = await compressAndWatermarkImage(file, creatorIGN, isVerified);
+    
     let base64Proof = null;
     if (proofFile) {
-      base64Proof = await compressImage(proofFile, 800, 0.6);
+      base64Proof = await compressAndWatermarkImage(proofFile, creatorIGN, isVerified, 800, 0.6);
     }
 
     const baseData = {
@@ -1088,8 +1210,8 @@ window.handleBaseUpload = async function(e) {
       image: base64Image,
       defenseProof: base64Proof,
       uploaderUid: user.uid,
-      uploaderName: currentUserProfile?.name || user.displayName || user.email.split('@')[0],
-      isSupercellVerified: currentUserProfile?.isSupercellVerified || false,
+      uploaderName: creatorIGN,
+      isSupercellVerified: isVerified,
       likesCount: 0,
       downloadsCount: 0,
       reviews: [],
@@ -1102,8 +1224,13 @@ window.handleBaseUpload = async function(e) {
     submitBtn.innerHTML = `Publish Base & Strategy`;
     window.closeModal('uploadModal');
     e.target.reset();
+    
+    // Clear validation badge
+    const badge = document.getElementById("linkValidationBadge");
+    if (badge) badge.className = "hidden";
+
     await loadBasesFromFirestore();
-    window.showToast("✅ Layout published successfully!");
+    window.showToast("✅ Layout published with verified creator watermark!");
   } catch (error) {
     console.error("Upload error:", error);
     submitBtn.disabled = false;
@@ -1113,7 +1240,7 @@ window.handleBaseUpload = async function(e) {
 };
 
 // ==========================================
-// 15. AUTH HANDLERS & PROFILE SAVING
+// 17. AUTH HANDLERS & PROFILE SAVING
 // ==========================================
 window.openEditProfileModal = function() {
   const user = auth.currentUser;
@@ -1277,7 +1404,7 @@ window.handleLogout = function() {
 };
 
 // ==========================================
-// 16. FILTERS & MODAL HELPERS
+// 18. FILTERS & MODAL HELPERS
 // ==========================================
 window.setTHFilter = function(th) {
   currentTH = th;
@@ -1334,7 +1461,7 @@ window.switchAuthTab = function(type) {
 };
 
 // ==========================================
-// 17. PWA SERVICE WORKER & MOBILE INSTALL ENGINE
+// 19. PWA SERVICE WORKER & MOBILE INSTALL ENGINE
 // ==========================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

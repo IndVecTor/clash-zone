@@ -91,7 +91,7 @@
   <!-- TOAST NOTIFICATION -->
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- TOP HEADER (UPLOAD BUTTON REMOVED) -->
+  <!-- TOP HEADER -->
   <header class="sticky top-0 z-40 bg-czDark/90 backdrop-blur-xl border-b border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
       <a href="index.html" class="flex items-center gap-2.5 shrink-0">
@@ -119,7 +119,7 @@
         </button>
       </div>
 
-      <!-- Header Actions: Install Button + User Profile / Login Button -->
+      <!-- Header Actions -->
       <div class="flex items-center gap-2 shrink-0">
         <button id="pwaInstallBtn" onclick="window.triggerAppInstall()" class="hidden bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-3 py-1.5 rounded-xl text-xs font-black items-center gap-1.5 transition shadow-cyber-gold animate-pulse">
           <i class="fa-solid fa-download"></i>
@@ -460,16 +460,28 @@
     </div>
   </div>
 
-  <!-- UPLOAD BASE MODAL -->
+  <!-- UPLOAD BASE MODAL (WITH SMART VALIDATION & AUTO DETECTION) -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="uploadModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('uploadModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
       <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2">
         <i class="fa-solid fa-cloud-arrow-up"></i> Upload Layout & Strategy
       </h3>
-      <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Publish bases across Home Village, Builder Base 2.0, or Clan Capital.</p>
+      <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Paste layout copy link for instant auto-detection & watermark protection.</p>
 
       <form onsubmit="window.handleBaseUpload(event)" class="space-y-3">
+        
+        <!-- Smart Link Input with Real-time Validation Badge -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-bold text-amber-400">
+              <i class="fa-solid fa-link mr-1"></i> In-Game Copy Link (clashofclans.com)
+            </label>
+            <span id="linkValidationBadge" class="hidden text-[10px] font-bold px-2 py-0.2 rounded"></span>
+          </div>
+          <input type="url" id="uploadLink" oninput="window.handleSmartLinkValidation(this.value)" placeholder="https://link.clashofclans.com/en?action=OpenLayout..." required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400 transition" />
+        </div>
+
         <div class="grid grid-cols-2 gap-2.5">
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Village Zone</label>
@@ -516,18 +528,18 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Defense Proof (Opt.)</label>
-            <input type="file" id="uploadProofFile" accept="image/*" class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:font-bold hover:file:bg-slate-600" />
+            <input type="file" id="uploadProofFile" accept="image/*" class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:font-bold hover:file:bg-slate-600" />
           </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">In-Game Copy Link (clashofclans.com)</label>
-          <input type="url" id="uploadLink" placeholder="https://link.clashofclans.com/en?action=OpenLayout..." required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
         </div>
 
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Army Copy Link (Optional)</label>
           <input type="url" id="uploadArmyLink" placeholder="https://link.clashofclans.com/en?action=CopyArmy..." class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
+        </div>
+
+        <div class="p-2.5 bg-czDark/80 rounded-xl border border-slate-800 flex items-center gap-2 text-[11px] text-slate-400">
+          <i class="fa-solid fa-stamp text-amber-400 text-sm shrink-0"></i>
+          <span><b>Creator Watermark:</b> Your verified IGN will be automatically branded onto screenshot corner.</span>
         </div>
 
         <button type="submit" id="submitBaseBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition mt-2 shadow-cyber-gold">
