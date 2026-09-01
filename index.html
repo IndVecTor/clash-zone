@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ClashZone | Esports Base Layouts, Leaderboard & Clan Hub</title>
   
+  <!-- PWA & Mobile Optimization -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#f59e0b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ClashZone" />
+
+  <!-- Tailwind & Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
@@ -98,7 +106,7 @@
         </div>
       </a>
 
-      <!-- Main Navigation Tabs -->
+      <!-- Desktop Navigation Tabs -->
       <div class="hidden md:flex items-center gap-2 bg-czPanel border border-slate-800 p-1 rounded-2xl">
         <button onclick="window.switchMainHubView('bases')" id="hubTabBases" class="hub-tab-btn active px-4 py-1.5 rounded-xl text-xs font-bold transition">
           <i class="fa-solid fa-layer-group mr-1.5"></i> Base Layouts
@@ -418,7 +426,7 @@
     </div>
   </div>
 
-  <!-- UPLOAD BASE MODAL (WITH DEFENSE PROOF) -->
+  <!-- UPLOAD BASE MODAL -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="uploadModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('uploadModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
@@ -463,11 +471,11 @@
         <div class="grid grid-cols-2 gap-2.5">
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Base Screenshot (Req.)</label>
-            <input type="file" id="uploadImageFile" accept="image/*" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-amber-500 file:text-black file:font-bold hover:file:bg-amber-400" />
+            <input type="file" id="uploadImageFile" accept="image/*" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-amber-500 file:text-black file:font-bold hover:file:bg-amber-400" />
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1">Defense Proof (Opt.)</label>
-            <input type="file" id="uploadProofFile" accept="image/*" class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:font-bold hover:file:bg-slate-600" />
+            <input type="file" id="uploadProofFile" accept="image/*" class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:font-bold hover:file:bg-slate-600" />
           </div>
         </div>
 

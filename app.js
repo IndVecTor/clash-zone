@@ -52,7 +52,7 @@ let currentReviewBaseId = null;
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases")) || [];
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases")) || [];
 
-// League helper
+// League rank calculation
 function getLeagueRank(trophies = 0) {
   if (trophies >= 5000) return { name: "Legend League", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" };
   if (trophies >= 4100) return { name: "Titan League", color: "bg-rose-500/20 text-rose-300 border-rose-500/40" };
@@ -286,7 +286,6 @@ function renderLeaderboardUI() {
   const container = document.getElementById("leaderboardListContainer");
   if (!container) return;
 
-  // Aggregate stats per uploader
   const creatorsMap = {};
   allFetchedBases.forEach(base => {
     const key = base.uploaderUid || base.uploaderName;
@@ -1081,6 +1080,26 @@ window.switchAuthTab = function(type) {
     tabLoginBtn.className = "flex-1 py-2 rounded-lg text-xs font-bold text-slate-400";
   }
 };
+
+// ==========================================
+// 15. PWA SERVICE WORKER & INSTALL PROMPT
+// ==========================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.warn('Service Worker registration failed:', err);
+    });
+  });
+}
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (window.showToast) {
+    window.showToast("📱 Install ClashZone app on your home screen!");
+  }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   loadBasesFromFirestore();
