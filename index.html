@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>ClashZone | Esports Base Layouts & Player Hub</title>
+  <title>ClashZone | Esports Base Layouts, Leaderboard & Clan Hub</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -52,7 +52,7 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .base-filter-btn.active, .sort-btn.active {
+    .base-filter-btn.active, .sort-btn.active, .hub-tab-btn.active {
       background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
       color: #050811;
       font-weight: 800;
@@ -98,6 +98,19 @@
         </div>
       </a>
 
+      <!-- Main Navigation Tabs -->
+      <div class="hidden md:flex items-center gap-2 bg-czPanel border border-slate-800 p-1 rounded-2xl">
+        <button onclick="window.switchMainHubView('bases')" id="hubTabBases" class="hub-tab-btn active px-4 py-1.5 rounded-xl text-xs font-bold transition">
+          <i class="fa-solid fa-layer-group mr-1.5"></i> Base Layouts
+        </button>
+        <button onclick="window.switchMainHubView('leaderboard')" id="hubTabLeaderboard" class="hub-tab-btn px-4 py-1.5 rounded-xl text-xs font-bold text-slate-400 transition hover:text-white">
+          <i class="fa-solid fa-trophy mr-1.5 text-amber-400"></i> Top Creators
+        </button>
+        <button onclick="window.switchMainHubView('clans')" id="hubTabClans" class="hub-tab-btn px-4 py-1.5 rounded-xl text-xs font-bold text-slate-400 transition hover:text-white">
+          <i class="fa-solid fa-flag-checkered mr-1.5 text-rose-400"></i> Clan Hub
+        </button>
+      </div>
+
       <!-- Header Actions -->
       <div class="flex items-center gap-2 shrink-0" id="headerAuthArea">
         <button onclick="window.openModal('authModal')" class="bg-czPanel hover:bg-slate-800 border border-slate-700 text-amber-400 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-md">
@@ -107,6 +120,19 @@
       </div>
     </div>
   </header>
+
+  <!-- MOBILE TOP HUB SELECTOR -->
+  <div class="md:hidden flex items-center justify-around bg-czPanel border-b border-czBorder/50 py-2 px-3 text-xs">
+    <button onclick="window.switchMainHubView('bases')" id="mHubTabBases" class="hub-tab-btn active px-3 py-1.5 rounded-xl font-bold transition">
+      <i class="fa-solid fa-layer-group mr-1"></i> Bases
+    </button>
+    <button onclick="window.switchMainHubView('leaderboard')" id="mHubTabLeaderboard" class="hub-tab-btn px-3 py-1.5 rounded-xl font-bold text-slate-400 transition">
+      <i class="fa-solid fa-trophy mr-1 text-amber-400"></i> Creators
+    </button>
+    <button onclick="window.switchMainHubView('clans')" id="mHubTabClans" class="hub-tab-btn px-3 py-1.5 rounded-xl font-bold text-slate-400 transition">
+      <i class="fa-solid fa-flag mr-1 text-rose-400"></i> Clan Hub
+    </button>
+  </div>
 
   <!-- MAIN CONTAINER -->
   <div class="max-w-7xl mx-auto px-4 pt-4 w-full overflow-hidden">
@@ -122,6 +148,9 @@
             <div class="flex items-center gap-2 flex-wrap">
               <h2 id="dashPlayerName" class="text-base sm:text-xl font-black text-white tracking-wide truncate">Chief Player</h2>
               <span id="dashTHBadge" class="bg-amber-500 text-black text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">TH 16</span>
+              <span id="dashBuilderBadge" class="hidden bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">
+                <i class="fa-solid fa-certificate mr-1"></i>Pro Builder
+              </span>
               <span id="dashLeagueBadge" class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0">Legend League</span>
             </div>
             <p id="dashClanInfo" class="text-xs text-slate-400 mt-0.5 font-medium truncate">Clan: Solo | Tag: #P9L80YQ2</p>
@@ -135,118 +164,139 @@
           </div>
           <button onclick="window.openEditProfileModal()" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-4 py-2 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition flex-1 sm:flex-initial shadow-cyber-gold shrink-0">
             <i class="fa-solid fa-user-gear"></i>
-            <span>Profile</span>
+            <span>Profile & Saves</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- HERO & SEARCH BAR -->
-    <section class="py-2 sm:py-4 text-center w-full">
-      <h1 class="gaming-title text-2xl sm:text-5xl font-black text-white uppercase tracking-wider leading-tight">
-        Next-Gen <span class="gold-gradient">Base Layouts</span>
-      </h1>
-      <p class="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto mt-1 mb-4 px-2">
-        Verified meta defense maps with instant 1-tap in-game layout copying.
-      </p>
+    <!-- VIEW 1: BASES SECTION -->
+    <div id="viewBasesSection">
+      <!-- HERO & SEARCH BAR -->
+      <section class="py-2 sm:py-4 text-center w-full">
+        <h1 class="gaming-title text-2xl sm:text-5xl font-black text-white uppercase tracking-wider leading-tight">
+          Next-Gen <span class="gold-gradient">Base Layouts</span>
+        </h1>
+        <p class="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto mt-1 mb-4 px-2">
+          Verified meta defense maps with instant in-game transfer & defense proofs.
+        </p>
 
-      <!-- Search Box -->
-      <div class="max-w-xl mx-auto glass-card rounded-2xl p-2 flex items-center gap-2 shadow-cyber-card focus-within:border-amber-400/60 transition w-full">
-        <i class="fa-solid fa-magnifying-glass text-slate-400 ml-2.5 text-xs sm:text-sm shrink-0"></i>
-        <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall, Title, Uploader..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
-      </div>
-    </section>
-
-    <!-- STICKY FILTER BAR -->
-    <div class="sticky top-16 z-30 bg-czDark/95 backdrop-blur-xl py-2 -mx-4 px-4 border-b border-czBorder/60 shadow-md">
-      <!-- SORTING -->
-      <div class="flex items-center justify-between gap-2 overflow-x-auto pb-2 scrollbar-none mb-1">
-        <div class="flex items-center gap-2">
-          <span class="text-[10px] sm:text-[11px] font-black uppercase text-amber-400 shrink-0">
-            <i class="fa-solid fa-arrow-down-short-wide mr-1"></i> Sort:
-          </span>
-          <button onclick="window.setSortOption('latest')" id="sortLatest" class="sort-btn active px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold shrink-0 transition">
-            <i class="fa-solid fa-clock mr-1"></i> Latest
-          </button>
-          <button onclick="window.setSortOption('likes')" id="sortLikes" class="sort-btn px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">
-            <i class="fa-solid fa-heart mr-1 text-rose-500"></i> Top Liked
-          </button>
-          <button onclick="window.setSortOption('downloads')" id="sortDownloads" class="sort-btn px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">
-            <i class="fa-solid fa-download mr-1 text-emerald-400"></i> Most Copied
-          </button>
+        <!-- Search Box -->
+        <div class="max-w-xl mx-auto glass-card rounded-2xl p-2 flex items-center gap-2 shadow-cyber-card focus-within:border-amber-400/60 transition w-full">
+          <i class="fa-solid fa-magnifying-glass text-slate-400 ml-2.5 text-xs sm:text-sm shrink-0"></i>
+          <input type="text" id="searchInput" onkeyup="window.filterBases()" placeholder="Search Town Hall, Title, Uploader..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
         </div>
-        <span class="text-[11px] font-bold text-slate-400 shrink-0" id="baseCountText">0 Layouts</span>
+      </section>
+
+      <!-- STICKY FILTER BAR -->
+      <div class="sticky top-16 z-30 bg-czDark/95 backdrop-blur-xl py-2 -mx-4 px-4 border-b border-czBorder/60 shadow-md">
+        <!-- SORTING -->
+        <div class="flex items-center justify-between gap-2 overflow-x-auto pb-2 scrollbar-none mb-1">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] sm:text-[11px] font-black uppercase text-amber-400 shrink-0">
+              <i class="fa-solid fa-arrow-down-short-wide mr-1"></i> Sort:
+            </span>
+            <button onclick="window.setSortOption('latest')" id="sortLatest" class="sort-btn active px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold shrink-0 transition">
+              <i class="fa-solid fa-clock mr-1"></i> Latest
+            </button>
+            <button onclick="window.setSortOption('likes')" id="sortLikes" class="sort-btn px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">
+              <i class="fa-solid fa-heart mr-1 text-rose-500"></i> Top Liked
+            </button>
+            <button onclick="window.setSortOption('downloads')" id="sortDownloads" class="sort-btn px-3 py-1 bg-czPanel border border-slate-700 rounded-lg text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">
+              <i class="fa-solid fa-download mr-1 text-emerald-400"></i> Most Copied
+            </button>
+          </div>
+          <span class="text-[11px] font-bold text-slate-400 shrink-0" id="baseCountText">0 Layouts</span>
+        </div>
+
+        <!-- TOWN HALL SELECTOR -->
+        <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full max-w-full">
+          <button onclick="window.setTHFilter('ALL')" class="base-filter-btn active px-3.5 py-1.5 bg-czPanel border border-slate-700/80 rounded-xl text-xs font-bold shrink-0 transition">ALL</button>
+          <button onclick="window.setTHFilter('TH 18')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 18</button>
+          <button onclick="window.setTHFilter('TH 17')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 17</button>
+          <button onclick="window.setTHFilter('TH 16')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 16</button>
+          <button onclick="window.setTHFilter('TH 15')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 15</button>
+          <button onclick="window.setTHFilter('TH 14')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 14</button>
+          <button onclick="window.setTHFilter('TH 13')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 13</button>
+          <button onclick="window.setTHFilter('TH 12')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 12</button>
+          <button onclick="window.setTHFilter('TH 11')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 11</button>
+          <button onclick="window.setTHFilter('BH 10')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">BH 10</button>
+        </div>
       </div>
 
-      <!-- TOWN HALL SELECTOR -->
-      <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full max-w-full">
-        <button onclick="window.setTHFilter('ALL')" class="base-filter-btn active px-3.5 py-1.5 bg-czPanel border border-slate-700/80 rounded-xl text-xs font-bold shrink-0 transition">ALL</button>
-        <button onclick="window.setTHFilter('TH 18')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 18</button>
-        <button onclick="window.setTHFilter('TH 17')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 17</button>
-        <button onclick="window.setTHFilter('TH 16')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 16</button>
-        <button onclick="window.setTHFilter('TH 15')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 15</button>
-        <button onclick="window.setTHFilter('TH 14')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 14</button>
-        <button onclick="window.setTHFilter('TH 13')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 13</button>
-        <button onclick="window.setTHFilter('TH 12')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 12</button>
-        <button onclick="window.setTHFilter('TH 11')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">TH 11</button>
-        <button onclick="window.setTHFilter('BH 10')" class="base-filter-btn px-3.5 py-1.5 bg-czPanel border border-slate-700/80 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">BH 10</button>
+      <!-- CATEGORY TAGS -->
+      <section class="py-3 w-full">
+        <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full max-w-full">
+          <button onclick="window.setTypeFilter('ALL')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">All Layouts</button>
+          <button onclick="window.setTypeFilter('War')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-swords text-rose-400 mr-1"></i> War / CWL</button>
+          <button onclick="window.setTypeFilter('Anti 3-Star')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-shield text-amber-400 mr-1"></i> Anti 3-Star</button>
+          <button onclick="window.setTypeFilter('Trophy')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-trophy text-blue-400 mr-1"></i> Trophy</button>
+          <button onclick="window.setTypeFilter('Farming')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-coins text-emerald-400 mr-1"></i> Farming</button>
+        </div>
+      </section>
+
+      <!-- BASE GRID -->
+      <main class="py-2 w-full">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 w-full" id="basesContainer">
+          <div class="glass-card rounded-2xl overflow-hidden p-3 space-y-3">
+            <div class="h-44 rounded-xl skeleton-box"></div>
+            <div class="h-4 w-3/4 rounded skeleton-box"></div>
+            <div class="h-8 rounded-xl skeleton-box"></div>
+          </div>
+          <div class="glass-card rounded-2xl overflow-hidden p-3 space-y-3">
+            <div class="h-44 rounded-xl skeleton-box"></div>
+            <div class="h-4 w-3/4 rounded skeleton-box"></div>
+            <div class="h-8 rounded-xl skeleton-box"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- VIEW 2: LEADERBOARD SECTION -->
+    <div id="viewLeaderboardSection" class="hidden py-4">
+      <div class="text-center mb-6">
+        <h2 class="gaming-title text-2xl sm:text-4xl font-black text-white gold-gradient">Pro Builders Leaderboard</h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">Top verified creators ranked by total layout popularity & upvotes.</p>
+      </div>
+
+      <div class="max-w-3xl mx-auto glass-card rounded-3xl p-4 sm:p-6 shadow-cyber-card border-amber-500/30">
+        <div class="space-y-3" id="leaderboardListContainer">
+          <p class="text-xs text-slate-500 text-center py-6">Calculating builder stats...</p>
+        </div>
       </div>
     </div>
 
-    <!-- CATEGORY TAGS -->
-    <section class="py-3 w-full">
-      <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none w-full max-w-full">
-        <button onclick="window.setTypeFilter('ALL')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition">All Layouts</button>
-        <button onclick="window.setTypeFilter('War')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-swords text-rose-400 mr-1"></i> War / CWL</button>
-        <button onclick="window.setTypeFilter('Anti 3-Star')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-shield text-amber-400 mr-1"></i> Anti 3-Star</button>
-        <button onclick="window.setTypeFilter('Trophy')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-trophy text-blue-400 mr-1"></i> Trophy</button>
-        <button onclick="window.setTypeFilter('Farming')" class="type-filter-btn px-3 py-1.5 bg-czPanel border border-slate-700 rounded-xl text-xs font-bold text-slate-300 shrink-0 hover:border-amber-400 transition"><i class="fa-solid fa-coins text-emerald-400 mr-1"></i> Farming</button>
+    <!-- VIEW 3: CLAN RECRUITMENT HUB -->
+    <div id="viewClansSection" class="hidden py-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div>
+          <h2 class="gaming-title text-2xl sm:text-4xl font-black text-white gold-gradient">Clan Showcase Hub</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">Recruit top-tier clashers or find your dream competitive clan.</p>
+        </div>
+        <button onclick="window.openModal('postClanModal')" class="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold shrink-0">
+          <i class="fa-solid fa-plus mr-1"></i> Register Your Clan
+        </button>
       </div>
-    </section>
 
-    <!-- MAIN BASE GRID -->
-    <main class="py-2 w-full">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 w-full" id="basesContainer">
-        <div class="glass-card rounded-2xl overflow-hidden p-3 space-y-3">
-          <div class="h-44 rounded-xl skeleton-box"></div>
-          <div class="h-4 w-3/4 rounded skeleton-box"></div>
-          <div class="h-8 rounded-xl skeleton-box"></div>
-        </div>
-        <div class="glass-card rounded-2xl overflow-hidden p-3 space-y-3">
-          <div class="h-44 rounded-xl skeleton-box"></div>
-          <div class="h-4 w-3/4 rounded skeleton-box"></div>
-          <div class="h-8 rounded-xl skeleton-box"></div>
-        </div>
-        <div class="glass-card rounded-2xl overflow-hidden p-3 space-y-3">
-          <div class="h-44 rounded-xl skeleton-box"></div>
-          <div class="h-4 w-3/4 rounded skeleton-box"></div>
-          <div class="h-8 rounded-xl skeleton-box"></div>
-        </div>
-        <div class="glass-card rounded-2xl overflow-hidden p-3 space-y-3">
-          <div class="h-44 rounded-xl skeleton-box"></div>
-          <div class="h-4 w-3/4 rounded skeleton-box"></div>
-          <div class="h-8 rounded-xl skeleton-box"></div>
-        </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clansContainer">
+        <p class="text-xs text-slate-500 text-center py-10 col-span-full">Loading competitive clans...</p>
       </div>
-    </main>
+    </div>
 
   </div>
 
-  <!-- FIXED BOTTOM NAVIGATION BAR (SEARCH BUTTON REMOVED) -->
+  <!-- FIXED BOTTOM NAVIGATION BAR -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-czDark/95 backdrop-blur-xl border-t border-czBorder px-6 py-2.5 w-full shadow-2xl">
     <div class="max-w-md mx-auto flex items-center justify-between px-4">
-      <!-- Home Tab -->
-      <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center gap-1 text-amber-400 text-xs font-bold p-1 transition hover:scale-105 active:scale-95">
+      <button onclick="window.switchMainHubView('bases')" class="flex flex-col items-center gap-1 text-amber-400 text-xs font-bold p-1 transition hover:scale-105 active:scale-95">
         <i class="fa-solid fa-house text-xl"></i>
         <span>Home</span>
       </button>
 
-      <!-- Center Floating Upload Action -->
       <button onclick="window.openModal('uploadModal')" class="w-13 h-13 -mt-6 rounded-2xl bg-gradient-to-tr from-amber-600 to-yellow-400 text-black flex items-center justify-center text-2xl font-black shadow-cyber-gold hover:scale-110 active:scale-95 transition shrink-0 p-3">
         <i class="fa-solid fa-plus"></i>
       </button>
 
-      <!-- Profile Tab -->
       <button onclick="window.openEditProfileModal()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white text-xs font-bold p-1 transition hover:scale-105 active:scale-95">
         <i class="fa-solid fa-id-card text-xl"></i>
         <span>Profile</span>
@@ -260,7 +310,115 @@
     <img id="lightboxImage" src="" alt="Fullscreen Base" class="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl border border-amber-500/30" onclick="event.stopPropagation()" />
   </div>
 
-  <!-- UPLOAD BASE MODAL -->
+  <!-- BASE RATING, REVIEWS & DEFENSE LOG MODAL -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="reviewModal">
+    <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto max-h-[90vh] overflow-y-auto">
+      <button onclick="window.closeModal('reviewModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
+      
+      <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2">
+        <i class="fa-solid fa-shield-halved"></i> Reviews & Defense Proof
+      </h3>
+      <p id="reviewModalBaseTitle" class="text-xs text-slate-300 font-bold mt-1 truncate">Base Title</p>
+
+      <!-- Defense Proof Screenshot View (If Available) -->
+      <div id="defenseProofWrapper" class="hidden mt-3 p-3 bg-czDark rounded-2xl border border-slate-800">
+        <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block mb-1.5"><i class="fa-solid fa-circle-check mr-1"></i> Verified Defense Log</span>
+        <img id="defenseProofImg" src="" alt="Defense Log Proof" class="w-full h-36 object-cover rounded-xl cursor-pointer" onclick="window.openLightbox(this.src)" />
+      </div>
+
+      <!-- Add Review Form -->
+      <form onsubmit="window.handleAddReview(event)" class="mt-4 pt-3 border-t border-slate-800 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Rate this Layout</label>
+          <div class="flex items-center gap-2 text-xl text-amber-400 cursor-pointer" id="starRatingSelect">
+            <i class="fa-solid fa-star" onclick="window.setStarRating(1)"></i>
+            <i class="fa-solid fa-star" onclick="window.setStarRating(2)"></i>
+            <i class="fa-solid fa-star" onclick="window.setStarRating(3)"></i>
+            <i class="fa-solid fa-star" onclick="window.setStarRating(4)"></i>
+            <i class="fa-solid fa-star" onclick="window.setStarRating(5)"></i>
+          </div>
+          <input type="hidden" id="reviewStarValue" value="5" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Defense Feedback / Review</label>
+          <input type="text" id="reviewTextInput" placeholder="e.g. Defended 3 stars easily in Legend League CWL!" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
+        </div>
+
+        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition">
+          Post Review
+        </button>
+      </form>
+
+      <!-- Existing Reviews List -->
+      <div class="mt-5 pt-3 border-t border-slate-800">
+        <h4 class="text-xs font-black uppercase text-slate-400 mb-2">Clasher Feedback</h4>
+        <div id="reviewsListContainer" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+          <p class="text-xs text-slate-500">No reviews yet. Be the first to leave one!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST CLAN RECRUITMENT MODAL -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="postClanModal">
+    <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto">
+      <button onclick="window.closeModal('postClanModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
+      
+      <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2">
+        <i class="fa-solid fa-flag"></i> Post Clan Recruitment
+      </h3>
+      <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Showcase your clan to recruit active war & CWL clashers.</p>
+
+      <form onsubmit="window.handleRegisterClan(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Clan Name</label>
+            <input type="text" id="clanNameInput" placeholder="e.g. Indian Tigers" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Clan Tag</label>
+            <input type="text" id="clanTagInput" placeholder="#2P8V9..." required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white uppercase outline-none focus:border-amber-400 font-mono" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Min Town Hall</label>
+            <select id="clanMinTH" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400">
+              <option>TH 18</option>
+              <option>TH 17</option>
+              <option>TH 16</option>
+              <option selected>TH 15</option>
+              <option>TH 14</option>
+              <option>TH 13</option>
+              <option>TH 12</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Min Trophies 🏆</label>
+            <input type="number" id="clanMinTrophies" placeholder="e.g. 4000" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Clan Recruitment Bio / Pitch</label>
+          <input type="text" id="clanDescInput" placeholder="e.g. Master I CWL, active donations, back-to-back wars!" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Direct In-Game Clan Link</label>
+          <input type="url" id="clanLinkInput" placeholder="https://link.clashofclans.com/en?action=OpenClanProfile..." required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
+        </div>
+
+        <button type="submit" id="submitClanBtn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition shadow-cyber-gold">
+          Showcase Clan
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- UPLOAD BASE MODAL (WITH DEFENSE PROOF) -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="uploadModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto">
       <button onclick="window.closeModal('uploadModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
@@ -302,9 +460,15 @@
           <input type="text" id="uploadTitle" placeholder="e.g. Unbeatable CWL Anti-Edrag Base" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400" />
         </div>
 
-        <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Base Screenshot (Required)</label>
-          <input type="file" id="uploadImageFile" accept="image/*" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-amber-500 file:text-black file:font-bold hover:file:bg-amber-400" />
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Base Screenshot (Req.)</label>
+            <input type="file" id="uploadImageFile" accept="image/*" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-amber-500 file:text-black file:font-bold hover:file:bg-amber-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1">Defense Proof (Opt.)</label>
+            <input type="file" id="uploadProofFile" accept="image/*" class="w-full bg-czDark border border-slate-700 rounded-xl p-2 text-xs text-slate-300 outline-none file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-slate-700 file:text-white file:font-bold hover:file:bg-slate-600" />
+          </div>
         </div>
 
         <div>
@@ -329,7 +493,6 @@
         <button id="tabSignupBtn" onclick="window.switchAuthTab('signup')" class="flex-1 py-2 rounded-xl text-xs font-bold text-slate-400 transition">Sign Up</button>
       </div>
 
-      <!-- Login Form -->
       <form id="loginForm" onsubmit="window.handleEmailLogin(event)" class="space-y-3">
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Email Address</label>
@@ -344,7 +507,6 @@
         </button>
       </form>
 
-      <!-- Complete Signup Form -->
       <form id="signupForm" onsubmit="window.handleEmailSignup(event)" class="space-y-3 hidden">
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">In-Game Name (IGN)</label>
@@ -384,17 +546,25 @@
     </div>
   </div>
 
-  <!-- PROFILE & MY BASES MODAL -->
+  <!-- PROFILE, SAVED BASES & MY UPLOADS MODAL -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-3 sm:p-4 z-50 overflow-y-auto" id="editProfileModal">
     <div class="bg-czPanel border border-amber-500/40 rounded-3xl w-full max-w-lg p-5 sm:p-6 relative shadow-cyber-card my-auto max-h-[90vh] overflow-y-auto">
       <button onclick="window.closeModal('editProfileModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center">✕</button>
       
       <h3 class="gaming-title text-lg sm:text-xl text-amber-400 flex items-center gap-2">
-        <i class="fa-solid fa-id-badge"></i> Chief Profile & Manage Bases
+        <i class="fa-solid fa-id-badge"></i> Chief Profile & Vault
       </h3>
-      <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Manage your details and your uploaded base layouts.</p>
+      <p class="text-xs text-slate-400 mb-3.5 mt-0.5">Manage your credentials, uploaded bases, and bookmarked layouts.</p>
 
-      <form onsubmit="window.handleSaveProfile(event)" class="space-y-3">
+      <!-- Sub Navigation in Profile -->
+      <div class="flex gap-2 mb-4 bg-czDark p-1 rounded-2xl">
+        <button onclick="window.switchProfileSubTab('details')" id="pSubTabDetails" class="flex-1 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-black transition">Details</button>
+        <button onclick="window.switchProfileSubTab('saved')" id="pSubTabSaved" class="flex-1 py-1.5 rounded-xl text-xs font-bold text-slate-400 transition">Saved (Bookmarks)</button>
+        <button onclick="window.switchProfileSubTab('uploads')" id="pSubTabUploads" class="flex-1 py-1.5 rounded-xl text-xs font-bold text-slate-400 transition">My Uploads</button>
+      </div>
+
+      <!-- Tab 1: Profile Details Form -->
+      <form id="profileDetailsForm" onsubmit="window.handleSaveProfile(event)" class="space-y-3">
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">In-Game Name (IGN)</label>
           <input type="text" id="editName" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-amber-400 font-bold" />
@@ -437,17 +607,27 @@
         </button>
       </form>
 
-      <!-- MY UPLOADED BASES SECTION -->
-      <div class="mt-6 pt-4 border-t border-slate-800">
-        <h4 class="text-xs font-black uppercase text-amber-400 mb-2.5 flex items-center gap-1.5">
-          <i class="fa-solid fa-layer-group"></i> My Uploaded Bases
+      <!-- Tab 2: Saved / Bookmarked Bases -->
+      <div id="profileSavedBasesWrapper" class="hidden space-y-2">
+        <h4 class="text-xs font-black uppercase text-amber-400 mb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-bookmark"></i> Bookmarked Layouts
         </h4>
-        <div id="myBasesContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-          <p class="text-xs text-slate-500">Loading your bases...</p>
+        <div id="savedBasesContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+          <p class="text-xs text-slate-500 italic">No bookmarked bases found.</p>
         </div>
       </div>
 
-      <!-- LOGOUT AT BOTTOM -->
+      <!-- Tab 3: My Uploaded Bases -->
+      <div id="profileUploadsWrapper" class="hidden space-y-2">
+        <h4 class="text-xs font-black uppercase text-amber-400 mb-2 flex items-center gap-1.5">
+          <i class="fa-solid fa-layer-group"></i> Uploaded Bases
+        </h4>
+        <div id="myBasesContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+          <p class="text-xs text-slate-500 italic">You haven't uploaded any layouts yet.</p>
+        </div>
+      </div>
+
+      <!-- Logout Button -->
       <div class="mt-4 pt-3 border-t border-slate-800">
         <button onclick="window.handleLogout()" class="w-full bg-rose-500/10 hover:bg-rose-500 hover:text-white border border-rose-500/30 text-rose-400 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition">
           <i class="fa-solid fa-power-off"></i>
@@ -458,7 +638,6 @@
     </div>
   </div>
 
-  <!-- Firebase Scripts -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
