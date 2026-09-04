@@ -155,6 +155,22 @@
     <!-- VIEW 1: FEED -->
     <div id="viewFeedSection">
       
+      <!-- ROYAL CREATOR OF THE MONTH BANNER TICKER -->
+      <div id="creatorOfTheMonthBanner" class="mb-3 hidden bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 p-[1px] rounded-2xl shadow-lg">
+        <div class="bg-[#070c18] px-4 py-2.5 rounded-[15px] flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-400 shrink-0">
+              👑
+            </div>
+            <div>
+              <span class="text-[9px] uppercase font-black text-amber-400 tracking-wider block">Creator of the Month</span>
+              <span id="comWinnerName" class="text-xs font-bold text-white">Loading Legend...</span>
+            </div>
+          </div>
+          <span id="comWinnerStats" class="text-[10px] font-extrabold bg-amber-500 text-black px-2.5 py-1 rounded-lg">Top Rated</span>
+        </div>
+      </div>
+
       <!-- BANNER CAROUSEL -->
       <div class="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-amber-500/25 bg-slate-950 p-1 mb-3 shadow-xl group">
         <div id="carouselWrapper" class="relative w-full h-44 sm:h-56 md:h-64 rounded-xl overflow-hidden">
@@ -247,7 +263,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clansContainer"></div>
     </div>
 
-    <!-- VIEW 4: PROFILE SECTION (WITH RANK BADGES & DEDICATED ANALYTICS VIEW) -->
+    <!-- VIEW 4: PROFILE SECTION -->
     <div id="viewProfileSection" class="hidden py-6 max-w-2xl mx-auto">
       <div id="profileLoggedOutView" class="glass-panel rounded-2xl p-8 text-center space-y-3">
         <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto border border-amber-500/30">
@@ -260,7 +276,6 @@
 
       <div id="profileLoggedInView" class="hidden space-y-4">
         
-        <!-- Chief Profile Card with Rank Badge -->
         <div class="glass-panel rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-amber-500/20 relative overflow-hidden">
           <div class="flex items-center gap-4">
             <div id="profileRankAvatarWrap" class="w-16 h-16 rounded-full bg-amber-500/20 p-[2px] border-2 border-amber-500 shrink-0 relative">
@@ -280,7 +295,6 @@
             </div>
           </div>
 
-          <!-- Quick Stats Strip -->
           <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 text-center">
             <div>
               <span id="statPostsCount" class="block font-black text-sm text-slate-900 dark:text-white">0</span>
@@ -296,7 +310,6 @@
             </div>
           </div>
 
-          <!-- Dedicated Analytics Button -->
           <button onclick="window.openModal('analyticsModal')" class="w-full mt-3 bg-slate-900/40 dark:bg-black/30 hover:bg-amber-500/10 border border-amber-500/30 text-amber-400 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 transition">
             <i data-lucide="bar-chart-2" class="w-4 h-4"></i> View Detailed Performance & Milestones
           </button>
@@ -307,7 +320,6 @@
           </div>
         </div>
 
-        <!-- Profile Tabs -->
         <div class="flex items-center justify-center gap-2 bg-slate-100 dark:bg-czDark p-1 rounded-xl border border-slate-200 dark:border-slate-800">
           <button onclick="window.switchProfileTab('posts')" id="pTabPosts" class="flex-1 py-2 rounded-lg text-xs font-bold transition bg-amber-500 text-black flex items-center justify-center gap-1.5">
             <i data-lucide="grid" class="w-3.5 h-3.5"></i>
@@ -439,7 +451,6 @@
         </div>
       </div>
 
-      <!-- Stats Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
         <div class="bg-slate-100 dark:bg-czDark p-3 rounded-xl border border-slate-200 dark:border-slate-800">
           <span id="analyticsTotalPosts" class="block font-black text-lg text-slate-900 dark:text-white">0</span>
@@ -459,7 +470,6 @@
         </div>
       </div>
 
-      <!-- Milestones List -->
       <div>
         <h4 class="text-xs font-black uppercase text-amber-500 tracking-wider mb-2.5">Achievement Milestones</h4>
         <div id="milestonesContainer" class="space-y-2"></div>

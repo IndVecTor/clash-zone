@@ -48,6 +48,7 @@ let phoneConfirmationResult = null;
 
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases") || "[]");
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases") || "[]");
+let userRatedBases = JSON.parse(localStorage.getItem("cz_rated_bases") || "{}"); // { baseId: starRating }
 let viewedBases = JSON.parse(sessionStorage.getItem("cz_viewed_bases") || "[]");
 
 const ZONE_LEVELS = {
@@ -274,14 +275,54 @@ onAuthStateChanged(auth, async (user) => {
   renderAllIcons();
 });
 
-// CALCULATE RANK TIER & STATS
+function calculateCreatorOfTheMonth() {
+  const bannerEl = document.getElementById("creatorOfTheMonthBanner");
+  const nameEl = document.getElementById("comWinnerName");
+  const statsEl = document.getElementById("comWinnerStats");
+  if (!bannerEl || !nameEl || allFetchedBases.length === 0) return;
+
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const creatorScores = {};
+  allFetchedBases.forEach(b => {
+    if (!b.createdAt) return;
+    const postDate = b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+    if (postDate.getMonth() === currentMonth && postDate.getFullYear() === currentYear) {
+      const uName = b.uploaderName || "Chief";
+      if (!creatorScores[uName]) creatorScores[uName] = { copies: 0, likes: 0, posts: 0 };
+      creatorScores[uName].copies += (b.copyCount || 0);
+      creatorScores[uName].likes += (b.likesCount || 0);
+      creatorScores[uName].posts += 1;
+    }
+  });
+
+  let topCreator = null;
+  let maxScore = -1;
+  Object.keys(creatorScores).forEach(name => {
+    const score = (creatorScores[name].copies * 2) + (creatorScores[name].likes * 3);
+    if (score > maxScore) {
+      maxScore = score;
+      topCreator = { name, ...creatorScores[name] };
+    }
+  });
+
+  if (topCreator && maxScore > 0) {
+    nameEl.innerText = topCreator.name;
+    statsEl.innerText = `${topCreator.copies} Copies • ${topCreator.posts} Posts`;
+    bannerEl.classList.remove("hidden");
+  } else {
+    bannerEl.classList.add("hidden");
+  }
+}
+
 function updateUserDashboardStats(uid) {
   const userPosts = allFetchedBases.filter(b => b.uploaderUid === uid);
   const totalCopies = userPosts.reduce((acc, b) => acc + (b.copyCount || 0), 0);
   const totalLikes = userPosts.reduce((acc, b) => acc + (b.likesCount || 0), 0);
   const postsCount = userPosts.length;
 
-  // Determine Creator Tier / Rank Badge
   let tierName = "Bronze Builder";
   let tierColor = "from-amber-700 to-yellow-600";
   if (postsCount >= 50) {
@@ -304,13 +345,11 @@ function updateUserDashboardStats(uid) {
     rankBadgeEl.className = `bg-gradient-to-r ${tierColor} text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow`;
   }
 
-  // Update quick stats counters
   if (document.getElementById("statPostsCount")) document.getElementById("statPostsCount").innerText = postsCount;
   if (document.getElementById("tabPostNum")) document.getElementById("tabPostNum").innerText = postsCount;
   if (document.getElementById("statCopiesCount")) document.getElementById("statCopiesCount").innerText = totalCopies;
   if (document.getElementById("statLikesCount")) document.getElementById("statLikesCount").innerText = totalLikes;
 
-  // Update Dedicated Analytics Modal Stats
   if (document.getElementById("analyticsTotalPosts")) document.getElementById("analyticsTotalPosts").innerText = postsCount;
   if (document.getElementById("analyticsTotalCopies")) document.getElementById("analyticsTotalCopies").innerText = totalCopies;
   if (document.getElementById("analyticsTotalLikes")) document.getElementById("analyticsTotalLikes").innerText = totalLikes;
@@ -323,42 +362,16 @@ function updateUserDashboardStats(uid) {
   renderUserSavedVault();
 }
 
-// RENDER GAMIFIED MILESTONES & TROPHIES
 function renderMilestones(postsCount, totalCopies, totalLikes) {
   const container = document.getElementById("milestonesContainer");
   if (!container) return;
 
   const milestones = [
-    {
-      title: "First Blood",
-      desc: "Upload your first base layout",
-      icon: "🎯",
-      unlocked: postsCount >= 1
-    },
-    {
-      title: "Viral Tactician",
-      desc: "Reach 50+ total copies across your posts",
-      icon: "🔥",
-      unlocked: totalCopies >= 50
-    },
-    {
-      title: "Master Architect",
-      desc: "Publish 10 base layouts",
-      icon: "🏛️",
-      unlocked: postsCount >= 10
-    },
-    {
-      title: "Heartthrob",
-      desc: "Receive 50 total likes",
-      icon: "❤️",
-      unlocked: totalLikes >= 50
-    },
-    {
-      title: "Legendary General",
-      desc: "Cross 500+ total copies",
-      icon: "👑",
-      unlocked: totalCopies >= 500
-    }
+    { title: "First Blood", desc: "Upload your first base layout", icon: "🎯", unlocked: postsCount >= 1 },
+    { title: "Viral Tactician", desc: "Reach 50+ total copies across your posts", icon: "🔥", unlocked: totalCopies >= 50 },
+    { title: "Master Architect", desc: "Publish 10 base layouts", icon: "🏛️", unlocked: postsCount >= 10 },
+    { title: "Heartthrob", desc: "Receive 50 total likes", icon: "❤️", unlocked: totalLikes >= 50 },
+    { title: "Legendary General", desc: "Cross 500+ total copies", icon: "👑", unlocked: totalCopies >= 500 }
   ];
 
   container.innerHTML = milestones.map(m => `
@@ -483,6 +496,10 @@ function renderBasesUI() {
     const timeAgo = formatTimeAgo(base.createdAt);
     const creatorInitial = (base.uploaderName || "C").charAt(0).toUpperCase();
 
+    const ratingSum = base.ratingSum || 0;
+    const ratingCount = base.ratingCount || 0;
+    const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : "0.0";
+
     return `
       <div class="glass-panel card-pro rounded-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-amber-500/20 shadow-md">
         
@@ -510,8 +527,9 @@ function renderBasesUI() {
             <span>${base.th}</span>
           </div>
 
-          <div class="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-lg">
-            ${base.type || 'War'}
+          <!-- Rating Badge -->
+          <div class="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1">
+            <span>⭐ ${avgRating}</span>
           </div>
 
           <button onclick="event.stopPropagation(); window.toggleBookmark('${base.id}')" class="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-xl bg-black/70 hover:bg-black/90 backdrop-blur-md flex items-center justify-center text-white transition shadow border border-white/10" title="Bookmark">
@@ -649,6 +667,37 @@ window.handleLikeBase = async function(baseId) {
   if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
 };
 
+// RATING ACTION HANDLER
+window.rateBase = async function(baseId, stars) {
+  if (userRatedBases[baseId]) {
+    window.showToast("You have already rated this base!", "info");
+    return;
+  }
+
+  userRatedBases[baseId] = stars;
+  localStorage.setItem("cz_rated_bases", JSON.stringify(userRatedBases));
+
+  try {
+    const baseRef = doc(db, "bases", baseId);
+    await updateDoc(baseRef, {
+      ratingSum: increment(stars),
+      ratingCount: increment(1)
+    });
+
+    const localBase = allFetchedBases.find(b => b.id === baseId);
+    if (localBase) {
+      localBase.ratingSum = (localBase.ratingSum || 0) + stars;
+      localBase.ratingCount = (localBase.ratingCount || 0) + 1;
+    }
+
+    window.showToast(`Thank you for rating ${stars} Stars!`);
+    window.openBaseDetailsModal(baseId);
+    renderBasesUI();
+  } catch (err) {
+    window.showToast("Failed to submit rating", "error");
+  }
+};
+
 window.openBaseDetailsModal = async function(baseId) {
   const base = allFetchedBases.find(b => b.id === baseId);
   if (!base) return;
@@ -676,6 +725,16 @@ window.openBaseDetailsModal = async function(baseId) {
   const tagsHtml = (base.tags && base.tags.length > 0) ? base.tags.map(t => `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">#${t.trim()}</span>`).join("") : "";
   const descHtml = base.description ? `<div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">${base.description}</div>` : "";
 
+  const ratingSum = base.ratingSum || 0;
+  const ratingCount = base.ratingCount || 0;
+  const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : "0.0";
+  const userHasRated = userRatedBases[baseId];
+
+  const starsHtml = [1, 2, 3, 4, 5].map(starNum => {
+    const isFilled = userHasRated >= starNum;
+    return `<button onclick="window.rateBase('${base.id}', ${starNum})" class="text-xl ${isFilled ? 'text-amber-400' : 'text-slate-600 hover:text-amber-400'} transition">★</button>`;
+  }).join("");
+
   modal.innerHTML = `
     <div class="glass-panel rounded-2xl w-full max-w-lg p-5 relative shadow-2xl my-auto space-y-3 max-h-[90vh] overflow-y-auto scrollbar-none">
       <button onclick="window.closeModal('baseDetailsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-sm">✕</button>
@@ -696,6 +755,21 @@ window.openBaseDetailsModal = async function(baseId) {
 
       ${descHtml}
       ${tagsHtml ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHtml}</div>` : ""}
+
+      <!-- Rating & Stats Bar -->
+      <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+        <div>
+          <span class="text-[10px] text-slate-400 uppercase font-bold block">Community Rating</span>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="text-amber-400 font-black text-sm">⭐ ${avgRating}</span>
+            <span class="text-[10px] text-slate-500">(${ratingCount} votes)</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] text-slate-400 uppercase font-bold block">Rate this base</span>
+          <div class="flex items-center gap-0.5 mt-0.5">${starsHtml}</div>
+        </div>
+      </div>
 
       <div class="flex items-center gap-4 text-xs font-semibold text-slate-400 py-1 border-t border-slate-200 dark:border-slate-800">
         <span class="flex items-center gap-1"><i data-lucide="eye" class="w-4 h-4 text-cyan-400"></i> ${base.viewsCount || 0} Views</span>
@@ -772,6 +846,8 @@ window.handleBaseUpload = async function(e) {
       likesCount: 0,
       copyCount: 0,
       viewsCount: 0,
+      ratingSum: 0,
+      ratingCount: 0,
       createdAt: serverTimestamp()
     };
     await addDoc(collection(db, "bases"), baseData);
@@ -840,7 +916,10 @@ async function loadBasesFromFirestore() {
     const querySnapshot = await getDocs(q);
     allFetchedBases = [];
     querySnapshot.forEach(docSnap => allFetchedBases.push({ id: docSnap.id, ...docSnap.data() }));
+    
     renderBasesUI();
+    calculateCreatorOfTheMonth();
+
     if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
 
     const urlParams = new URLSearchParams(window.location.search);
