@@ -49,6 +49,7 @@ let phoneConfirmationResult = null;
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases") || "[]");
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases") || "[]");
 let userRatedBases = JSON.parse(localStorage.getItem("cz_rated_bases") || "{}");
+let userFollowedCreators = JSON.parse(localStorage.getItem("cz_followed_creators") || "[]");
 let viewedBases = JSON.parse(sessionStorage.getItem("cz_viewed_bases") || "[]");
 
 const ZONE_LEVELS = {
@@ -258,7 +259,6 @@ onAuthStateChanged(auth, async (user) => {
       if (document.getElementById("profileTagClan")) document.getElementById("profileTagClan").innerText = `Clan: ${currentUserProfile.clanName || "Solo"} | ${currentUserProfile.tag || "#CLASH"}`;
       if (document.getElementById("profileBioText")) document.getElementById("profileBioText").innerText = currentUserProfile.bio || "No bio added.";
       
-      // Populate Edit Form Fields
       if (document.getElementById("editName")) document.getElementById("editName").value = currentUserProfile.name || defaultName;
       if (document.getElementById("editTH")) document.getElementById("editTH").value = currentUserProfile.townHallLevel || "TH 16";
       if (document.getElementById("editPlayerTag")) document.getElementById("editPlayerTag").value = currentUserProfile.tag || "";
@@ -268,7 +268,6 @@ onAuthStateChanged(auth, async (user) => {
       if (document.getElementById("editInstagram")) document.getElementById("editInstagram").value = currentUserProfile.instagram || "";
       if (document.getElementById("editBio")) document.getElementById("editBio").value = currentUserProfile.bio || "";
 
-      // Avatar render
       const avatarContainer = document.getElementById("profileAvatarContainer");
       if (avatarContainer) {
         if (currentUserProfile.avatarUrl) {
@@ -278,7 +277,6 @@ onAuthStateChanged(auth, async (user) => {
         }
       }
 
-      // Social links render on header
       renderProfileSocialLinks(currentUserProfile);
       updateUserDashboardStats(user.uid);
     } catch (e) {
@@ -301,11 +299,31 @@ function renderProfileSocialLinks(profile) {
   const container = document.getElementById("profileSocialLinksContainer");
   if (!container) return;
   let html = "";
-  if (profile.discord) html += `<span class="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full font-bold">Discord: ${profile.discord}</span>`;
-  if (profile.youtube) html += `<a href="${profile.youtube}" target="_blank" class="text-[10px] bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full font-bold">YouTube</a>`;
-  if (profile.instagram) html += `<span class="text-[10px] bg-pink-500/10 text-pink-400 border border-pink-500/30 px-2 py-0.5 rounded-full font-bold">${profile.instagram}</span>`;
+  if (profile.discord) html += `<span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-full font-bold">Discord: ${profile.discord}</span>`;
+  if (profile.youtube) html += `<a href="${profile.youtube}" target="_blank" class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-full font-bold">YouTube</a>`;
+  if (profile.instagram) html += `<span class="text-[10px] bg-pink-500/20 text-pink-300 border border-pink-500/40 px-2 py-0.5 rounded-full font-bold">${profile.instagram}</span>`;
   container.innerHTML = html;
 }
+
+window.toggleFollowCreator = function(creatorUid, creatorName) {
+  if (userFollowedCreators.includes(creatorUid)) {
+    userFollowedCreators = userFollowedCreators.filter(id => id !== creatorUid);
+    window.showToast(`Unfollowed ${creatorName}`);
+  } else {
+    userFollowedCreators.push(creatorUid);
+    window.showToast(`Now following ${creatorName}!`);
+  }
+  localStorage.setItem("cz_followed_creators", JSON.stringify(userFollowedCreators));
+  if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
+  
+  // Re-render modal button if open
+  const followBtn = document.getElementById("modalFollowBtn");
+  if (followBtn) {
+    const isFollowing = userFollowedCreators.includes(creatorUid);
+    followBtn.className = isFollowing ? "bg-slate-800 border border-slate-700 text-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs uppercase" : "bg-amber-500 text-black px-4 py-2.5 rounded-xl font-bold text-xs uppercase";
+    followBtn.innerText = isFollowing ? "Following ✓" : "Follow Creator";
+  }
+};
 
 function calculateCreatorOfTheMonth() {
   const bannerEl = document.getElementById("creatorOfTheMonthBanner");
@@ -376,6 +394,11 @@ function updateUserDashboardStats(uid) {
     rankBadgeEl.innerText = tierName;
     rankBadgeEl.className = `bg-gradient-to-r ${tierColor} text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow`;
   }
+
+  // Update Followers and Following counts on Profile View
+  if (document.getElementById("profileFollowingCount")) document.getElementById("profileFollowingCount").innerText = userFollowedCreators.length;
+  // Simulated followers count for user demo
+  if (document.getElementById("profileFollowersCount")) document.getElementById("profileFollowersCount").innerText = userPosts.length * 12;
 
   if (document.getElementById("statPostsCount")) document.getElementById("statPostsCount").innerText = postsCount;
   if (document.getElementById("tabPostNum")) document.getElementById("tabPostNum").innerText = postsCount;
@@ -559,7 +582,6 @@ function renderBasesUI() {
             <span>${base.th}</span>
           </div>
 
-          <!-- Rating Badge -->
           <div class="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1">
             <span>⭐ ${avgRating}</span>
           </div>
@@ -621,11 +643,7 @@ function renderInstagramProfileGrid(posts) {
       </span>
 
       <div class="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 transition duration-200 flex flex-col justify-between p-2">
-        <div class="flex justify-end">
-          <button onclick="event.stopPropagation(); window.deleteUserPost('${b.id}')" class="w-7 h-7 rounded-lg bg-rose-500/80 hover:bg-rose-600 text-white flex items-center justify-center transition shadow" title="Delete Base">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          </button>
-        </div>
+        <div class="flex justify-end"></div>
 
         <div class="flex items-center justify-center gap-3 text-white text-xs font-bold my-auto">
           <span class="flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i> ${b.copyCount || 0}</span>
@@ -640,21 +658,6 @@ function renderInstagramProfileGrid(posts) {
   `).join("");
   renderAllIcons();
 }
-
-window.deleteUserPost = async function(baseId) {
-  const confirmDelete = confirm("Are you sure you want to permanently delete this base layout?");
-  if (!confirmDelete) return;
-
-  try {
-    await deleteDoc(doc(db, "bases", baseId));
-    window.showToast("Base deleted successfully!");
-    allFetchedBases = allFetchedBases.filter(b => b.id !== baseId);
-    if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
-    renderBasesUI();
-  } catch (error) {
-    window.showToast("Failed to delete post", "error");
-  }
-};
 
 window.copyAndLaunchBase = async function(baseId, link) {
   if (!link) return;
@@ -766,6 +769,8 @@ window.openBaseDetailsModal = async function(baseId) {
     return `<button onclick="window.rateBase('${base.id}', ${starNum})" class="text-xl ${isFilled ? 'text-amber-400' : 'text-slate-600 hover:text-amber-400'} transition">★</button>`;
   }).join("");
 
+  const isFollowingCreator = userFollowedCreators.includes(base.uploaderUid);
+
   modal.innerHTML = `
     <div class="glass-panel rounded-2xl w-full max-w-lg p-5 relative shadow-2xl my-auto space-y-3 max-h-[90vh] overflow-y-auto scrollbar-none">
       <button onclick="window.closeModal('baseDetailsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-sm">✕</button>
@@ -775,7 +780,12 @@ window.openBaseDetailsModal = async function(baseId) {
           <span class="bg-amber-500/20 text-amber-500 font-extrabold px-2.5 py-0.5 rounded text-xs">${base.th} • ${(base.type || 'War').toUpperCase()}</span>
           <span class="text-[10px] text-slate-400 font-semibold">${timeAgo}</span>
         </div>
-        <span class="text-xs text-slate-400">By <b class="text-amber-400">${base.uploaderName || 'Chief'}</b></span>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-400">By <b class="text-amber-400">${base.uploaderName || 'Chief'}</b></span>
+          <button id="modalFollowBtn" onclick="window.toggleFollowCreator('${base.uploaderUid}', '${base.uploaderName || 'Chief'}')" class="${isFollowingCreator ? 'bg-slate-800 border border-slate-700 text-slate-300' : 'bg-amber-500 text-black'} px-2.5 py-1 rounded-lg font-extrabold text-[10px] uppercase transition shadow">
+            ${isFollowingCreator ? 'Following ✓' : '+ Follow'}
+          </button>
+        </div>
       </div>
 
       <h3 class="text-base font-bold dark:text-white">${base.title}</h3>
@@ -917,7 +927,6 @@ window.handleClanUpload = async function(e) {
   }
 };
 
-// HANDLER FOR SAVING ADVANCED PROFILE DATA (INCLUDING DUAL AVATARS & SOCIAL LINKS)
 window.handleSaveProfile = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;

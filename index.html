@@ -77,6 +77,13 @@
       backdrop-filter: blur(20px); 
       border: 1px solid rgba(226, 232, 240, 0.9); 
     }
+
+    /* Unique Royal Profile Top Card Styling */
+    .profile-hero-card {
+      background: linear-gradient(135deg, rgba(7, 12, 24, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 2px solid rgba(245, 158, 11, 0.4);
+      box-shadow: 0 10px 30px -5px rgba(245, 158, 11, 0.2);
+    }
     
     .card-pro {
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -276,9 +283,10 @@
 
       <div id="profileLoggedInView" class="hidden space-y-4">
         
-        <div class="glass-panel rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-amber-500/20 relative overflow-hidden">
+        <!-- UNIQUE UNIQUE ROYAL PROFILE TOP CARD -->
+        <div class="profile-hero-card rounded-2xl p-5 relative overflow-hidden text-white">
           <div class="flex items-center gap-4">
-            <div id="profileRankAvatarWrap" class="w-16 h-16 rounded-full bg-amber-500/20 p-[2px] border-2 border-amber-500 shrink-0 relative overflow-hidden">
+            <div id="profileRankAvatarWrap" class="w-16 h-16 rounded-full bg-amber-500/20 p-[2px] border-2 border-amber-500 shrink-0 relative overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.5)]">
               <div id="profileAvatarContainer" class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-amber-400 text-xl font-bold overflow-hidden">
                 <span id="profileAvatarInitial">C</span>
               </div>
@@ -286,41 +294,50 @@
 
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
-                <h2 id="profileIGN" class="text-base font-bold truncate">Chief Player</h2>
+                <h2 id="profileIGN" class="text-base font-bold truncate text-white">Chief Player</h2>
                 <span id="profileTHBadge" class="bg-amber-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded shadow">TH 16</span>
                 <span id="profileRankTierBadge" class="bg-gradient-to-r from-amber-600 to-yellow-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow">Bronze Builder</span>
               </div>
-              <p id="profileTagClan" class="text-xs text-slate-400 font-mono mt-0.5 truncate">#CLASH | Solo</p>
+              <p id="profileTagClan" class="text-xs text-slate-300 font-mono mt-0.5 truncate">#CLASH | Solo</p>
+              
+              <!-- Followers & Following Counters -->
+              <div class="flex items-center gap-4 mt-1.5 text-xs font-bold text-amber-400">
+                <span><b id="profileFollowersCount" class="text-white">0</b> Followers</span>
+                <span>•</span>
+                <span><b id="profileFollowingCount" class="text-white">0</b> Following</span>
+              </div>
+
               <div id="profileSocialLinksContainer" class="flex items-center gap-2 mt-1"></div>
-              <p id="profileBioText" class="text-xs text-slate-500 dark:text-slate-300 italic mt-1">No bio added.</p>
+              <p id="profileBioText" class="text-xs text-slate-300 italic mt-1">No bio added.</p>
             </div>
           </div>
 
-          <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 text-center">
+          <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-amber-500/20 text-center">
             <div>
-              <span id="statPostsCount" class="block font-black text-sm text-slate-900 dark:text-white">0</span>
-              <span class="text-[10px] text-slate-400 uppercase font-bold">Posts</span>
+              <span id="statPostsCount" class="block font-black text-sm text-white">0</span>
+              <span class="text-[10px] text-amber-400/80 uppercase font-bold">Posts</span>
             </div>
             <div>
-              <span id="statCopiesCount" class="block font-black text-sm text-amber-500">0</span>
-              <span class="text-[10px] text-slate-400 uppercase font-bold">Copies</span>
+              <span id="statCopiesCount" class="block font-black text-sm text-amber-400">0</span>
+              <span class="text-[10px] text-amber-400/80 uppercase font-bold">Copies</span>
             </div>
             <div>
-              <span id="statLikesCount" class="block font-black text-sm text-rose-500">0</span>
-              <span class="text-[10px] text-slate-400 uppercase font-bold">Likes</span>
+              <span id="statLikesCount" class="block font-black text-sm text-rose-400">0</span>
+              <span class="text-[10px] text-amber-400/80 uppercase font-bold">Likes</span>
             </div>
           </div>
 
-          <button onclick="window.openModal('analyticsModal')" class="w-full mt-3 bg-slate-900/40 dark:bg-black/30 hover:bg-amber-500/10 border border-amber-500/30 text-amber-400 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 transition">
+          <button onclick="window.openModal('analyticsModal')" class="w-full mt-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-300 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 transition">
             <i data-lucide="bar-chart-2" class="w-4 h-4"></i> View Detailed Performance & Milestones
           </button>
 
           <div class="flex items-center gap-2 mt-3">
-            <button onclick="window.openModal('editProfileModal')" class="flex-1 bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 py-2.5 rounded-xl font-bold text-xs transition">Edit Profile</button>
-            <button onclick="window.handleLogout()" class="px-4 py-2.5 bg-rose-500/10 text-rose-500 rounded-xl transition text-xs font-bold">Logout</button>
+            <button onclick="window.openModal('editProfileModal')" class="flex-1 bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-white py-2.5 rounded-xl font-bold text-xs transition">Edit Profile</button>
+            <button onclick="window.handleLogout()" class="px-4 py-2.5 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 rounded-xl transition text-xs font-bold">Logout</button>
           </div>
         </div>
 
+        <!-- Profile Tabs -->
         <div class="flex items-center justify-center gap-2 bg-slate-100 dark:bg-czDark p-1 rounded-xl border border-slate-200 dark:border-slate-800">
           <button onclick="window.switchProfileTab('posts')" id="pTabPosts" class="flex-1 py-2 rounded-lg text-xs font-bold transition bg-amber-500 text-black flex items-center justify-center gap-1.5">
             <i data-lucide="grid" class="w-3.5 h-3.5"></i>
@@ -422,7 +439,7 @@
     </div>
   </div>
 
-  <!-- ADVANCED EDIT PROFILE MODAL -->
+  <!-- EDIT PROFILE MODAL -->
   <div class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="editProfileModal">
     <div class="glass-panel rounded-2xl w-full max-w-md p-6 relative shadow-2xl my-auto space-y-3 max-h-[90vh] overflow-y-auto scrollbar-none">
       <button onclick="window.closeModal('editProfileModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
