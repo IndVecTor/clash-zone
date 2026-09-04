@@ -316,7 +316,6 @@ window.toggleFollowCreator = function(creatorUid, creatorName) {
   localStorage.setItem("cz_followed_creators", JSON.stringify(userFollowedCreators));
   if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
   
-  // Re-render modal button if open
   const followBtn = document.getElementById("modalFollowBtn");
   if (followBtn) {
     const isFollowing = userFollowedCreators.includes(creatorUid);
@@ -395,9 +394,7 @@ function updateUserDashboardStats(uid) {
     rankBadgeEl.className = `bg-gradient-to-r ${tierColor} text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow`;
   }
 
-  // Update Followers and Following counts on Profile View
   if (document.getElementById("profileFollowingCount")) document.getElementById("profileFollowingCount").innerText = userFollowedCreators.length;
-  // Simulated followers count for user demo
   if (document.getElementById("profileFollowersCount")) document.getElementById("profileFollowersCount").innerText = userPosts.length * 12;
 
   if (document.getElementById("statPostsCount")) document.getElementById("statPostsCount").innerText = postsCount;
@@ -542,81 +539,83 @@ function renderBasesUI() {
     return;
   }
 
-  container.innerHTML = filtered.map(base => {
-    const isLiked = userLikedBases.includes(base.id);
-    const isBookmarked = userBookmarkedBases.includes(base.id);
-    const copies = base.copyCount || 0;
-    const views = base.viewsCount || 0;
-    const likes = base.likesCount || 0;
-    const timeAgo = formatTimeAgo(base.createdAt);
-    const creatorInitial = (base.uploaderName || "C").charAt(0).toUpperCase();
-
-    const ratingSum = base.ratingSum || 0;
-    const ratingCount = base.ratingCount || 0;
-    const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : "0.0";
-
-    return `
-      <div class="glass-panel card-pro rounded-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-amber-500/20 shadow-md">
-        
-        <!-- HEADER -->
-        <div class="px-3.5 py-2.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-black/20">
-          <div class="flex items-center gap-2 min-w-0">
-            <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0">
-              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-400">
-                ${creatorInitial}
-              </div>
-            </div>
-            <span class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-              ${base.uploaderName || "Chief"}
-            </span>
-          </div>
-          <span class="text-[10px] text-slate-400 font-semibold shrink-0">${timeAgo}</span>
-        </div>
-
-        <!-- IMAGE PREVIEW -->
-        <div class="h-44 relative overflow-hidden bg-slate-950 cursor-pointer group" onclick="window.openBaseDetailsModal('${base.id}')">
-          <img src="${base.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
-          
-          <div class="absolute top-2.5 left-2.5 bg-black/80 backdrop-blur-md border border-amber-500/40 text-amber-400 text-[10px] font-black px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1">
-            <i data-lucide="shield" class="w-3 h-3 text-amber-400"></i>
-            <span>${base.th}</span>
-          </div>
-
-          <div class="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1">
-            <span>⭐ ${avgRating}</span>
-          </div>
-
-          <button onclick="event.stopPropagation(); window.toggleBookmark('${base.id}')" class="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-xl bg-black/70 hover:bg-black/90 backdrop-blur-md flex items-center justify-center text-white transition shadow border border-white/10" title="Bookmark">
-            <i data-lucide="bookmark" class="w-4 h-4 ${isBookmarked ? 'fill-amber-400 text-amber-400' : ''}"></i>
-          </button>
-        </div>
-
-        <!-- BODY -->
-        <div class="p-3.5 flex flex-col flex-grow justify-between gap-3">
-          <div class="cursor-pointer" onclick="window.openBaseDetailsModal('${base.id}')">
-            <h3 class="font-bold text-sm text-slate-900 dark:text-white line-clamp-1 group-hover:text-amber-400 transition" title="${base.title}">
-              ${base.title}
-            </h3>
-
-            <div class="flex items-center gap-3 mt-2 text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
-              <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400"></i> ${views}</span>
-              <span class="flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i> ${copies}</span>
-              <button onclick="event.stopPropagation(); window.handleLikeBase('${base.id}')" class="flex items-center gap-1 hover:text-rose-500 transition">
-                <i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}"></i>
-                <span class="${isLiked ? 'text-rose-500 font-bold' : ''}">${likes}</span>
-              </button>
-            </div>
-          </div>
-
-          <button onclick="window.copyAndLaunchBase('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md transition">
-            <i data-lucide="external-link" class="w-4 h-4 stroke-[2.5]"></i>
-            <span>Copy Base Layout</span>
-          </button>
-        </div>
-      </div>
-    `;
-  }).join("");
+  container.innerHTML = filtered.map(base => generateBaseCardHTML(base)).join("");
   renderAllIcons();
+}
+
+function generateBaseCardHTML(base) {
+  const isLiked = userLikedBases.includes(base.id);
+  const isBookmarked = userBookmarkedBases.includes(base.id);
+  const copies = base.copyCount || 0;
+  const views = base.viewsCount || 0;
+  const likes = base.likesCount || 0;
+  const timeAgo = formatTimeAgo(base.createdAt);
+  const creatorInitial = (base.uploaderName || "C").charAt(0).toUpperCase();
+
+  const ratingSum = base.ratingSum || 0;
+  const ratingCount = base.ratingCount || 0;
+  const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : "0.0";
+
+  return `
+    <div class="glass-panel card-pro rounded-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-amber-500/20 shadow-md">
+      
+      <!-- HEADER -->
+      <div class="px-3.5 py-2.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-black/20">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0">
+            <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-400">
+              ${creatorInitial}
+            </div>
+          </div>
+          <span class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+            ${base.uploaderName || "Chief"}
+          </span>
+        </div>
+        <span class="text-[10px] text-slate-400 font-semibold shrink-0">${timeAgo}</span>
+      </div>
+
+      <!-- IMAGE PREVIEW -->
+      <div class="h-44 relative overflow-hidden bg-slate-950 cursor-pointer group" onclick="window.openBaseDetailsModal('${base.id}')">
+        <img src="${base.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
+        
+        <div class="absolute top-2.5 left-2.5 bg-black/80 backdrop-blur-md border border-amber-500/40 text-amber-400 text-[10px] font-black px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1">
+          <i data-lucide="shield" class="w-3 h-3 text-amber-400"></i>
+          <span>${base.th}</span>
+        </div>
+
+        <div class="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1">
+          <span>⭐ ${avgRating}</span>
+        </div>
+
+        <button onclick="event.stopPropagation(); window.toggleBookmark('${base.id}')" class="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-xl bg-black/70 hover:bg-black/90 backdrop-blur-md flex items-center justify-center text-white transition shadow border border-white/10" title="${isBookmarked ? 'Unsave' : 'Save'}">
+          <i data-lucide="bookmark" class="w-4 h-4 ${isBookmarked ? 'fill-amber-400 text-amber-400' : ''}"></i>
+        </button>
+      </div>
+
+      <!-- BODY -->
+      <div class="p-3.5 flex flex-col flex-grow justify-between gap-3">
+        <div class="cursor-pointer" onclick="window.openBaseDetailsModal('${base.id}')">
+          <h3 class="font-bold text-sm text-slate-900 dark:text-white line-clamp-1 group-hover:text-amber-400 transition" title="${base.title}">
+            ${base.title}
+          </h3>
+
+          <div class="flex items-center gap-3 mt-2 text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
+            <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400"></i> ${views}</span>
+            <span class="flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i> ${copies}</span>
+            <button onclick="event.stopPropagation(); window.handleLikeBase('${base.id}')" class="flex items-center gap-1 hover:text-rose-500 transition">
+              <i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}"></i>
+              <span class="${isLiked ? 'text-rose-500 font-bold' : ''}">${likes}</span>
+            </button>
+          </div>
+        </div>
+
+        <button onclick="window.copyAndLaunchBase('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md transition">
+          <i data-lucide="external-link" class="w-4 h-4 stroke-[2.5]"></i>
+          <span>Copy Base Layout</span>
+        </button>
+      </div>
+    </div>
+  `;
 }
 
 function renderInstagramProfileGrid(posts) {
@@ -683,7 +682,10 @@ window.toggleBookmark = function(baseId) {
   }
   localStorage.setItem("cz_bookmarked_bases", JSON.stringify(userBookmarkedBases));
   renderBasesUI();
-  if (auth.currentUser) renderUserSavedVault();
+  if (auth.currentUser) {
+    renderUserSavedVault();
+    renderProfileSavedVaultCards();
+  }
 };
 
 window.handleLikeBase = async function(baseId) {
@@ -699,7 +701,10 @@ window.handleLikeBase = async function(baseId) {
   }
   localStorage.setItem("cz_liked_bases", JSON.stringify(userLikedBases));
   renderBasesUI();
-  if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
+  if (auth.currentUser) {
+    renderUserSavedVault();
+    renderProfileSavedVaultCards();
+  }
 };
 
 window.rateBase = async function(baseId, stars) {
@@ -1028,23 +1033,29 @@ function renderClansUI() {
 }
 
 function renderUserSavedVault() {
+  const container = document.getElementById("directVaultContainer");
+  if (!container) return;
+  const savedList = allFetchedBases.filter(b => userBookmarkedBases.includes(b.id));
+  if (savedList.length === 0) { 
+    container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Vault is empty. Save bases to view them here.</div>`; 
+    renderAllIcons();
+    return; 
+  }
+  container.innerHTML = savedList.map(b => generateBaseCardHTML(b)).join("");
+  renderAllIcons();
+}
+
+function renderProfileSavedVaultCards() {
   const container = document.getElementById("profileTabContentSaved");
   if (!container) return;
   const savedList = allFetchedBases.filter(b => userBookmarkedBases.includes(b.id));
   if (savedList.length === 0) { 
-    container.innerHTML = `<div class="py-6 text-center text-slate-400 text-xs">No saved bases in vault.</div>`; 
+    container.innerHTML = `<div class="col-span-full py-6 text-center text-slate-400 text-xs">Vault is empty.</div>`; 
+    renderAllIcons();
     return; 
   }
-  container.innerHTML = savedList.map(b => `
-    <div class="glass-panel rounded-xl p-2.5 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
-      <img src="${b.image}" class="w-12 h-12 rounded-lg object-cover shrink-0" />
-      <div class="min-w-0 flex-1">
-        <span class="text-amber-500 font-bold text-[10px]">${b.th}</span>
-        <h4 class="text-xs font-bold truncate">${b.title}</h4>
-      </div>
-      <button onclick="window.copyAndLaunchBase('${b.id}', '${b.link}')" class="bg-amber-500 text-black px-2.5 py-1.5 rounded-lg text-xs font-bold shrink-0">Launch</button>
-    </div>
-  `).join("");
+  container.innerHTML = savedList.map(b => generateBaseCardHTML(b)).join("");
+  renderAllIcons();
 }
 
 function renderRankingsUI() {
@@ -1085,20 +1096,7 @@ window.switchMainHubView = function(viewName) {
   if (viewName === "feed") document.getElementById("viewFeedSection")?.classList.remove("hidden");
   else if (viewName === "vault") { 
     document.getElementById("viewVaultSection")?.classList.remove("hidden"); 
-    const vCont = document.getElementById("directVaultContainer");
-    const saved = allFetchedBases.filter(b => userBookmarkedBases.includes(b.id));
-    if (vCont) {
-      vCont.innerHTML = saved.length === 0 ? `<p class="text-xs text-center text-slate-400 py-10">Vault is empty.</p>` : saved.map(b => `
-        <div class="glass-panel rounded-xl p-3 flex items-center justify-between gap-3">
-          <img src="${b.image}" class="w-14 h-14 rounded-lg object-cover" />
-          <div class="flex-1 min-w-0">
-            <span class="text-[10px] bg-amber-500/20 text-amber-500 px-1.5 py-0.5 rounded font-bold">${b.th}</span>
-            <h4 class="text-xs font-bold truncate mt-0.5">${b.title}</h4>
-          </div>
-          <button onclick="window.copyAndLaunchBase('${b.id}', '${b.link}')" class="bg-amber-500 text-black px-3 py-1.5 rounded-lg text-xs font-bold">Copy</button>
-        </div>
-      `).join("");
-    }
+    renderUserSavedVault();
   }
   else if (viewName === "clans") { document.getElementById("viewClansSection")?.classList.remove("hidden"); loadClansFromFirestore(); }
   else if (viewName === "profile") { 

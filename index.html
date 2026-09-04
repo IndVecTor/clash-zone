@@ -78,7 +78,6 @@
       border: 1px solid rgba(226, 232, 240, 0.9); 
     }
 
-    /* Unique Royal Profile Top Card Styling */
     .profile-hero-card {
       background: linear-gradient(135deg, rgba(7, 12, 24, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
       border: 2px solid rgba(245, 158, 11, 0.4);
@@ -247,13 +246,13 @@
       </main>
     </div>
 
-    <!-- VIEW 2: SAVED VAULT -->
+    <!-- VIEW 2: SAVED VAULT (CARD VIEW) -->
     <div id="viewVaultSection" class="hidden py-6">
       <div class="text-center mb-6">
         <h2 class="text-xl font-bold font-['Rajdhani'] dark:text-white">Bookmarked Vault</h2>
         <p class="text-xs text-slate-500 mt-1">Saved defenses ready for clan wars and trophy runs.</p>
       </div>
-      <div class="max-w-3xl mx-auto space-y-3" id="directVaultContainer"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full" id="directVaultContainer"></div>
     </div>
 
     <!-- VIEW 3: CLANS HUB -->
@@ -283,7 +282,7 @@
 
       <div id="profileLoggedInView" class="hidden space-y-4">
         
-        <!-- UNIQUE UNIQUE ROYAL PROFILE TOP CARD -->
+        <!-- UNIQUE ROYAL PROFILE TOP CARD -->
         <div class="profile-hero-card rounded-2xl p-5 relative overflow-hidden text-white">
           <div class="flex items-center gap-4">
             <div id="profileRankAvatarWrap" class="w-16 h-16 rounded-full bg-amber-500/20 p-[2px] border-2 border-amber-500 shrink-0 relative overflow-hidden shadow-[0_0_15px_rgba(245,158,11,0.5)]">
@@ -300,7 +299,6 @@
               </div>
               <p id="profileTagClan" class="text-xs text-slate-300 font-mono mt-0.5 truncate">#CLASH | Solo</p>
               
-              <!-- Followers & Following Counters -->
               <div class="flex items-center gap-4 mt-1.5 text-xs font-bold text-amber-400">
                 <span><b id="profileFollowersCount" class="text-white">0</b> Followers</span>
                 <span>•</span>
@@ -350,7 +348,7 @@
         </div>
 
         <div id="profileTabContentPosts" class="grid grid-cols-3 gap-2"></div>
-        <div id="profileTabContentSaved" class="hidden space-y-2.5"></div>
+        <div id="profileTabContentSaved" class="grid grid-cols-1 sm:grid-cols-2 gap-4 hidden"></div>
       </div>
     </div>
   </div>
