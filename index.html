@@ -503,28 +503,6 @@
     </div>
   </div>
 
-  <!-- COMMENTS MODAL -->
-  <div class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="commentsModal">
-    <div class="glass-panel rounded-2xl w-full max-w-md p-5 relative shadow-2xl my-auto space-y-4 max-h-[90vh] overflow-y-auto scrollbar-none">
-      <button onclick="window.closeModal('commentsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-sm">✕</button>
-      
-      <div class="border-b border-slate-200 dark:border-slate-800 pb-2">
-        <h3 class="text-sm font-bold text-amber-500 uppercase tracking-wider">Base Strategy & Comments</h3>
-        <p id="commentModalBaseTitle" class="text-xs text-slate-300 truncate mt-0.5">Base Discussions</p>
-      </div>
-
-      <div id="commentsListContainer" class="space-y-2.5 max-h-60 overflow-y-auto scrollbar-none">
-        <!-- Dynamic comments -->
-      </div>
-
-      <form onsubmit="window.handleAddComment(event)" class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-        <input type="hidden" id="activeCommentBaseId" value="" />
-        <input type="text" id="commentInputText" placeholder="Write a constructive comment or tip..." required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400 text-slate-900 dark:text-white" />
-        <button type="submit" class="w-full bg-amber-500 text-black py-2 rounded-xl text-xs font-bold uppercase tracking-wider shadow">Post Comment</button>
-      </form>
-    </div>
-  </div>
-
   <!-- DEDICATED ANALYTICS & MILESTONES MODAL -->
   <div class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="analyticsModal">
     <div class="glass-panel rounded-2xl w-full max-w-lg p-6 relative shadow-2xl my-auto space-y-4 max-h-[90vh] overflow-y-auto scrollbar-none">

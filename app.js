@@ -50,6 +50,7 @@ let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases") || "[]");
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases") || "[]");
 let userRatedBases = JSON.parse(localStorage.getItem("cz_rated_bases") || "{}");
 let userFollowedCreators = JSON.parse(localStorage.getItem("cz_followed_creators") || "[]");
+let userEmojiReactions = JSON.parse(localStorage.getItem("cz_emoji_reactions") || "{}");
 let viewedBases = JSON.parse(sessionStorage.getItem("cz_viewed_bases") || "[]");
 
 const ZONE_LEVELS = {
@@ -574,7 +575,7 @@ function generateBaseCardHTML(base) {
           <div class="flex items-center gap-3">
             <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400"></i> ${views}</span>
             <span class="flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i> ${copies}</span>
-            <button onclick="window.openCommentsModal('${base.id}')" class="flex items-center gap-1 hover:text-amber-400 transition">
+            <button onclick="window.openBaseDetailsModal('${base.id}')" class="flex items-center gap-1 hover:text-amber-400 transition">
               <i data-lucide="message-square" class="w-3.5 h-3.5 text-blue-400"></i>
               <span>${commentsCount}</span>
             </button>
@@ -650,7 +651,7 @@ function renderInstagramProfileGrid(posts) {
     </div>
   `).join("");
   renderAllIcons();
-};
+}
 
 window.copyAndLaunchBase = async function(baseId, link) {
   if (!link) return;
@@ -731,34 +732,34 @@ window.rateBase = async function(baseId, stars) {
   }
 };
 
-window.openCommentsModal = function(baseId) {
+window.handleEmojiReaction = async function(baseId, emoji) {
   const base = allFetchedBases.find(b => b.id === baseId);
   if (!base) return;
 
-  document.getElementById("activeCommentBaseId").value = baseId;
-  document.getElementById("commentModalBaseTitle").innerText = base.title;
-
-  const container = document.getElementById("commentsListContainer");
-  const comments = base.comments || [];
-
-  if (comments.length === 0) {
-    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No comments yet. Be the first chief to comment!</p>`;
+  if (!base.reactions) base.reactions = { "🔥": 0, "🗿": 0, "👑": 0, "❤️": 0, "⚡": 0 };
+  
+  const userKey = `${baseId}_${emoji}`;
+  if (userEmojiReactions[userKey]) {
+    base.reactions[emoji] = Math.max(0, base.reactions[emoji] - 1);
+    delete userEmojiReactions[userKey];
+    window.showToast(`Removed reaction ${emoji}`);
   } else {
-    container.innerHTML = comments.map(c => `
-      <div class="bg-slate-100 dark:bg-czDark p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs space-y-1">
-        <div class="flex items-center justify-between">
-          <span class="font-bold text-amber-400">${c.authorName || 'Chief'}</span>
-          <span class="text-[9px] text-slate-400">${formatTimeAgo(c.timestamp)}</span>
-        </div>
-        <p class="text-slate-700 dark:text-slate-200">${c.text}</p>
-      </div>
-    `).join("");
+    base.reactions[emoji] = (base.reactions[emoji] || 0) + 1;
+    userEmojiReactions[userKey] = true;
+    window.showToast(`Reacted with ${emoji}!`);
   }
 
-  window.openModal("commentsModal");
+  localStorage.setItem("cz_emoji_reactions", JSON.stringify(userEmojiReactions));
+
+  try {
+    const baseRef = doc(db, "bases", baseId);
+    await updateDoc(baseRef, { reactions: base.reactions });
+  } catch (err) {}
+
+  window.openBaseDetailsModal(baseId);
 };
 
-window.handleAddComment = async function(e) {
+window.handleAddCommentInsideModal = async function(e, baseId) {
   e.preventDefault();
   const user = auth.currentUser;
   if (!user) {
@@ -767,9 +768,8 @@ window.handleAddComment = async function(e) {
     return;
   }
 
-  const baseId = document.getElementById("activeCommentBaseId").value;
-  const inputEl = document.getElementById("commentInputText");
-  const text = inputEl.value.trim();
+  const inputEl = document.getElementById(`modalCommentInput_${baseId}`);
+  const text = inputEl?.value.trim();
   if (!text) return;
 
   const newComment = {
@@ -787,8 +787,7 @@ window.handleAddComment = async function(e) {
     await updateDoc(baseRef, { comments: updatedComments });
     base.comments = updatedComments;
 
-    inputEl.value = "";
-    window.openCommentsModal(baseId);
+    window.openBaseDetailsModal(baseId);
     renderBasesUI();
     window.showToast("Comment posted!");
   } catch (err) {
@@ -833,10 +832,36 @@ window.openBaseDetailsModal = async function(baseId) {
     return `<button onclick="window.rateBase('${base.id}', ${starNum})" class="text-xl ${isFilled ? 'text-amber-400' : 'text-slate-600 hover:text-amber-400'} transition">★</button>`;
   }).join("");
 
+  const reactions = base.reactions || { "🔥": 0, "🗿": 0, "👑": 0, "❤️": 0, "⚡": 0 };
+  const emojisList = ["🔥", "🗿", "👑", "❤️", "⚡"];
+  const emojiReactionsHtml = emojisList.map(emoji => {
+    const count = reactions[emoji] || 0;
+    const isReacted = userEmojiReactions[`${base.id}_${emoji}`];
+    return `
+      <button onclick="window.handleEmojiReaction('${base.id}', '${emoji}')" class="flex items-center gap-1 bg-slate-900/80 hover:bg-slate-800 border ${isReacted ? 'border-amber-400 text-amber-400' : 'border-slate-800 text-slate-300'} px-2.5 py-1.5 rounded-xl text-xs font-bold transition">
+        <span>${emoji}</span>
+        <span>${count}</span>
+      </button>
+    `;
+  }).join("");
+
+  const comments = base.comments || [];
+  const commentsHtml = comments.length === 0 
+    ? `<p class="text-xs text-slate-400 text-center py-4">No comments yet. Start the strategy discussion below!</p>`
+    : comments.map(c => `
+      <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-xs space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-amber-400">${c.authorName || 'Chief'}</span>
+          <span class="text-[9px] text-slate-400">${formatTimeAgo(c.timestamp)}</span>
+        </div>
+        <p class="text-slate-200">${c.text}</p>
+      </div>
+    `).join("");
+
   const isFollowingCreator = userFollowedCreators.includes(base.uploaderUid);
 
   modal.innerHTML = `
-    <div class="glass-panel rounded-2xl w-full max-w-lg p-5 relative shadow-2xl my-auto space-y-3 max-h-[90vh] overflow-y-auto scrollbar-none">
+    <div class="glass-panel rounded-2xl w-full max-w-lg p-5 relative shadow-2xl my-auto space-y-4 max-h-[90vh] overflow-y-auto scrollbar-none">
       <button onclick="window.closeModal('baseDetailsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-sm">✕</button>
       
       <div class="flex items-center justify-between">
@@ -856,6 +881,11 @@ window.openBaseDetailsModal = async function(baseId) {
       
       <div class="w-full bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center" style="max-height: 320px;">
         <img src="${base.image}" class="w-full h-full object-contain" />
+      </div>
+
+      <!-- Emoji Reactions Bar -->
+      <div class="flex flex-wrap items-center gap-2 pt-1">
+        ${emojiReactionsHtml}
       </div>
 
       ${descHtml}
@@ -881,7 +911,7 @@ window.openBaseDetailsModal = async function(baseId) {
         <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4 text-rose-500"></i> ${base.likesCount || 0} Likes</span>
       </div>
 
-      <div class="flex items-center gap-2 pt-2">
+      <div class="flex items-center gap-2 pt-1">
         <button onclick="window.copyAndLaunchBase('${base.id}', '${base.link}')" class="flex-1 bg-amber-500 text-black py-2.5 rounded-xl font-extrabold text-xs uppercase flex items-center justify-center gap-1.5 shadow-md">
           <i data-lucide="external-link" class="w-4 h-4"></i> Copy In-Game Layout
         </button>
@@ -889,6 +919,21 @@ window.openBaseDetailsModal = async function(baseId) {
           <i data-lucide="share-2" class="w-4 h-4"></i> Share Site
         </a>
       </div>
+
+      <!-- BUILT-IN COMMENTS & DISCUSSION SECTION -->
+      <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
+        <h4 class="text-xs font-black uppercase text-amber-500 tracking-wider">Strategy Discussion & Comments (${comments.length})</h4>
+        
+        <div class="space-y-2 max-h-48 overflow-y-auto scrollbar-none">
+          ${commentsHtml}
+        </div>
+
+        <form onsubmit="window.handleAddCommentInsideModal(event, '${base.id}')" class="flex items-center gap-2 pt-2">
+          <input type="text" id="modalCommentInput_${base.id}" placeholder="Write strategy tip or feedback..." required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-amber-400 text-white" />
+          <button type="submit" class="bg-amber-500 text-black px-4 py-2.5 rounded-xl text-xs font-bold uppercase shrink-0 shadow">Post</button>
+        </form>
+      </div>
+
     </div>
   `;
   modal.classList.remove("hidden"); 
@@ -953,6 +998,7 @@ window.handleBaseUpload = async function(e) {
       ratingSum: 0,
       ratingCount: 0,
       comments: [],
+      reactions: { "🔥": 0, "🗿": 0, "👑": 0, "❤️": 0, "⚡": 0 },
       createdAt: serverTimestamp()
     };
     await addDoc(collection(db, "bases"), baseData);
