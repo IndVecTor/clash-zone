@@ -11,7 +11,9 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Exact Clash Style Gaming Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Rajdhani:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   
   <script>
     tailwind.config = {
@@ -26,6 +28,7 @@
             czBorder: 'rgba(245, 158, 11, 0.25)',
           },
           fontFamily: {
+            clash: ['"Titan One"', 'sans-serif'],
             body: ['Rajdhani', 'sans-serif'],
           }
         }
@@ -52,11 +55,22 @@
       background-color: #f1f5f9;
       color: #0f172a;
     }
-    .gold-gradient {
-      background: linear-gradient(135deg, #ffffff 0%, #fbbf24 50%, #d97706 100%);
+
+    /* EXACT CLASHZONE 3D TEXT LOGO FROM THE IMAGE */
+    .coc-clashzone-text {
+      font-family: 'Titan One', sans-serif;
+      text-transform: capitalize;
+      letter-spacing: 0.5px;
+      color: #fce681;
+      background: linear-gradient(180deg, #fff7c2 0%, #ffc83b 45%, #e68a00 85%, #b35900 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 3px 0 #542200) 
+              drop-shadow(0 4px 0 #2a1100) 
+              drop-shadow(0 5px 6px rgba(0,0,0,0.85));
+      -webkit-text-stroke: 1px #381600;
     }
+
     .dark .glass-panel { 
       background: rgba(7, 12, 24, 0.9); 
       backdrop-filter: blur(20px); 
@@ -89,48 +103,46 @@
     </div>
   </div>
 
-  <!-- HEADER -->
+  <!-- HEADER WITH EXACT CLASHZONE LOGO STYLE -->
   <header class="sticky top-0 z-40 bg-white/95 dark:bg-czDark/95 backdrop-blur-xl border-b border-slate-200 dark:border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-3">
       
-      <!-- SHIELD LOGO -->
-      <a href="index.html" class="flex items-center gap-3.5 shrink-0 group select-none">
-        <div class="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0">
-          <div class="w-full h-full rounded-2xl bg-gradient-to-b from-amber-400 via-amber-600 to-yellow-600 p-[2px] shadow-[0_0_22px_rgba(245,158,11,0.65)] group-hover:shadow-[0_0_30px_rgba(245,158,11,0.9)] transition duration-300">
+      <!-- LOGO (EXACT STYLE FROM IMAGE) -->
+      <a href="index.html" class="flex items-center gap-3 shrink-0 group select-none py-1">
+        
+        <!-- Shield Emblem Character -->
+        <div class="relative w-13 h-13 sm:w-15 sm:h-15 shrink-0">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-600 to-yellow-600 p-[2px] shadow-[0_0_20px_rgba(245,158,11,0.65)] group-hover:scale-105 transition duration-300">
             <div class="w-full h-full bg-[#070c18] rounded-[14px] flex items-center justify-center overflow-hidden relative">
-              <div class="absolute inset-0 bg-gradient-to-t from-amber-950/40 via-transparent to-transparent z-10 pointer-events-none"></div>
               <img 
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMcBVwjCgUsW49LCSNG-LHN8bK96R9Y4cE0T9YEZcBbg&s=10" 
                 alt="Clash Emblem" 
-                class="w-full h-full object-cover scale-135 mix-blend-screen contrast-125 brightness-110 group-hover:scale-145 transition duration-300"
+                class="w-full h-full object-cover scale-135 mix-blend-screen contrast-125 brightness-110"
               />
-              <div class="absolute inset-0 rounded-[14px] ring-1 ring-inset ring-amber-400/50 pointer-events-none z-20"></div>
+              <div class="absolute inset-0 rounded-[14px] ring-1 ring-inset ring-amber-400/50 pointer-events-none"></div>
             </div>
-          </div>
-          <div class="absolute -bottom-1 -right-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-black text-[9px] font-black font-['Rajdhani'] px-1.5 py-0.5 rounded-md shadow-md uppercase tracking-wider z-30">
-            PRO
           </div>
         </div>
 
-        <div class="flex flex-col justify-center">
-          <div class="text-2xl sm:text-3xl font-black tracking-wider leading-none text-slate-900 dark:text-white font-['Rajdhani']">
-            CLASH<span class="text-amber-400 drop-shadow-[0_0_14px_rgba(245,158,11,0.65)]">ZONE</span>
-          </div>
-          <div class="flex items-center gap-1.5 mt-1.5">
-            <span class="h-[1.5px] w-5 bg-amber-400"></span>
-            <span class="text-[10px] sm:text-[11px] font-bold tracking-[0.24em] text-slate-500 dark:text-slate-300 uppercase font-['Rajdhani']">
-              Esports Defense
-            </span>
-          </div>
+        <!-- EXACT CLASHZONE FONT & ACCENTS -->
+        <div class="flex items-center gap-2">
+          <!-- Left Gold Diamond Bracket -->
+          <span class="text-amber-400 text-sm sm:text-base drop-shadow-[0_0_8px_rgba(245,158,11,0.8)] font-black">◈</span>
+          
+          <!-- Exact 3D Clashzone Text -->
+          <span class="coc-clashzone-text text-2xl sm:text-3xl font-black tracking-normal">Clashzone</span>
+          
+          <!-- Right Gold Diamond Bracket -->
+          <span class="text-amber-400 text-sm sm:text-base drop-shadow-[0_0_8px_rgba(245,158,11,0.8)] font-black">◈</span>
         </div>
       </a>
 
       <!-- RIGHT ICONS -->
       <div class="flex items-center gap-2">
-        <button id="themeToggleBtn" onclick="window.toggleDarkMode()" class="w-11 h-11 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-czPanel text-slate-700 dark:text-amber-400 transition" title="Toggle Mode">
-          <i id="themeIcon" data-lucide="moon" class="w-5 h-5"></i>
+        <button id="themeToggleBtn" onclick="window.toggleDarkMode()" class="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-czPanel text-slate-700 dark:text-amber-400 transition" title="Toggle Mode">
+          <i id="themeIcon" data-lucide="moon" class="w-4 h-4"></i>
         </button>
-        <button onclick="window.openModal('hamburgerMenuModal')" class="w-11 h-11 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-czPanel text-slate-700 dark:text-slate-300 hover:text-amber-400 transition" title="Menu">
+        <button onclick="window.openModal('hamburgerMenuModal')" class="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-czPanel text-slate-700 dark:text-slate-300 hover:text-amber-400 transition" title="Menu">
           <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
       </div>
@@ -143,14 +155,11 @@
     <!-- VIEW 1: FEED -->
     <div id="viewFeedSection">
       
-      <!-- PURE AUTO-SCROLLING IMAGE SLIDER (NO TEXT / NO OVERLAYS) -->
+      <!-- PURE AUTO-SCROLLING BANNER -->
       <div class="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-amber-500/25 bg-slate-950 p-1 mb-3 shadow-xl group">
         <div id="carouselWrapper" class="relative w-full h-44 sm:h-56 md:h-64 rounded-xl overflow-hidden">
-          
-          <!-- Dynamic Track: JS will render all images here -->
           <div id="carouselTrack" class="flex transition-transform duration-700 ease-in-out h-full w-full"></div>
 
-          <!-- Controls -->
           <button onclick="window.prevBannerSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition opacity-0 group-hover:opacity-100 z-20">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
           </button>
@@ -158,7 +167,6 @@
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
 
-          <!-- Dots -->
           <div id="carouselDots" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20"></div>
         </div>
       </div>
@@ -407,13 +415,13 @@
     </div>
   </div>
 
-  <!-- ==================== BANNER IMAGES LIST & SLIDER LOGIC ==================== -->
+  <!-- ==================== BANNER CAROUSEL SCRIPT ==================== -->
   <script>
-    // Dher saari images yahan add karein (Sirf URL daalna hai):
+    // AAPKI IMAGES LIST: Yahan comma lagakar kitni bhi images daal sakte hain
     const bannerImages = [
-      "https://lh3.googleusercontent.com/d/1anPBvlizAv0vB2pyqQe5e9G3yg0pRbgu",
-      "https://lh3.googleusercontent.com/d/1Fq3SPOvUfyIEixlK8n2C089YSEukWu0a",
-      "https://lh3.googleusercontent.com/d/1IU80K0Vi99mOtwKfgmKEdLV1NuXEVzXn"
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80"
     ];
 
     let currentBannerIndex = 0;
@@ -424,14 +432,12 @@
       const dots = document.getElementById('carouselDots');
       if (!track || !dots) return;
 
-      // Pure images render (No texts, no gradient boxes)
       track.innerHTML = bannerImages.map(imgUrl => `
         <div class="min-w-full h-full relative shrink-0">
           <img src="${imgUrl}" alt="Banner" class="w-full h-full object-cover select-none" />
         </div>
       `).join('');
 
-      // Dots render
       dots.innerHTML = bannerImages.map((_, i) => `
         <button onclick="window.goToBannerSlide(${i})" class="h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-5 bg-amber-400' : 'w-1.5 bg-white/40'}"></button>
       `).join('');
