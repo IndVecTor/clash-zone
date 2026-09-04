@@ -278,7 +278,7 @@
         
         <div class="glass-panel rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-amber-500/20 relative overflow-hidden">
           <div class="flex items-center gap-4">
-            <div id="profileRankAvatarWrap" class="w-16 h-16 rounded-full bg-amber-500/20 p-[2px] border-2 border-amber-500 shrink-0 relative">
+            <div id="profileRankAvatarWrap" class="w-16 h-16 rounded-full bg-amber-500/20 p-[2px] border-2 border-amber-500 shrink-0 relative overflow-hidden">
               <div id="profileAvatarContainer" class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-amber-400 text-xl font-bold overflow-hidden">
                 <span id="profileAvatarInitial">C</span>
               </div>
@@ -291,6 +291,7 @@
                 <span id="profileRankTierBadge" class="bg-gradient-to-r from-amber-600 to-yellow-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow">Bronze Builder</span>
               </div>
               <p id="profileTagClan" class="text-xs text-slate-400 font-mono mt-0.5 truncate">#CLASH | Solo</p>
+              <div id="profileSocialLinksContainer" class="flex items-center gap-2 mt-1"></div>
               <p id="profileBioText" class="text-xs text-slate-500 dark:text-slate-300 italic mt-1">No bio added.</p>
             </div>
           </div>
@@ -421,17 +422,72 @@
     </div>
   </div>
 
-  <!-- EDIT PROFILE MODAL -->
+  <!-- ADVANCED EDIT PROFILE MODAL -->
   <div class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="editProfileModal">
-    <div class="glass-panel rounded-2xl w-full max-w-sm p-6 relative shadow-2xl my-auto">
+    <div class="glass-panel rounded-2xl w-full max-w-md p-6 relative shadow-2xl my-auto space-y-3 max-h-[90vh] overflow-y-auto scrollbar-none">
       <button onclick="window.closeModal('editProfileModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
-      <h3 class="text-base text-amber-500 font-bold mb-3">Edit Chief Profile</h3>
-      <form onsubmit="window.handleSaveProfile(event)" class="space-y-3">
-        <input type="text" id="editName" placeholder="IGN (Chief Name)" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
-        <input type="text" id="editTH" placeholder="Town Hall Level (e.g. TH 16)" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
-        <input type="text" id="editClan" placeholder="Clan Name" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
-        <textarea id="editBio" placeholder="Bio description..." rows="2" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400"></textarea>
-        <button type="submit" class="w-full bg-amber-500 text-black py-2.5 rounded-xl font-bold text-xs uppercase">Save Changes</button>
+      <h3 class="text-base text-amber-500 font-bold mb-2">Edit Chief Profile</h3>
+      
+      <form onsubmit="window.handleSaveProfile(event)" class="space-y-2.5">
+        <div>
+          <label class="text-[10px] text-slate-400 font-bold block mb-1">In-Game Name (IGN)</label>
+          <input type="text" id="editName" placeholder="Chief Name" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-400 font-bold block mb-1">Town Hall / Level</label>
+            <input type="text" id="editTH" placeholder="TH 16" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 font-bold block mb-1">Player Tag (ID)</label>
+            <input type="text" id="editPlayerTag" placeholder="#PY8V9Q2" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-mono outline-none focus:border-amber-400" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-400 font-bold block mb-1">Clan Name</label>
+            <input type="text" id="editClan" placeholder="Clan Name" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 font-bold block mb-1">Discord Username</label>
+            <input type="text" id="editDiscord" placeholder="discord_user" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] text-slate-400 font-bold block mb-1">YouTube Link</label>
+            <input type="url" id="editYoutube" placeholder="https://youtube.com/..." class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 font-bold block mb-1">Instagram Handle</label>
+            <input type="text" id="editInstagram" placeholder="@username" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-bold block mb-1">Avatar Choice (Upload Custom File or Preset Icon)</label>
+          <div class="flex items-center gap-2 mb-2">
+            <input type="file" id="editAvatarFile" accept="image/*" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2 text-xs" />
+          </div>
+          <p class="text-[10px] text-slate-400 mb-1">Or select preset Clash character:</p>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="window.selectPresetAvatar('https://api.iconify.design/game-icons:barbarian.svg?color=%23f59e0b')" class="w-10 h-10 rounded-xl bg-slate-900 border border-amber-500/40 p-1 flex items-center justify-center hover:scale-110 transition"><img src="https://api.iconify.design/game-icons:barbarian.svg?color=%23f59e0b" class="w-6 h-6"/></button>
+            <button type="button" onclick="window.selectPresetAvatar('https://api.iconify.design/game-icons:archer.svg?color=%23f59e0b')" class="w-10 h-10 rounded-xl bg-slate-900 border border-amber-500/40 p-1 flex items-center justify-center hover:scale-110 transition"><img src="https://api.iconify.design/game-icons:archer.svg?color=%23f59e0b" class="w-6 h-6"/></button>
+            <button type="button" onclick="window.selectPresetAvatar('https://api.iconify.design/game-icons:wizardry.svg?color=%23f59e0b')" class="w-10 h-10 rounded-xl bg-slate-900 border border-amber-500/40 p-1 flex items-center justify-center hover:scale-110 transition"><img src="https://api.iconify.design/game-icons:wizardry.svg?color=%23f59e0b" class="w-6 h-6"/></button>
+            <button type="button" onclick="window.selectPresetAvatar('https://api.iconify.design/game-icons:king.svg?color=%23f59e0b')" class="w-10 h-10 rounded-xl bg-slate-900 border border-amber-500/40 p-1 flex items-center justify-center hover:scale-110 transition"><img src="https://api.iconify.design/game-icons:king.svg?color=%23f59e0b" class="w-6 h-6"/></button>
+          </div>
+          <input type="hidden" id="editPresetAvatarUrl" value="" />
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-bold block mb-1">Bio / Status</label>
+          <textarea id="editBio" placeholder="Write about your playing style..." rows="2" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400"></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-amber-500 text-black py-2.5 rounded-xl font-bold text-xs uppercase shadow-md">Save Profile Changes</button>
       </form>
     </div>
   </div>

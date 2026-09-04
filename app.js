@@ -48,7 +48,7 @@ let phoneConfirmationResult = null;
 
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases") || "[]");
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases") || "[]");
-let userRatedBases = JSON.parse(localStorage.getItem("cz_rated_bases") || "{}"); // { baseId: starRating }
+let userRatedBases = JSON.parse(localStorage.getItem("cz_rated_bases") || "{}");
 let viewedBases = JSON.parse(sessionStorage.getItem("cz_viewed_bases") || "[]");
 
 const ZONE_LEVELS = {
@@ -258,11 +258,28 @@ onAuthStateChanged(auth, async (user) => {
       if (document.getElementById("profileTagClan")) document.getElementById("profileTagClan").innerText = `Clan: ${currentUserProfile.clanName || "Solo"} | ${currentUserProfile.tag || "#CLASH"}`;
       if (document.getElementById("profileBioText")) document.getElementById("profileBioText").innerText = currentUserProfile.bio || "No bio added.";
       
+      // Populate Edit Form Fields
+      if (document.getElementById("editName")) document.getElementById("editName").value = currentUserProfile.name || defaultName;
+      if (document.getElementById("editTH")) document.getElementById("editTH").value = currentUserProfile.townHallLevel || "TH 16";
+      if (document.getElementById("editPlayerTag")) document.getElementById("editPlayerTag").value = currentUserProfile.tag || "";
+      if (document.getElementById("editClan")) document.getElementById("editClan").value = currentUserProfile.clanName || "";
+      if (document.getElementById("editDiscord")) document.getElementById("editDiscord").value = currentUserProfile.discord || "";
+      if (document.getElementById("editYoutube")) document.getElementById("editYoutube").value = currentUserProfile.youtube || "";
+      if (document.getElementById("editInstagram")) document.getElementById("editInstagram").value = currentUserProfile.instagram || "";
+      if (document.getElementById("editBio")) document.getElementById("editBio").value = currentUserProfile.bio || "";
+
+      // Avatar render
       const avatarContainer = document.getElementById("profileAvatarContainer");
       if (avatarContainer) {
-        avatarContainer.innerHTML = `<span>${(currentUserProfile.name || defaultName).charAt(0).toUpperCase()}</span>`;
+        if (currentUserProfile.avatarUrl) {
+          avatarContainer.innerHTML = `<img src="${currentUserProfile.avatarUrl}" class="w-full h-full object-cover" />`;
+        } else {
+          avatarContainer.innerHTML = `<span>${(currentUserProfile.name || defaultName).charAt(0).toUpperCase()}</span>`;
+        }
       }
 
+      // Social links render on header
+      renderProfileSocialLinks(currentUserProfile);
       updateUserDashboardStats(user.uid);
     } catch (e) {
       console.error(e);
@@ -274,6 +291,21 @@ onAuthStateChanged(auth, async (user) => {
   }
   renderAllIcons();
 });
+
+window.selectPresetAvatar = function(url) {
+  document.getElementById("editPresetAvatarUrl").value = url;
+  window.showToast("Preset avatar selected!");
+};
+
+function renderProfileSocialLinks(profile) {
+  const container = document.getElementById("profileSocialLinksContainer");
+  if (!container) return;
+  let html = "";
+  if (profile.discord) html += `<span class="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full font-bold">Discord: ${profile.discord}</span>`;
+  if (profile.youtube) html += `<a href="${profile.youtube}" target="_blank" class="text-[10px] bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full font-bold">YouTube</a>`;
+  if (profile.instagram) html += `<span class="text-[10px] bg-pink-500/10 text-pink-400 border border-pink-500/30 px-2 py-0.5 rounded-full font-bold">${profile.instagram}</span>`;
+  container.innerHTML = html;
+}
 
 function calculateCreatorOfTheMonth() {
   const bannerEl = document.getElementById("creatorOfTheMonthBanner");
@@ -667,7 +699,6 @@ window.handleLikeBase = async function(baseId) {
   if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
 };
 
-// RATING ACTION HANDLER
 window.rateBase = async function(baseId, stars) {
   if (userRatedBases[baseId]) {
     window.showToast("You have already rated this base!", "info");
@@ -756,7 +787,6 @@ window.openBaseDetailsModal = async function(baseId) {
       ${descHtml}
       ${tagsHtml ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHtml}</div>` : ""}
 
-      <!-- Rating & Stats Bar -->
       <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
         <div>
           <span class="text-[10px] text-slate-400 uppercase font-bold block">Community Rating</span>
@@ -887,21 +917,41 @@ window.handleClanUpload = async function(e) {
   }
 };
 
+// HANDLER FOR SAVING ADVANCED PROFILE DATA (INCLUDING DUAL AVATARS & SOCIAL LINKS)
 window.handleSaveProfile = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
   if (!user) return;
+
+  const fileInput = document.getElementById("editAvatarFile")?.files[0];
+  const presetAvatarUrl = document.getElementById("editPresetAvatarUrl")?.value.trim();
+  
+  let finalAvatarUrl = currentUserProfile?.avatarUrl || "";
+  if (presetAvatarUrl) {
+    finalAvatarUrl = presetAvatarUrl;
+  }
+
+  if (fileInput) {
+    finalAvatarUrl = await compressAndWatermarkImage(fileInput, document.getElementById("editName").value.trim(), 200, 0.7);
+  }
+
   const profileData = {
     name: document.getElementById("editName").value.trim(),
     townHallLevel: document.getElementById("editTH").value,
+    tag: document.getElementById("editPlayerTag").value.trim().toUpperCase(),
     clanName: document.getElementById("editClan").value.trim() || "Solo",
+    discord: document.getElementById("editDiscord").value.trim(),
+    youtube: document.getElementById("editYoutube").value.trim(),
+    instagram: document.getElementById("editInstagram").value.trim(),
     bio: document.getElementById("editBio").value.trim(),
+    avatarUrl: finalAvatarUrl,
     updatedAt: serverTimestamp()
   };
+
   try {
     await setDoc(doc(db, "users", user.uid), profileData, { merge: true });
     window.closeModal("editProfileModal");
-    window.showToast("Profile saved!");
+    window.showToast("Profile updated successfully!");
     setTimeout(() => location.reload(), 500);
   } catch (err) { 
     window.showToast("Update failed", "error"); 
