@@ -52,7 +52,9 @@ const ZONE_LEVELS = {
 };
 
 function renderAllIcons() {
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== "undefined" && lucide.createIcons) {
+    lucide.createIcons();
+  }
 }
 
 window.showToast = function(message, type = "success") {
@@ -60,12 +62,15 @@ window.showToast = function(message, type = "success") {
   if (!container) return;
   const toast = document.createElement("div");
   const isSuccess = type === "success";
-  toast.className = `glass-panel pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border ${isSuccess ? 'border-amber-400/80 shadow-neon-gold' : 'border-rose-500/80 shadow-rose-500/20'} shadow-2xl transition-all duration-300 transform translate-x-10 opacity-0 text-xs font-bold`;
-  toast.innerHTML = `<i data-lucide="${isSuccess ? 'check-circle' : 'alert-triangle'}" class="w-4 h-4 ${isSuccess ? 'text-amber-400' : 'text-rose-400'}"></i><span class="text-white">${message}</span>`;
+  toast.className = `glass-panel pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl border ${isSuccess ? "border-amber-400/80 shadow-neon-gold" : "border-rose-500/80 shadow-rose-500/20"} shadow-2xl transition-all duration-300 transform translate-x-10 opacity-0 text-xs font-bold`;
+  toast.innerHTML = `<i data-lucide="${isSuccess ? "check-circle" : "alert-triangle"}" class="w-4 h-4 ${isSuccess ? "text-amber-400" : "text-rose-400"}"></i><span class="text-white">${message}</span>`;
   container.appendChild(toast);
   renderAllIcons();
   setTimeout(() => toast.classList.remove("translate-x-10", "opacity-0"), 10);
-  setTimeout(() => { toast.classList.add("translate-x-10", "opacity-0"); setTimeout(() => toast.remove(), 300); }, 3000);
+  setTimeout(() => { 
+    toast.classList.add("translate-x-10", "opacity-0"); 
+    setTimeout(() => toast.remove(), 300); 
+  }, 3000);
 };
 
 function convertFileToBase64(file) {
@@ -77,7 +82,7 @@ function convertFileToBase64(file) {
   });
 }
 
-function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 900, quality = 0.72) {
+function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 800, quality = 0.65) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -85,22 +90,41 @@ function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 900, 
       const img = new Image();
       img.src = event.target.result;
       img.onload = () => {
-        const elem = document.createElement('canvas');
-        let width = img.width, height = img.height;
-        if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
-        elem.width = width; elem.height = height;
-        const ctx = elem.getContext('2d');
+        const elem = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) { 
+          height = Math.round((height * maxWidth) / width); 
+          width = maxWidth; 
+        }
+        elem.width = width; 
+        elem.height = height;
+        const ctx = elem.getContext("2d");
         ctx.drawImage(img, 0, 0, width, height);
-        const padding = 16, badgeHeight = 32, badgeWidth = Math.min(width * 0.55, 270);
+        
+        const padding = 16, badgeHeight = 30, badgeWidth = Math.min(width * 0.55, 250);
         const x = width - badgeWidth - padding, y = height - badgeHeight - padding;
+        
         ctx.save();
         ctx.fillStyle = "rgba(3, 5, 11, 0.9)";
-        ctx.beginPath(); ctx.roundRect(x, y, badgeWidth, badgeHeight, 8); ctx.fill();
-        ctx.strokeStyle = "rgba(245, 158, 11, 0.6)"; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.font = "bold 11px Rajdhani, sans-serif"; ctx.fillStyle = "#fbbf24"; ctx.fillText("⚡ CLASHZONE", x + 10, y + 20);
-        ctx.fillStyle = "#ffffff"; ctx.fillText(`| by ${creatorName.substring(0, 14)}`, x + 95, y + 20);
+        if (ctx.roundRect) {
+          ctx.beginPath(); 
+          ctx.roundRect(x, y, badgeWidth, badgeHeight, 8); 
+          ctx.fill();
+        } else {
+          ctx.fillRect(x, y, badgeWidth, badgeHeight);
+        }
+        ctx.strokeStyle = "rgba(245, 158, 11, 0.6)"; 
+        ctx.lineWidth = 1.5; 
+        ctx.stroke();
+        ctx.font = "bold 11px Rajdhani, sans-serif"; 
+        ctx.fillStyle = "#fbbf24"; 
+        ctx.fillText("⚡ CLASHZONE", x + 10, y + 19);
+        ctx.fillStyle = "#ffffff"; 
+        ctx.fillText(`| by ${creatorName.substring(0, 12)}`, x + 90, y + 19);
         ctx.restore();
-        resolve(elem.toDataURL('image/jpeg', quality));
+        
+        resolve(elem.toDataURL("image/jpeg", quality));
       };
       img.onerror = error => reject(error);
     };
@@ -108,24 +132,28 @@ function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 900, 
   });
 }
 
-// LIVE SUPERCELL SYNC
 async function fetchLiveSupercellPlayer(rawTag) {
-  let tag = rawTag.trim().toUpperCase().replace(/O/g, '0');
-  if (!tag.startsWith('#')) tag = '#' + tag;
+  let tag = rawTag.trim().toUpperCase().replace(/O/g, "0");
+  if (!tag.startsWith("#")) tag = "#" + tag;
   const cleanTag = encodeURIComponent(tag);
   const targetUrl = `https://cocproxy.royaleapi.dev/v1/players/${cleanTag}`;
   const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
   ];
   let data = null;
   for (let proxyUrl of proxies) {
     try {
       const response = await fetch(proxyUrl);
-      if (response.ok) { data = await response.json(); break; }
-    } catch (e) { continue; }
+      if (response.ok) { 
+        data = await response.json(); 
+        break; 
+      }
+    } catch (e) { 
+      continue; 
+    }
   }
-  if (!data) throw new Error("Supercell servers busy or invalid tag format.");
+  if (!data) throw new Error("Could not fetch Supercell data. Check tag or connection.");
   return {
     name: data.name,
     tag: data.tag,
@@ -139,44 +167,84 @@ async function fetchLiveSupercellPlayer(rawTag) {
 window.handleLiveSupercellSync = async function() {
   const tagInput = document.getElementById("editTag");
   const syncBtn = document.getElementById("btnSyncPlayerTag");
-  const rawTag = tagInput.value.trim();
-  if (!rawTag) { window.showToast("Enter player tag", "error"); return; }
-  syncBtn.disabled = true; syncBtn.innerText = "Syncing...";
+  const rawTag = tagInput?.value.trim();
+  if (!rawTag) { 
+    window.showToast("Enter player tag", "error"); 
+    return; 
+  }
+  if (syncBtn) {
+    syncBtn.disabled = true; 
+    syncBtn.innerText = "Syncing...";
+  }
   try {
     const liveData = await fetchLiveSupercellPlayer(rawTag);
-    document.getElementById("editName").value = liveData.name;
-    document.getElementById("editTH").value = "TH " + liveData.townHallLevel;
-    document.getElementById("editTrophies").value = liveData.trophies;
-    document.getElementById("editClan").value = liveData.clan.name;
+    if (document.getElementById("editName")) document.getElementById("editName").value = liveData.name;
+    if (document.getElementById("editTH")) document.getElementById("editTH").value = "TH " + liveData.townHallLevel;
+    if (document.getElementById("editTrophies")) document.getElementById("editTrophies").value = liveData.trophies;
+    if (document.getElementById("editClan")) document.getElementById("editClan").value = liveData.clan.name;
     window.showToast(`⚡ Synced: ${liveData.name}!`);
-  } catch (err) { window.showToast("Sync Error: Check tag", "error"); }
-  finally { syncBtn.disabled = false; syncBtn.innerText = "Sync Live"; renderAllIcons(); }
+  } catch (err) { 
+    window.showToast(err.message || "Sync Error", "error"); 
+  } finally { 
+    if (syncBtn) {
+      syncBtn.disabled = false; 
+      syncBtn.innerText = "Sync Live"; 
+    }
+    renderAllIcons(); 
+  }
 };
 
 onAuthStateChanged(auth, async (user) => {
   const profileLoggedOut = document.getElementById("profileLoggedOutView");
   const profileLoggedIn = document.getElementById("profileLoggedInView");
   if (user) {
-    const defaultName = user.displayName || user.email.split('@')[0];
+    const defaultName = user.displayName || user.email.split("@")[0];
     if (profileLoggedOut) profileLoggedOut.classList.add("hidden");
     if (profileLoggedIn) profileLoggedIn.classList.remove("hidden");
     try {
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      currentUserProfile = userDoc.exists() ? userDoc.data() : { name: defaultName, townHallLevel: "TH 16", tag: "#CLASH", clanName: "Solo", trophies: 5000, bio: "ClashZone Pro Builder", avatarUrl: "" };
-      document.getElementById("profileIGN").innerText = currentUserProfile.name || defaultName;
-      document.getElementById("profileTHBadge").innerText = currentUserProfile.townHallLevel || "TH 16";
-      document.getElementById("profileTagClan").innerText = `Clan: ${currentUserProfile.clanName || 'Solo'} | ${currentUserProfile.tag || '#CLASH'}`;
-      document.getElementById("statTrophiesCount").innerText = `🏆 ${currentUserProfile.trophies || 5000}`;
-      document.getElementById("profileBioText").innerText = currentUserProfile.bio || "No description added yet.";
+      currentUserProfile = userDoc.exists() ? userDoc.data() : { 
+        name: defaultName, 
+        townHallLevel: "TH 16", 
+        tag: "#CLASH", 
+        clanName: "Solo", 
+        trophies: 5000, 
+        bio: "ClashZone Pro Builder", 
+        avatarUrl: "" 
+      };
+      
+      const elIgn = document.getElementById("profileIGN");
+      const elBadge = document.getElementById("profileTHBadge");
+      const elTagClan = document.getElementById("profileTagClan");
+      const elTrophies = document.getElementById("statTrophiesCount");
+      const elBio = document.getElementById("profileBioText");
       const avatarContainer = document.getElementById("profileAvatarContainer");
-      if (currentUserProfile.avatarUrl) avatarContainer.innerHTML = `<img src="${currentUserProfile.avatarUrl}" class="w-full h-full object-cover" />`;
-      else avatarContainer.innerHTML = `<span>${(currentUserProfile.name || defaultName).charAt(0).toUpperCase()}</span>`;
+
+      if (elIgn) elIgn.innerText = currentUserProfile.name || defaultName;
+      if (elBadge) elBadge.innerText = currentUserProfile.townHallLevel || "TH 16";
+      if (elTagClan) elTagClan.innerText = `Clan: ${currentUserProfile.clanName || "Solo"} | ${currentUserProfile.tag || "#CLASH"}`;
+      if (elTrophies) elTrophies.innerText = `🏆 ${currentUserProfile.trophies || 5000}`;
+      if (elBio) elBio.innerText = currentUserProfile.bio || "No description added yet.";
+      
+      if (avatarContainer) {
+        if (currentUserProfile.avatarUrl) {
+          avatarContainer.innerHTML = `<img src="${currentUserProfile.avatarUrl}" class="w-full h-full object-cover" />`;
+        } else {
+          avatarContainer.innerHTML = `<span>${(currentUserProfile.name || defaultName).charAt(0).toUpperCase()}</span>`;
+        }
+      }
+
       const userPosts = allFetchedBases.filter(b => b.uploaderUid === user.uid);
-      document.getElementById("statPostsCount").innerText = userPosts.length;
-      document.getElementById("tabPostNum").innerText = userPosts.length;
+      const elPostsCount = document.getElementById("statPostsCount");
+      const elTabPostNum = document.getElementById("tabPostNum");
+      if (elPostsCount) elPostsCount.innerText = userPosts.length;
+      if (elTabPostNum) elTabPostNum.innerText = userPosts.length;
+      
       renderUserProfilePosts(userPosts);
       renderUserSavedVault();
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   } else {
     currentUserProfile = null;
     if (profileLoggedOut) profileLoggedOut.classList.remove("hidden");
@@ -188,7 +256,10 @@ onAuthStateChanged(auth, async (user) => {
 function renderUserProfilePosts(posts) {
   const container = document.getElementById("profileTabContentPosts");
   if (!container) return;
-  if (posts.length === 0) { container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-500 text-xs">No layouts published yet.</div>`; return; }
+  if (posts.length === 0) { 
+    container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-500 text-xs">No layouts published yet.</div>`; 
+    return; 
+  }
   container.innerHTML = posts.map(b => `
     <div class="glass-panel rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-3">
       <img src="${b.image}" class="w-14 h-14 rounded-xl object-cover border border-slate-700 shrink-0" />
@@ -198,14 +269,17 @@ function renderUserProfilePosts(posts) {
       </div>
       <button onclick="window.copyBaseLink('${b.id}', '${b.link}')" class="bg-amber-500 text-black px-3 py-2 rounded-xl text-xs font-bold shrink-0">Copy</button>
     </div>
-  `).join('');
+  `).join("");
 }
 
 function renderUserSavedVault() {
   const container = document.getElementById("profileTabContentSaved");
   if (!container) return;
   const savedList = allFetchedBases.filter(b => userBookmarkedBases.includes(b.id));
-  if (savedList.length === 0) { container.innerHTML = `<div class="py-10 text-center text-slate-500 text-xs">No bookmarked layouts in your vault.</div>`; return; }
+  if (savedList.length === 0) { 
+    container.innerHTML = `<div class="py-10 text-center text-slate-500 text-xs">No bookmarked layouts in your vault.</div>`; 
+    return; 
+  }
   container.innerHTML = savedList.map(b => `
     <div class="glass-panel rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-3">
       <img src="${b.image}" class="w-14 h-14 rounded-xl object-cover border border-slate-700 shrink-0" />
@@ -215,12 +289,14 @@ function renderUserSavedVault() {
       </div>
       <button onclick="window.copyBaseLink('${b.id}', '${b.link}')" class="bg-amber-500 text-black px-3 py-2 rounded-xl text-xs font-bold shrink-0">Copy</button>
     </div>
-  `).join('');
+  `).join("");
 }
 
 window.switchZone = function(zone) {
-  currentZone = zone; currentTH = "ALL";
-  renderLevelFilters(); renderBasesUI();
+  currentZone = zone; 
+  currentTH = "ALL";
+  renderLevelFilters(); 
+  renderBasesUI();
 };
 
 function renderLevelFilters() {
@@ -228,8 +304,8 @@ function renderLevelFilters() {
   if (!container) return;
   const levels = ZONE_LEVELS[currentZone] || ZONE_LEVELS.home;
   container.innerHTML = levels.map(lvl => `
-    <button onclick="window.setTHFilter('${lvl}')" class="base-filter-btn ${lvl === currentTH ? 'active' : ''} px-4 py-2 bg-czPanel border border-slate-700 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">${lvl}</button>
-  `).join('');
+    <button onclick="window.setTHFilter('${lvl}')" class="base-filter-btn ${lvl === currentTH ? "active" : ""} px-4 py-2 bg-czPanel border border-slate-700 hover:border-amber-400 rounded-xl text-xs font-bold shrink-0 transition">${lvl}</button>
+  `).join("");
 }
 
 window.updateUploadLevelOptions = function() {
@@ -237,21 +313,23 @@ window.updateUploadLevelOptions = function() {
   const thSelect = document.getElementById("uploadTH");
   if (!zoneSelect || !thSelect) return;
   const levels = ZONE_LEVELS[zoneSelect.value].filter(l => l !== "ALL");
-  thSelect.innerHTML = levels.map(l => `<option value="${l}">${l}</option>`).join('');
+  thSelect.innerHTML = levels.map(l => `<option value="${l}">${l}</option>`).join("");
 };
 
 window.switchMainHubView = function(viewName) {
-  ['Feed', 'Vault', 'Clans', 'Profile'].forEach(tab => {
-    document.getElementById(`bnav${tab}`)?.classList.remove('active');
+  ["Feed", "Vault", "Clans", "Profile"].forEach(tab => {
+    document.getElementById(`bnav${tab}`)?.classList.remove("active");
   });
-  document.getElementById(`bnav${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`)?.classList.add('active');
-  ['viewFeedSection', 'viewVaultSection', 'viewClansSection', 'viewProfileSection'].forEach(id => {
+  document.getElementById(`bnav${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`)?.classList.add("active");
+  
+  ["viewFeedSection", "viewVaultSection", "viewClansSection", "viewProfileSection"].forEach(id => {
     document.getElementById(id)?.classList.add("hidden");
   });
-  if (viewName === 'feed') document.getElementById("viewFeedSection")?.classList.remove("hidden");
-  else if (viewName === 'vault') { document.getElementById("viewVaultSection")?.classList.remove("hidden"); renderDirectVaultUI(); }
-  else if (viewName === 'clans') { document.getElementById("viewClansSection")?.classList.remove("hidden"); loadClansFromFirestore(); }
-  else if (viewName === 'profile') { document.getElementById("viewProfileSection")?.classList.remove("hidden"); populateProfileFormModal(); }
+  
+  if (viewName === "feed") document.getElementById("viewFeedSection")?.classList.remove("hidden");
+  else if (viewName === "vault") { document.getElementById("viewVaultSection")?.classList.remove("hidden"); renderDirectVaultUI(); }
+  else if (viewName === "clans") { document.getElementById("viewClansSection")?.classList.remove("hidden"); loadClansFromFirestore(); }
+  else if (viewName === "profile") { document.getElementById("viewProfileSection")?.classList.remove("hidden"); populateProfileFormModal(); }
   renderAllIcons();
 };
 
@@ -259,7 +337,10 @@ function renderDirectVaultUI() {
   const container = document.getElementById("directVaultContainer");
   if (!container) return;
   const savedList = allFetchedBases.filter(b => userBookmarkedBases.includes(b.id));
-  if (savedList.length === 0) { container.innerHTML = `<div class="glass-panel rounded-3xl p-10 text-center text-slate-500 text-xs">Your Saved Vault is Empty.</div>`; return; }
+  if (savedList.length === 0) { 
+    container.innerHTML = `<div class="glass-panel rounded-3xl p-10 text-center text-slate-500 text-xs">Your Saved Vault is Empty.</div>`; 
+    return; 
+  }
   container.innerHTML = savedList.map(b => `
     <div class="glass-panel rounded-2xl p-4 flex items-center justify-between gap-3 border-slate-800">
       <div class="flex items-center gap-3 min-w-0 cursor-pointer flex-1" onclick="window.openBaseDetailsModal('${b.id}')">
@@ -271,19 +352,19 @@ function renderDirectVaultUI() {
       </div>
       <button onclick="window.copyBaseLink('${b.id}', '${b.link}')" class="bg-amber-500 text-black px-4 py-2 rounded-xl text-xs font-bold">Copy</button>
     </div>
-  `).join('');
+  `).join("");
   renderAllIcons();
 }
 
 function populateProfileFormModal() {
   const user = auth.currentUser;
   if (!user) return;
-  document.getElementById("editName").value = currentUserProfile?.name || user.displayName || "";
-  document.getElementById("editTH").value = currentUserProfile?.townHallLevel || "TH 16";
-  document.getElementById("editTag").value = currentUserProfile?.tag || "";
-  document.getElementById("editTrophies").value = currentUserProfile?.trophies || 5000;
-  document.getElementById("editClan").value = currentUserProfile?.clanName || "Solo";
-  document.getElementById("editBio").value = currentUserProfile?.bio || "";
+  if (document.getElementById("editName")) document.getElementById("editName").value = currentUserProfile?.name || user.displayName || "";
+  if (document.getElementById("editTH")) document.getElementById("editTH").value = currentUserProfile?.townHallLevel || "TH 16";
+  if (document.getElementById("editTag")) document.getElementById("editTag").value = currentUserProfile?.tag || "";
+  if (document.getElementById("editTrophies")) document.getElementById("editTrophies").value = currentUserProfile?.trophies || 5000;
+  if (document.getElementById("editClan")) document.getElementById("editClan").value = currentUserProfile?.clanName || "Solo";
+  if (document.getElementById("editBio")) document.getElementById("editBio").value = currentUserProfile?.bio || "";
 }
 
 window.openBaseDetailsModal = function(baseId) {
@@ -315,7 +396,8 @@ window.openBaseDetailsModal = function(baseId) {
       </div>
     </div>
   `;
-  modal.classList.remove("hidden"); modal.classList.add("flex");
+  modal.classList.remove("hidden"); 
+  modal.classList.add("flex");
   renderAllIcons();
 };
 
@@ -325,11 +407,14 @@ function renderRankingsUI() {
   const creatorsMap = {};
   allFetchedBases.forEach(base => {
     const key = base.uploaderUid || base.uploaderName;
-    if (!creatorsMap[key]) creatorsMap[key] = { name: base.uploaderName || 'Chief', uploads: 0, thLevel: base.th || "TH 16" };
+    if (!creatorsMap[key]) creatorsMap[key] = { name: base.uploaderName || "Chief", uploads: 0, thLevel: base.th || "TH 16" };
     creatorsMap[key].uploads += 1;
   });
   const ranked = Object.values(creatorsMap).sort((a, b) => b.uploads - a.uploads);
-  if (ranked.length === 0) { container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No creators ranked yet.</p>`; return; }
+  if (ranked.length === 0) { 
+    container.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No creators ranked yet.</p>`; 
+    return; 
+  }
   container.innerHTML = ranked.map((c, idx) => `
     <div class="flex items-center justify-between bg-czDark p-3 rounded-2xl border border-slate-800 text-xs">
       <div class="flex items-center gap-3">
@@ -338,12 +423,12 @@ function renderRankingsUI() {
         <div><span class="text-white font-bold block">${c.name}</span><span class="text-[10px] text-slate-400">${c.uploads} Layouts • ${c.thLevel}</span></div>
       </div>
     </div>
-  `).join('');
+  `).join("");
   renderAllIcons();
 }
 
 window.openModal = function(id) {
-  if (id === 'rankingsModal') renderRankingsUI();
+  if (id === "rankingsModal") renderRankingsUI();
   document.getElementById(id)?.classList.remove("hidden");
   document.getElementById(id)?.classList.add("flex");
   renderAllIcons();
@@ -365,12 +450,18 @@ async function loadBasesFromFirestore() {
     renderBasesUI();
     if (auth.currentUser) {
       const userPosts = allFetchedBases.filter(b => b.uploaderUid === auth.currentUser.uid);
-      document.getElementById("statPostsCount").innerText = userPosts.length;
-      document.getElementById("tabPostNum").innerText = userPosts.length;
+      const countEl = document.getElementById("statPostsCount");
+      const tabEl = document.getElementById("tabPostNum");
+      if (countEl) countEl.innerText = userPosts.length;
+      if (tabEl) tabEl.innerText = userPosts.length;
       renderUserProfilePosts(userPosts);
       renderUserSavedVault();
     }
-  } catch (error) { allFetchedBases = []; renderBasesUI(); }
+  } catch (error) { 
+    console.error("Failed to load bases:", error);
+    allFetchedBases = []; 
+    renderBasesUI(); 
+  }
 }
 
 async function loadClansFromFirestore() {
@@ -382,13 +473,20 @@ async function loadClansFromFirestore() {
     allFetchedClans = [];
     querySnapshot.forEach(docSnap => allFetchedClans.push({ id: docSnap.id, ...docSnap.data() }));
     renderClansUI();
-  } catch (error) { allFetchedClans = []; renderClansUI(); }
+  } catch (error) { 
+    console.error("Failed to load clans:", error);
+    allFetchedClans = []; 
+    renderClansUI(); 
+  }
 }
 
 function renderClansUI() {
   const container = document.getElementById("clansContainer");
   if (!container) return;
-  if (allFetchedClans.length === 0) { container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-xs">No clans listed yet.</div>`; return; }
+  if (allFetchedClans.length === 0) { 
+    container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 text-xs">No clans listed yet.</div>`; 
+    return; 
+  }
   container.innerHTML = allFetchedClans.map(clan => `
     <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between border-slate-800 shadow-cyber-card">
       <div>
@@ -400,11 +498,14 @@ function renderClansUI() {
       </div>
       <a href="${clan.link}" target="_blank" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 text-black font-black py-2.5 rounded-xl text-xs text-center uppercase tracking-wider transition shadow-neon-gold">Join Clan In-Game</a>
     </div>
-  `).join('');
+  `).join("");
   renderAllIcons();
 }
 
-window.setSortOption = function(sortType) { currentSort = sortType; renderBasesUI(); };
+window.setSortOption = function(sortType) { 
+  currentSort = sortType; 
+  renderBasesUI(); 
+};
 
 function renderBasesUI() {
   const container = document.getElementById("basesContainer");
@@ -417,6 +518,10 @@ function renderBasesUI() {
     const matchSearch = (base.title || "").toLowerCase().includes(search) || (base.th || "").toLowerCase().includes(search) || (base.uploaderName || "").toLowerCase().includes(search);
     return matchZone && matchTH && matchType && matchSearch;
   });
+
+  if (currentSort === "likes") {
+    filtered.sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
+  }
 
   if (filtered.length === 0) {
     container.innerHTML = `<div class="col-span-full py-16 text-center text-slate-500 text-xs">No layouts found</div>`;
@@ -435,17 +540,17 @@ function renderBasesUI() {
         </div>
         <div class="p-4 flex flex-col flex-grow justify-between">
           <div class="cursor-pointer" onclick="window.openBaseDetailsModal('${base.id}')">
-            <span class="text-amber-400 font-bold text-xs">${base.uploaderName || 'Chief'}</span>
+            <span class="text-amber-400 font-bold text-xs">${base.uploaderName || "Chief"}</span>
             <h3 class="font-bold text-sm text-white line-clamp-2 my-1">${base.title}</h3>
           </div>
           <div class="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between">
-            <button onclick="window.handleLikeBase('${base.id}')" class="text-xs text-slate-400 flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4 ${isLiked ? 'fill-rose-500 text-rose-500' : ''}"></i><span>${base.likesCount || 0}</span></button>
+            <button onclick="window.handleLikeBase('${base.id}')" class="text-xs text-slate-400 flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4 ${isLiked ? "fill-rose-500 text-rose-500" : ""}"></i><span>${base.likesCount || 0}</span></button>
             <button onclick="window.copyBaseLink('${base.id}', '${base.link}')" class="bg-amber-500 text-black px-3 py-1.5 rounded-xl text-xs font-bold">Copy Link</button>
           </div>
         </div>
       </div>
     `;
-  }).join('');
+  }).join("");
   renderAllIcons();
 }
 
@@ -467,12 +572,19 @@ window.copyBaseLink = async function(baseId, link) {
 window.handleBaseUpload = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
-  if (!user) { window.showToast("Please login!", "error"); window.openModal('authModal'); return; }
+  if (!user) { 
+    window.showToast("Please login!", "error"); 
+    window.openModal("authModal"); 
+    return; 
+  }
   const rawLink = document.getElementById("uploadLink").value.trim();
   const file = document.getElementById("uploadImageFile")?.files[0];
-  if (!file) { window.showToast("Base screenshot required!", "error"); return; }
+  if (!file) { 
+    window.showToast("Base screenshot required!", "error"); 
+    return; 
+  }
   try {
-    const creatorIGN = currentUserProfile?.name || user.displayName || 'Chief';
+    const creatorIGN = currentUserProfile?.name || user.displayName || "Chief";
     const base64Image = await compressAndWatermarkImage(file, creatorIGN);
     const baseData = {
       zone: document.getElementById("uploadZone").value,
@@ -487,17 +599,23 @@ window.handleBaseUpload = async function(e) {
       createdAt: serverTimestamp()
     };
     await addDoc(collection(db, "bases"), baseData);
-    window.closeModal('uploadModal');
+    window.closeModal("uploadModal");
     e.target.reset();
     await loadBasesFromFirestore();
     window.showToast("✅ Layout published successfully!");
-  } catch (error) { window.showToast("Error: " + error.message, "error"); }
+  } catch (error) { 
+    window.showToast("Error: " + error.message, "error"); 
+  }
 };
 
 window.handleClanUpload = async function(e) {
   e.preventDefault();
   const user = auth.currentUser;
-  if (!user) { window.showToast("Please login first!", "error"); window.openModal('authModal'); return; }
+  if (!user) { 
+    window.showToast("Please login first!", "error"); 
+    window.openModal("authModal"); 
+    return; 
+  }
   const clanData = {
     name: document.getElementById("clanNameInput").value.trim(),
     tag: document.getElementById("clanTagInput").value.trim().toUpperCase(),
@@ -508,11 +626,13 @@ window.handleClanUpload = async function(e) {
   };
   try {
     await addDoc(collection(db, "clans"), clanData);
-    window.closeModal('postClanModal');
+    window.closeModal("postClanModal");
     e.target.reset();
     await loadClansFromFirestore();
     window.showToast("✅ Clan registered successfully!");
-  } catch (err) { window.showToast("Error: " + err.message, "error"); }
+  } catch (err) { 
+    window.showToast("Error: " + err.message, "error"); 
+  }
 };
 
 window.handleSaveProfile = async function(e) {
@@ -537,10 +657,12 @@ window.handleSaveProfile = async function(e) {
     await setDoc(doc(db, "users", user.uid), profileData, { merge: true });
     await updateProfile(user, { displayName: profileData.name });
     currentUserProfile = { ...currentUserProfile, ...profileData };
-    window.closeModal('editProfileModal');
+    window.closeModal("editProfileModal");
     window.showToast("Profile updated successfully!");
     setTimeout(() => location.reload(), 600);
-  } catch (err) { window.showToast("Error: " + err.message, "error"); }
+  } catch (err) { 
+    window.showToast("Error: " + err.message, "error"); 
+  }
 };
 
 window.handleEmailSignup = async function(e) {
@@ -553,26 +675,41 @@ window.handleEmailSignup = async function(e) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(userCredential.user, { displayName: name });
     await setDoc(doc(db, "users", userCredential.user.uid), {
-      name, townHallLevel: "TH 16", tag: tag || "#CLASH", clanName: "Solo", trophies: 5000, bio: "ClashZone Pro Builder", avatarUrl: "", followersCount: 0, createdAt: serverTimestamp()
+      name, 
+      townHallLevel: "TH 16", 
+      tag: tag || "#CLASH", 
+      clanName: "Solo", 
+      trophies: 5000, 
+      bio: "ClashZone Pro Builder", 
+      avatarUrl: "", 
+      followersCount: 0, 
+      createdAt: serverTimestamp()
     });
-    window.closeModal('authModal');
+    window.closeModal("authModal");
     window.showToast(`🎉 Welcome Chief ${name}!`);
     setTimeout(() => location.reload(), 800);
-  } catch (error) { window.showToast("Signup Error: " + error.message, "error"); }
+  } catch (error) { 
+    window.showToast("Signup Error: " + error.message, "error"); 
+  }
 };
 
 window.handleEmailLogin = async function(e) {
   e.preventDefault();
   try {
     await signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value.trim(), document.getElementById("loginPass").value.trim());
-    window.closeModal('authModal');
+    window.closeModal("authModal");
     window.showToast("✅ Login successful!");
     setTimeout(() => location.reload(), 600);
-  } catch (error) { window.showToast("Login Error: " + error.message, "error"); }
+  } catch (error) { 
+    window.showToast("Login Error: " + error.message, "error"); 
+  }
 };
 
 window.handleLogout = function() {
-  signOut(auth).then(() => { window.showToast("Logged out!"); setTimeout(() => location.reload(), 600); });
+  signOut(auth).then(() => { 
+    window.showToast("Logged out!"); 
+    setTimeout(() => location.reload(), 600); 
+  });
 };
 
 window.setTHFilter = function(th) { currentTH = th; renderBasesUI(); };
