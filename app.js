@@ -5,8 +5,7 @@ import {
   signInWithPhoneNumber,
   signInWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged,
-  updateProfile 
+  onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 import { 
   getFirestore, 
@@ -63,7 +62,6 @@ function renderAllIcons() {
   }
 }
 
-// Relative time formatter (e.g. 2h ago, 3d ago)
 function formatTimeAgo(timestamp) {
   if (!timestamp) return "Recently";
   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
@@ -142,12 +140,9 @@ function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 800, 
   });
 }
 
-// ----------------- PHONE OTP AUTH -----------------
 function setupRecaptcha() {
   if (!window.recaptchaVerifier) {
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptchaContainer', {
-      size: 'invisible'
-    });
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptchaContainer', { size: 'invisible' });
   }
 }
 
@@ -170,7 +165,6 @@ window.sendPhoneOtp = async function() {
     document.getElementById("phoneStep2").classList.remove("hidden");
     window.showToast("OTP sent to mobile!");
   } catch (error) {
-    console.error("Phone Auth Error:", error);
     window.showToast(error.message || "Failed to send OTP", "error");
     if (window.recaptchaVerifier) {
       window.recaptchaVerifier.clear();
@@ -294,7 +288,6 @@ function updateUserDashboardStats(uid) {
   renderUserSavedVault();
 }
 
-// ----------------- FILTERS & SEARCH -----------------
 window.switchZone = function(zone) {
   currentZone = zone; 
   currentTH = "ALL";
@@ -364,7 +357,6 @@ window.setSortOption = function(sortType) {
 
 window.filterBases = function() { renderBasesUI(); };
 
-// ----------------- PRO BASE CARDS RENDER ENGINE -----------------
 function renderBasesUI() {
   const container = document.getElementById("basesContainer");
   if (!container) return;
@@ -374,7 +366,8 @@ function renderBasesUI() {
     const matchZone = (base.zone || "home") === currentZone;
     const matchTH = currentTH === "ALL" || base.th === currentTH;
     const matchType = currentType === "ALL" || (base.type && base.type.toLowerCase().includes(currentType.toLowerCase()));
-    const matchSearch = (base.title || "").toLowerCase().includes(search) || (base.th || "").toLowerCase().includes(search) || (base.uploaderName || "").toLowerCase().includes(search);
+    const tagsString = (base.tags || []).join(" ").toLowerCase();
+    const matchSearch = (base.title || "").toLowerCase().includes(search) || (base.th || "").toLowerCase().includes(search) || (base.uploaderName || "").toLowerCase().includes(search) || tagsString.includes(search);
     return matchZone && matchTH && matchType && matchSearch;
   });
 
@@ -404,7 +397,7 @@ function renderBasesUI() {
     return `
       <div class="glass-panel card-pro rounded-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-amber-500/20 shadow-md">
         
-        <!-- CARD TOP: CREATOR & TIME -->
+        <!-- HEADER -->
         <div class="px-3.5 py-2.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-black/20">
           <div class="flex items-center gap-2 min-w-0">
             <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0">
@@ -419,51 +412,42 @@ function renderBasesUI() {
           <span class="text-[10px] text-slate-400 font-semibold shrink-0">${timeAgo}</span>
         </div>
 
-        <!-- IMAGE PREVIEW WITH FLOATING BADGES -->
+        <!-- IMAGE PREVIEW -->
         <div class="h-44 relative overflow-hidden bg-slate-950 cursor-pointer group" onclick="window.openBaseDetailsModal('${base.id}')">
           <img src="${base.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
           
-          <!-- Town Hall / Builder Hall Glowing Badge -->
           <div class="absolute top-2.5 left-2.5 bg-black/80 backdrop-blur-md border border-amber-500/40 text-amber-400 text-[10px] font-black px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1">
             <i data-lucide="shield" class="w-3 h-3 text-amber-400"></i>
             <span>${base.th}</span>
           </div>
 
-          <!-- Base Type Badge -->
           <div class="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-lg">
             ${base.type || 'War'}
           </div>
 
-          <!-- Quick Bookmark Floating Button -->
           <button onclick="event.stopPropagation(); window.toggleBookmark('${base.id}')" class="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-xl bg-black/70 hover:bg-black/90 backdrop-blur-md flex items-center justify-center text-white transition shadow border border-white/10" title="Bookmark">
             <i data-lucide="bookmark" class="w-4 h-4 ${isBookmarked ? 'fill-amber-400 text-amber-400' : ''}"></i>
           </button>
         </div>
 
-        <!-- CARD BODY -->
+        <!-- BODY -->
         <div class="p-3.5 flex flex-col flex-grow justify-between gap-3">
-          <div>
+          <div class="cursor-pointer" onclick="window.openBaseDetailsModal('${base.id}')">
             <h3 class="font-bold text-sm text-slate-900 dark:text-white line-clamp-1 group-hover:text-amber-400 transition" title="${base.title}">
               ${base.title}
             </h3>
 
-            <!-- EXTRA INFO STATS BAR (Views, Copies, Likes) -->
             <div class="flex items-center gap-3 mt-2 text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
-              <span class="flex items-center gap-1" title="Total Views">
-                <i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400"></i> ${views}
-              </span>
-              <span class="flex items-center gap-1" title="In-Game Copies">
-                <i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i> ${copies}
-              </span>
-              <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1 hover:text-rose-500 transition" title="Like Base">
+              <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400"></i> ${views}</span>
+              <span class="flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i> ${copies}</span>
+              <button onclick="event.stopPropagation(); window.handleLikeBase('${base.id}')" class="flex items-center gap-1 hover:text-rose-500 transition">
                 <i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}"></i>
                 <span class="${isLiked ? 'text-rose-500 font-bold' : ''}">${likes}</span>
               </button>
             </div>
           </div>
 
-          <!-- LAUNCH / COPY ACTION BUTTON -->
-          <button onclick="window.copyAndLaunchBase('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md hover:shadow-amber-500/20 transition transform active:scale-98">
+          <button onclick="window.copyAndLaunchBase('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md transition">
             <i data-lucide="external-link" class="w-4 h-4 stroke-[2.5]"></i>
             <span>Copy Base Layout</span>
           </button>
@@ -474,7 +458,6 @@ function renderBasesUI() {
   renderAllIcons();
 }
 
-// ----------------- INSTAGRAM STYLE PROFILE GRID & DELETE POST -----------------
 function renderInstagramProfileGrid(posts) {
   const container = document.getElementById("profileTabContentPosts");
   if (!container) return;
@@ -491,33 +474,26 @@ function renderInstagramProfileGrid(posts) {
   }
 
   container.innerHTML = posts.map(b => `
-    <div class="relative aspect-square rounded-xl overflow-hidden group bg-slate-900 border border-slate-200 dark:border-slate-800">
-      <!-- Thumbnail Image -->
+    <div class="relative aspect-square rounded-xl overflow-hidden group bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer" onclick="window.openBaseDetailsModal('${b.id}')">
       <img src="${b.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300" />
       
-      <!-- Town Hall Badge -->
       <span class="absolute top-1.5 left-1.5 bg-black/80 text-amber-400 text-[9px] font-black px-1.5 py-0.5 rounded shadow">
         ${b.th}
       </span>
 
-      <!-- INSTAGRAM STYLE HOVER OVERLAY -->
       <div class="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 transition duration-200 flex flex-col justify-between p-2">
-        
-        <!-- Delete Button (Top Right) -->
         <div class="flex justify-end">
-          <button onclick="window.deleteUserPost('${b.id}')" class="w-7 h-7 rounded-lg bg-rose-500/80 hover:bg-rose-600 text-white flex items-center justify-center transition shadow" title="Delete Base">
+          <button onclick="event.stopPropagation(); window.deleteUserPost('${b.id}')" class="w-7 h-7 rounded-lg bg-rose-500/80 hover:bg-rose-600 text-white flex items-center justify-center transition shadow" title="Delete Base">
             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
           </button>
         </div>
 
-        <!-- Center Copies & Likes Stats -->
-        <div class="flex items-center justify-center gap-3 text-white text-xs font-bold my-auto cursor-pointer" onclick="window.openBaseDetailsModal('${b.id}')">
+        <div class="flex items-center justify-center gap-3 text-white text-xs font-bold my-auto">
           <span class="flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i> ${b.copyCount || 0}</span>
           <span class="flex items-center gap-1"><i data-lucide="heart" class="w-3.5 h-3.5 text-rose-500 fill-rose-500"></i> ${b.likesCount || 0}</span>
         </div>
 
-        <!-- Copy Quick Action -->
-        <button onclick="window.copyAndLaunchBase('${b.id}', '${b.link}')" class="w-full bg-amber-500 text-black py-1 rounded-md text-[10px] font-black uppercase tracking-wider">
+        <button onclick="event.stopPropagation(); window.copyAndLaunchBase('${b.id}', '${b.link}')" class="w-full bg-amber-500 text-black py-1 rounded-md text-[10px] font-black uppercase tracking-wider">
           Copy
         </button>
       </div>
@@ -526,7 +502,6 @@ function renderInstagramProfileGrid(posts) {
   renderAllIcons();
 }
 
-// DELETE POST FUNCTION
 window.deleteUserPost = async function(baseId) {
   const confirmDelete = confirm("Are you sure you want to permanently delete this base layout?");
   if (!confirmDelete) return;
@@ -534,24 +509,16 @@ window.deleteUserPost = async function(baseId) {
   try {
     await deleteDoc(doc(db, "bases", baseId));
     window.showToast("Base deleted successfully!");
-    
-    // Update local state
     allFetchedBases = allFetchedBases.filter(b => b.id !== baseId);
-    if (auth.currentUser) {
-      updateUserDashboardStats(auth.currentUser.uid);
-    }
+    if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
     renderBasesUI();
   } catch (error) {
-    console.error("Error deleting post:", error);
     window.showToast("Failed to delete post", "error");
   }
 };
 
-// ----------------- COPY, VIEWS & COUNTERS -----------------
 window.copyAndLaunchBase = async function(baseId, link) {
   if (!link) return;
-
-  // Increment copy count in Firestore
   try {
     const baseRef = doc(db, "bases", baseId);
     updateDoc(baseRef, { copyCount: increment(1) });
@@ -559,15 +526,9 @@ window.copyAndLaunchBase = async function(baseId, link) {
     if (localBase) localBase.copyCount = (localBase.copyCount || 0) + 1;
   } catch (e) {}
 
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(link).catch(() => {});
-  }
-  
+  if (navigator.clipboard) navigator.clipboard.writeText(link).catch(() => {});
   window.showToast("Opening Clash of Clans with Layout...");
-  
-  setTimeout(() => {
-    window.location.href = link;
-  }, 400);
+  setTimeout(() => { window.location.href = link; }, 400);
 };
 
 window.toggleBookmark = function(baseId) {
@@ -599,12 +560,11 @@ window.handleLikeBase = async function(baseId) {
   if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
 };
 
-// ----------------- MODAL POPUP (RECORD VIEWS) -----------------
+// ----------------- DEDICATED POST DETAILS MODAL WITH SMART SHARE -----------------
 window.openBaseDetailsModal = async function(baseId) {
   const base = allFetchedBases.find(b => b.id === baseId);
   if (!base) return;
 
-  // Track unique session views
   if (!viewedBases.includes(baseId)) {
     viewedBases.push(baseId);
     sessionStorage.setItem("cz_viewed_bases", JSON.stringify(viewedBases));
@@ -619,30 +579,38 @@ window.openBaseDetailsModal = async function(baseId) {
     modal.className = "fixed inset-0 bg-black/85 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto";
     document.body.appendChild(modal);
   }
-  const shareText = encodeURIComponent(`Check out this ${base.th} layout "${base.title}" on ClashZone!\nCopy: ${base.link}`);
+
+  // SMART SHARE LINK: Points to website URL with base ID so visitors come to ClashZone
+  const siteUrl = window.location.origin + window.location.pathname + `?base=${base.id}`;
+  const shareText = encodeURIComponent(`🔥 Check out this ${base.th} layout "${base.title}" on ClashZone!\nView & Copy Base here:\n${siteUrl}`);
   const whatsappUrl = `https://api.whatsapp.com/send?text=${shareText}`;
   const timeAgo = formatTimeAgo(base.createdAt);
-  
+
+  const tagsHtml = (base.tags && base.tags.length > 0) ? base.tags.map(t => `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">#${t.trim()}</span>`).join("") : "";
+  const descHtml = base.description ? `<div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">${base.description}</div>` : "";
+
   modal.innerHTML = `
-    <div class="glass-panel rounded-2xl w-full max-w-lg p-5 relative shadow-2xl my-auto space-y-3">
+    <div class="glass-panel rounded-2xl w-full max-w-lg p-5 relative shadow-2xl my-auto space-y-3 max-h-[90vh] overflow-y-auto scrollbar-none">
       <button onclick="window.closeModal('baseDetailsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-sm">✕</button>
       
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="bg-amber-500/20 text-amber-500 font-extrabold px-2.5 py-0.5 rounded text-xs">${base.th} • ${(base.type || 'War').toUpperCase()}</span>
-          <span class="text-[10px] text-slate-400 font-bold">${timeAgo}</span>
+          <span class="text-[10px] text-slate-400 font-semibold">${timeAgo}</span>
         </div>
         <span class="text-xs text-slate-400">By <b class="text-amber-400">${base.uploaderName || 'Chief'}</b></span>
       </div>
 
       <h3 class="text-base font-bold dark:text-white">${base.title}</h3>
       
-      <div class="w-full h-64 sm:h-72 rounded-xl overflow-hidden bg-slate-950">
+      <div class="w-full h-64 sm:h-72 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
         <img src="${base.image}" class="w-full h-full object-cover" />
       </div>
 
-      <!-- Stats Bar in Modal -->
-      <div class="flex items-center gap-4 text-xs font-semibold text-slate-400 py-1">
+      ${descHtml}
+      ${tagsHtml ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHtml}</div>` : ""}
+
+      <div class="flex items-center gap-4 text-xs font-semibold text-slate-400 py-1 border-t border-slate-200 dark:border-slate-800">
         <span class="flex items-center gap-1"><i data-lucide="eye" class="w-4 h-4 text-cyan-400"></i> ${base.viewsCount || 0} Views</span>
         <span class="flex items-center gap-1"><i data-lucide="download" class="w-4 h-4 text-amber-400"></i> ${base.copyCount || 0} Copies</span>
         <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4 text-rose-500"></i> ${base.likesCount || 0} Likes</span>
@@ -653,7 +621,7 @@ window.openBaseDetailsModal = async function(baseId) {
           <i data-lucide="external-link" class="w-4 h-4"></i> Copy In-Game Layout
         </button>
         <a href="${whatsappUrl}" target="_blank" class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 px-4 py-2.5 rounded-xl font-bold text-xs uppercase flex items-center gap-1">
-          <i data-lucide="share-2" class="w-4 h-4"></i> Share
+          <i data-lucide="share-2" class="w-4 h-4"></i> Share Site
         </a>
       </div>
     </div>
@@ -691,10 +659,15 @@ window.handleBaseUpload = async function(e) {
   }
   const rawLink = document.getElementById("uploadLink").value.trim();
   const file = document.getElementById("uploadImageFile")?.files[0];
+  const descriptionText = document.getElementById("uploadDescription")?.value.trim() || "";
+  const rawTags = document.getElementById("uploadTags")?.value.trim() || "";
+  const tagsArray = rawTags ? rawTags.split(",").map(t => t.trim()).filter(t => t.length > 0) : [];
+
   if (!file) { 
     window.showToast("Base screenshot required!", "error"); 
     return; 
   }
+
   try {
     const creatorIGN = currentUserProfile?.name || user.displayName || user.phoneNumber || "Chief";
     const base64Image = await compressAndWatermarkImage(file, creatorIGN);
@@ -703,6 +676,8 @@ window.handleBaseUpload = async function(e) {
       th: document.getElementById("uploadTH").value,
       type: document.getElementById("uploadType").value,
       title: document.getElementById("uploadTitle").value.trim(),
+      description: descriptionText,
+      tags: tagsArray,
       link: rawLink,
       image: base64Image,
       uploaderUid: user.uid,
@@ -779,11 +754,15 @@ async function loadBasesFromFirestore() {
     allFetchedBases = [];
     querySnapshot.forEach(docSnap => allFetchedBases.push({ id: docSnap.id, ...docSnap.data() }));
     renderBasesUI();
-    if (auth.currentUser) {
-      updateUserDashboardStats(auth.currentUser.uid);
+    if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
+
+    // Check if URL has ?base=ID query parameter to auto-open shared base detail popup
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedBaseId = urlParams.get("base");
+    if (sharedBaseId) {
+      setTimeout(() => window.openBaseDetailsModal(sharedBaseId), 500);
     }
   } catch (error) { 
-    console.error("Error reading bases:", error);
     renderBasesUI(); 
   }
 }

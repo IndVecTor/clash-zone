@@ -56,7 +56,6 @@
       color: #0f172a;
     }
 
-    /* Clean Changa One Logo Typography */
     .cz-brand-title {
       font-family: 'Changa One', sans-serif;
       letter-spacing: 1px;
@@ -79,7 +78,6 @@
       border: 1px solid rgba(226, 232, 240, 0.9); 
     }
     
-    /* Card Glass Glow on hover */
     .card-pro {
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -157,7 +155,7 @@
     <!-- VIEW 1: FEED -->
     <div id="viewFeedSection">
       
-      <!-- PURE AUTO-SCROLLING BANNER -->
+      <!-- BANNER CAROUSEL -->
       <div class="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-amber-500/25 bg-slate-950 p-1 mb-3 shadow-xl group">
         <div id="carouselWrapper" class="relative w-full h-44 sm:h-56 md:h-64 rounded-xl overflow-hidden">
           <div id="carouselTrack" class="flex transition-transform duration-700 ease-in-out h-full w-full"></div>
@@ -177,7 +175,7 @@
       <section class="w-full mb-3">
         <div class="max-w-lg mx-auto bg-white dark:bg-czDark border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-sm">
           <i data-lucide="search" class="text-amber-500 w-4 h-4 shrink-0"></i>
-          <input type="text" id="searchInput" onkeyup="window.filterBases && window.filterBases()" placeholder="Search TH level, title, tag (War, Trophy, Hybrid)..." class="w-full bg-transparent border-none text-slate-900 dark:text-white text-xs outline-none placeholder-slate-400 font-medium" />
+          <input type="text" id="searchInput" onkeyup="window.filterBases && window.filterBases()" placeholder="Search TH level, title, tags..." class="w-full bg-transparent border-none text-slate-900 dark:text-white text-xs outline-none placeholder-slate-400 font-medium" />
         </div>
       </section>
 
@@ -249,7 +247,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clansContainer"></div>
     </div>
 
-    <!-- VIEW 4: PROFILE SECTION (WITH INSTAGRAM STYLE GRID & DELETE) -->
+    <!-- VIEW 4: PROFILE -->
     <div id="viewProfileSection" class="hidden py-6 max-w-2xl mx-auto">
       <div id="profileLoggedOutView" class="glass-panel rounded-2xl p-8 text-center space-y-3">
         <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto border border-amber-500/30">
@@ -261,8 +259,6 @@
       </div>
 
       <div id="profileLoggedInView" class="hidden space-y-4">
-        
-        <!-- Chief Profile Card -->
         <div class="glass-panel rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-amber-500/20">
           <div class="flex items-center gap-4">
             <div class="w-16 h-16 rounded-full bg-amber-500/20 p-[2px] border border-amber-500/40 shrink-0">
@@ -281,7 +277,6 @@
             </div>
           </div>
 
-          <!-- Stats Strip -->
           <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 text-center">
             <div>
               <span id="statPostsCount" class="block font-black text-sm text-slate-900 dark:text-white">0</span>
@@ -303,7 +298,6 @@
           </div>
         </div>
 
-        <!-- Instagram Profile Switch Tabs -->
         <div class="flex items-center justify-center gap-2 bg-slate-100 dark:bg-czDark p-1 rounded-xl border border-slate-200 dark:border-slate-800">
           <button onclick="window.switchProfileTab('posts')" id="pTabPosts" class="flex-1 py-2 rounded-lg text-xs font-bold transition bg-amber-500 text-black flex items-center justify-center gap-1.5">
             <i data-lucide="grid" class="w-3.5 h-3.5"></i>
@@ -315,7 +309,6 @@
           </button>
         </div>
 
-        <!-- INSTAGRAM STYLE 3-COLUMN SQUARE GRID WITH DELETE BUTTON -->
         <div id="profileTabContentPosts" class="grid grid-cols-3 gap-2"></div>
         <div id="profileTabContentSaved" class="hidden space-y-2.5"></div>
       </div>
@@ -370,7 +363,7 @@
     </div>
   </div>
 
-  <!-- UPLOAD MODAL -->
+  <!-- UPLOAD MODAL (WITH DESCRIPTION & CUSTOM TAGS) -->
   <div class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="uploadModal">
     <div class="glass-panel rounded-2xl w-full max-w-md p-6 relative shadow-2xl my-auto">
       <button onclick="window.closeModal('uploadModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
@@ -386,6 +379,19 @@
         </div>
         <select id="uploadType" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400"><option>War</option><option>Anti 3-Star</option><option>Anti-Edrag</option><option>Trophy</option><option>Farming</option><option>Hybrid</option></select>
         <input type="text" id="uploadTitle" placeholder="Base Title (e.g. TH16 Legends League Ring Base)" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400" />
+        
+        <!-- Long Description Box (No limit) -->
+        <div>
+          <label class="text-[10px] text-slate-400 font-bold block mb-1">Base Strategy & Notes (Optional)</label>
+          <textarea id="uploadDescription" placeholder="Write strategy, CC troops recommendation, or trap guide..." rows="3" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400"></textarea>
+        </div>
+
+        <!-- Custom Tags Box -->
+        <div>
+          <label class="text-[10px] text-slate-400 font-bold block mb-1">Custom Tags (Comma Separated)</label>
+          <input type="text" id="uploadTags" placeholder="Anti-Edrag, CWL, Legends, HardCore" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
+        </div>
+
         <div>
           <label class="text-[10px] text-slate-400 font-bold block mb-1">Base Screenshot</label>
           <input type="file" id="uploadImageFile" accept="image/*" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2 text-xs" />
@@ -520,7 +526,6 @@
       startBannerAutoplay();
     }
 
-    // PWA & Theme scripts
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
