@@ -89,11 +89,11 @@
     </div>
   </div>
 
-  <!-- HEADER WITH BIGGER LOGO (Height increased to h-20) -->
+  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-white/95 dark:bg-czDark/95 backdrop-blur-xl border-b border-slate-200 dark:border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-3">
       
-      <!-- LARGER SHIELD LOGO (w-14 h-14 to w-16 h-16) -->
+      <!-- SHIELD LOGO -->
       <a href="index.html" class="flex items-center gap-3.5 shrink-0 group select-none">
         <div class="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0">
           <div class="w-full h-full rounded-2xl bg-gradient-to-b from-amber-400 via-amber-600 to-yellow-600 p-[2px] shadow-[0_0_22px_rgba(245,158,11,0.65)] group-hover:shadow-[0_0_30px_rgba(245,158,11,0.9)] transition duration-300">
@@ -143,19 +143,48 @@
     <!-- VIEW 1: FEED -->
     <div id="viewFeedSection">
       
-      <!-- HERO BANNER -->
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-950/40 via-czCard to-czDark border border-slate-200 dark:border-amber-500/20 bg-slate-900 text-white p-4 sm:p-6 mb-3 shadow-xl">
-        <div class="relative z-10 max-w-xl space-y-2">
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-extrabold tracking-wider uppercase">
-            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
-            Supercell Deep-Link Verified
+      <!-- HERO AUTO-SCROLLING IMAGE BANNER CAROUSEL -->
+      <div class="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-amber-500/30 bg-slate-950 p-1 mb-3 shadow-xl group">
+        <!-- Slider Container -->
+        <div id="carouselWrapper" class="relative w-full h-44 sm:h-56 md:h-64 rounded-xl overflow-hidden">
+          <div id="carouselTrack" class="flex transition-transform duration-700 ease-in-out h-full w-full">
+            
+            <!-- Slide 1 -->
+            <div class="min-w-full h-full relative shrink-0">
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsWVGhC1Rz1F1lk1_BvX7wCG3In77a9e3if1-MgGMXbw&s=10" alt="Clash Arena 1" class="w-full h-full object-cover" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4">
+                <span class="bg-amber-500 text-black text-[10px] font-black uppercase px-2.5 py-0.5 rounded shadow-lg">Featured Anti 3-Star Bases</span>
+              </div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="min-w-full h-full relative shrink-0">
+              <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80" alt="Clash Arena 2" class="w-full h-full object-cover" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4">
+                <span class="bg-amber-500 text-black text-[10px] font-black uppercase px-2.5 py-0.5 rounded shadow-lg">Legends League Trophy Bases</span>
+              </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="min-w-full h-full relative shrink-0">
+              <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80" alt="Clash Arena 3" class="w-full h-full object-cover" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-4">
+                <span class="bg-amber-500 text-black text-[10px] font-black uppercase px-2.5 py-0.5 rounded shadow-lg">CWL & War Layouts Direct Link</span>
+              </div>
+            </div>
+
           </div>
-          <h1 class="text-xl sm:text-2xl font-black text-white leading-tight font-['Rajdhani']">
-            BEST <span class="gold-gradient">CLASH OF CLANS</span> BASES
-          </h1>
-          <p class="text-xs text-slate-300 font-medium">
-            Copy base layouts with buildings and traps directly into your game with 1 click.
-          </p>
+
+          <!-- Carousel Controls -->
+          <button onclick="window.prevBannerSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-sm transition border border-white/10 opacity-75 group-hover:opacity-100">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <button onclick="window.nextBannerSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-sm transition border border-white/10 opacity-75 group-hover:opacity-100">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Carousel Indicators Dots -->
+          <div id="carouselDots" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20"></div>
         </div>
       </div>
 
@@ -404,6 +433,81 @@
   </div>
 
   <script>
+    // AUTO-SCROLLING CAROUSEL ENGINE
+    let currentBannerIndex = 0;
+    let bannerInterval;
+
+    function initBannerCarousel() {
+      const track = document.getElementById('carouselTrack');
+      const dotsContainer = document.getElementById('carouselDots');
+      if (!track || !dotsContainer) return;
+
+      const totalSlides = track.children.length;
+      dotsContainer.innerHTML = '';
+
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('button');
+        dot.className = `h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-5 bg-amber-400' : 'w-1.5 bg-white/40'}`;
+        dot.onclick = () => window.goToBannerSlide(i);
+        dotsContainer.appendChild(dot);
+      }
+
+      startBannerAutoplay();
+    }
+
+    function updateBannerUI() {
+      const track = document.getElementById('carouselTrack');
+      const dotsContainer = document.getElementById('carouselDots');
+      if (!track || !dotsContainer) return;
+
+      track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+
+      Array.from(dotsContainer.children).forEach((dot, idx) => {
+        if (idx === currentBannerIndex) {
+          dot.className = 'h-1.5 w-5 bg-amber-400 rounded-full transition-all duration-300';
+        } else {
+          dot.className = 'h-1.5 w-1.5 bg-white/40 rounded-full transition-all duration-300';
+        }
+      });
+    }
+
+    window.nextBannerSlide = function() {
+      const track = document.getElementById('carouselTrack');
+      if (!track) return;
+      currentBannerIndex = (currentBannerIndex + 1) % track.children.length;
+      updateBannerUI();
+      resetBannerAutoplay();
+    };
+
+    window.prevBannerSlide = function() {
+      const track = document.getElementById('carouselTrack');
+      if (!track) return;
+      currentBannerIndex = (currentBannerIndex - 1 + track.children.length) % track.children.length;
+      updateBannerUI();
+      resetBannerAutoplay();
+    };
+
+    window.goToBannerSlide = function(index) {
+      currentBannerIndex = index;
+      updateBannerUI();
+      resetBannerAutoplay();
+    };
+
+    function startBannerAutoplay() {
+      bannerInterval = setInterval(() => {
+        const track = document.getElementById('carouselTrack');
+        if (!track) return;
+        currentBannerIndex = (currentBannerIndex + 1) % track.children.length;
+        updateBannerUI();
+      }, 3500); // Har 3.5 second me auto-scroll hoga
+    }
+
+    function resetBannerAutoplay() {
+      clearInterval(bannerInterval);
+      startBannerAutoplay();
+    }
+
+    // PWA Prompt
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -425,6 +529,7 @@
 
     document.getElementById('btnPwaInstall')?.addEventListener('click', window.triggerPwaPrompt);
 
+    // Theme Toggle
     function initTheme() {
       const isDark = localStorage.getItem('cz_theme') !== 'light';
       document.documentElement.classList.toggle('dark', isDark);
@@ -461,6 +566,7 @@
     };
 
     window.addEventListener('DOMContentLoaded', () => {
+      initBannerCarousel();
       if (window.lucide && lucide.createIcons) lucide.createIcons();
     });
   </script>
