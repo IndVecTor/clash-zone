@@ -12,7 +12,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   
-  <!-- Premium Gaming & Esports Fonts -->
+  <!-- Changa One & Rajdhani Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Changa+One&family=Rajdhani:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   
   <script>
@@ -56,7 +56,7 @@
       color: #0f172a;
     }
 
-    /* PREMIUM ESPORTS CLASHZONE BRANDING (CLEAN & SHARP) */
+    /* Clean Changa One Logo Typography */
     .cz-brand-title {
       font-family: 'Changa One', sans-serif;
       letter-spacing: 1px;
@@ -69,7 +69,7 @@
     }
 
     .dark .glass-panel { 
-      background: rgba(7, 12, 24, 0.9); 
+      background: rgba(7, 12, 24, 0.88); 
       backdrop-filter: blur(20px); 
       border: 1px solid rgba(245, 158, 11, 0.18); 
     }
@@ -78,6 +78,16 @@
       backdrop-filter: blur(20px); 
       border: 1px solid rgba(226, 232, 240, 0.9); 
     }
+    
+    /* Card Glass Glow on hover */
+    .card-pro {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card-pro:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px -10px rgba(245, 158, 11, 0.25);
+    }
+
     .scrollbar-none::-webkit-scrollbar { display: none; }
     .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
     .bnav-btn { transition: all 0.2s ease-in-out; }
@@ -104,10 +114,8 @@
   <header class="sticky top-0 z-40 bg-white/95 dark:bg-czDark/95 backdrop-blur-xl border-b border-slate-200 dark:border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-3">
       
-      <!-- LOGO (CUSTOM EMBLEM + CLEAN TEXT) -->
+      <!-- LOGO -->
       <a href="index.html" class="flex items-center gap-3.5 shrink-0 group select-none py-1">
-        
-        <!-- Shield Emblem Character (Aapka Lagaya Hua Logo) -->
         <div class="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0">
           <div class="w-full h-full rounded-2xl bg-gradient-to-b from-amber-400 via-amber-600 to-yellow-600 p-[2px] shadow-[0_0_20px_rgba(245,158,11,0.65)] group-hover:scale-105 transition duration-300">
             <div class="w-full h-full bg-[#070c18] rounded-[14px] flex items-center justify-center overflow-hidden relative">
@@ -121,7 +129,6 @@
           </div>
         </div>
 
-        <!-- CLEAN BRANDING TEXT (NO BRACKETS / NO DOTS) -->
         <div class="flex flex-col justify-center">
           <span class="cz-brand-title text-2xl sm:text-3xl font-black leading-none">
             Clashzone
@@ -170,7 +177,7 @@
       <section class="w-full mb-3">
         <div class="max-w-lg mx-auto bg-white dark:bg-czDark border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-sm">
           <i data-lucide="search" class="text-amber-500 w-4 h-4 shrink-0"></i>
-          <input type="text" id="searchInput" onkeyup="window.filterBases && window.filterBases()" placeholder="Search TH level, tag (War, Hybrid, Anti 2-Star)..." class="w-full bg-transparent border-none text-slate-900 dark:text-white text-xs outline-none placeholder-slate-400 font-medium" />
+          <input type="text" id="searchInput" onkeyup="window.filterBases && window.filterBases()" placeholder="Search TH level, title, tag (War, Trophy, Hybrid)..." class="w-full bg-transparent border-none text-slate-900 dark:text-white text-xs outline-none placeholder-slate-400 font-medium" />
         </div>
       </section>
 
@@ -202,6 +209,7 @@
             <span class="text-[10px] font-bold uppercase text-slate-400 shrink-0">Order:</span>
             <button onclick="window.setSortOption('latest')" id="sortLatest" class="px-2.5 py-1 rounded-lg text-xs font-bold transition bg-amber-500 text-black">Newest</button>
             <button onclick="window.setSortOption('copies')" id="sortCopies" class="px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:text-amber-500">Most Copied</button>
+            <button onclick="window.setSortOption('views')" id="sortViews" class="px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:text-amber-500">Most Viewed</button>
             <button onclick="window.setSortOption('likes')" id="sortLikes" class="px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:text-amber-500">Top Rated</button>
           </div>
         </div>
@@ -241,7 +249,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clansContainer"></div>
     </div>
 
-    <!-- VIEW 4: PROFILE -->
+    <!-- VIEW 4: PROFILE SECTION (WITH INSTAGRAM STYLE GRID & DELETE) -->
     <div id="viewProfileSection" class="hidden py-6 max-w-2xl mx-auto">
       <div id="profileLoggedOutView" class="glass-panel rounded-2xl p-8 text-center space-y-3">
         <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto border border-amber-500/30">
@@ -253,6 +261,8 @@
       </div>
 
       <div id="profileLoggedInView" class="hidden space-y-4">
+        
+        <!-- Chief Profile Card -->
         <div class="glass-panel rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-amber-500/20">
           <div class="flex items-center gap-4">
             <div class="w-16 h-16 rounded-full bg-amber-500/20 p-[2px] border border-amber-500/40 shrink-0">
@@ -264,10 +274,26 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
                 <h2 id="profileIGN" class="text-base font-bold truncate">Chief Player</h2>
-                <span id="profileTHBadge" class="bg-amber-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded">TH 16</span>
+                <span id="profileTHBadge" class="bg-amber-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded shadow">TH 16</span>
               </div>
               <p id="profileTagClan" class="text-xs text-slate-400 font-mono mt-0.5 truncate">#CLASH | Solo</p>
               <p id="profileBioText" class="text-xs text-slate-500 dark:text-slate-300 italic mt-1">No bio added.</p>
+            </div>
+          </div>
+
+          <!-- Stats Strip -->
+          <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 text-center">
+            <div>
+              <span id="statPostsCount" class="block font-black text-sm text-slate-900 dark:text-white">0</span>
+              <span class="text-[10px] text-slate-400 uppercase font-bold">Posts</span>
+            </div>
+            <div>
+              <span id="statCopiesCount" class="block font-black text-sm text-amber-500">0</span>
+              <span class="text-[10px] text-slate-400 uppercase font-bold">Copies</span>
+            </div>
+            <div>
+              <span id="statLikesCount" class="block font-black text-sm text-rose-500">0</span>
+              <span class="text-[10px] text-slate-400 uppercase font-bold">Likes</span>
             </div>
           </div>
 
@@ -277,12 +303,20 @@
           </div>
         </div>
 
+        <!-- Instagram Profile Switch Tabs -->
         <div class="flex items-center justify-center gap-2 bg-slate-100 dark:bg-czDark p-1 rounded-xl border border-slate-200 dark:border-slate-800">
-          <button onclick="window.switchProfileTab('posts')" id="pTabPosts" class="flex-1 py-2 rounded-lg text-xs font-bold transition bg-amber-500 text-black">My Uploads (<span id="tabPostNum">0</span>)</button>
-          <button onclick="window.switchProfileTab('saved')" id="pTabSaved" class="flex-1 py-2 rounded-lg text-xs font-bold transition text-slate-500 dark:text-slate-400">Vault</button>
+          <button onclick="window.switchProfileTab('posts')" id="pTabPosts" class="flex-1 py-2 rounded-lg text-xs font-bold transition bg-amber-500 text-black flex items-center justify-center gap-1.5">
+            <i data-lucide="grid" class="w-3.5 h-3.5"></i>
+            <span>Uploads (<span id="tabPostNum">0</span>)</span>
+          </button>
+          <button onclick="window.switchProfileTab('saved')" id="pTabSaved" class="flex-1 py-2 rounded-lg text-xs font-bold transition text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
+            <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+            <span>Vault</span>
+          </button>
         </div>
 
-        <div id="profileTabContentPosts" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        <!-- INSTAGRAM STYLE 3-COLUMN SQUARE GRID WITH DELETE BUTTON -->
+        <div id="profileTabContentPosts" class="grid grid-cols-3 gap-2"></div>
         <div id="profileTabContentSaved" class="hidden space-y-2.5"></div>
       </div>
     </div>
@@ -410,7 +444,7 @@
     </div>
   </div>
 
-  <!-- BANNER IMAGES LIST & SLIDER LOGIC -->
+  <!-- BANNER CAROUSEL SCRIPT -->
   <script>
     const bannerImages = [
       "https://lh3.googleusercontent.com/d/1anPBvlizAv0vB2pyqQe5e9G3yg0pRbgu",
