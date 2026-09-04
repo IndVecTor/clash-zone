@@ -247,7 +247,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clansContainer"></div>
     </div>
 
-    <!-- VIEW 4: PROFILE -->
+    <!-- VIEW 4: PROFILE SECTION (WITH RANK BADGES & DEDICATED ANALYTICS VIEW) -->
     <div id="viewProfileSection" class="hidden py-6 max-w-2xl mx-auto">
       <div id="profileLoggedOutView" class="glass-panel rounded-2xl p-8 text-center space-y-3">
         <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto border border-amber-500/30">
@@ -259,9 +259,11 @@
       </div>
 
       <div id="profileLoggedInView" class="hidden space-y-4">
-        <div class="glass-panel rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-amber-500/20">
+        
+        <!-- Chief Profile Card with Rank Badge -->
+        <div class="glass-panel rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-amber-500/20 relative overflow-hidden">
           <div class="flex items-center gap-4">
-            <div class="w-16 h-16 rounded-full bg-amber-500/20 p-[2px] border border-amber-500/40 shrink-0">
+            <div id="profileRankAvatarWrap" class="w-16 h-16 rounded-full bg-amber-500/20 p-[2px] border-2 border-amber-500 shrink-0 relative">
               <div id="profileAvatarContainer" class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-amber-400 text-xl font-bold overflow-hidden">
                 <span id="profileAvatarInitial">C</span>
               </div>
@@ -271,12 +273,14 @@
               <div class="flex items-center gap-2 flex-wrap">
                 <h2 id="profileIGN" class="text-base font-bold truncate">Chief Player</h2>
                 <span id="profileTHBadge" class="bg-amber-500 text-black text-[10px] font-black px-1.5 py-0.5 rounded shadow">TH 16</span>
+                <span id="profileRankTierBadge" class="bg-gradient-to-r from-amber-600 to-yellow-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow">Bronze Builder</span>
               </div>
               <p id="profileTagClan" class="text-xs text-slate-400 font-mono mt-0.5 truncate">#CLASH | Solo</p>
               <p id="profileBioText" class="text-xs text-slate-500 dark:text-slate-300 italic mt-1">No bio added.</p>
             </div>
           </div>
 
+          <!-- Quick Stats Strip -->
           <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 text-center">
             <div>
               <span id="statPostsCount" class="block font-black text-sm text-slate-900 dark:text-white">0</span>
@@ -292,12 +296,18 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-2 mt-4">
+          <!-- Dedicated Analytics Button -->
+          <button onclick="window.openModal('analyticsModal')" class="w-full mt-3 bg-slate-900/40 dark:bg-black/30 hover:bg-amber-500/10 border border-amber-500/30 text-amber-400 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="bar-chart-2" class="w-4 h-4"></i> View Detailed Performance & Milestones
+          </button>
+
+          <div class="flex items-center gap-2 mt-3">
             <button onclick="window.openModal('editProfileModal')" class="flex-1 bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 py-2.5 rounded-xl font-bold text-xs transition">Edit Profile</button>
             <button onclick="window.handleLogout()" class="px-4 py-2.5 bg-rose-500/10 text-rose-500 rounded-xl transition text-xs font-bold">Logout</button>
           </div>
         </div>
 
+        <!-- Profile Tabs -->
         <div class="flex items-center justify-center gap-2 bg-slate-100 dark:bg-czDark p-1 rounded-xl border border-slate-200 dark:border-slate-800">
           <button onclick="window.switchProfileTab('posts')" id="pTabPosts" class="flex-1 py-2 rounded-lg text-xs font-bold transition bg-amber-500 text-black flex items-center justify-center gap-1.5">
             <i data-lucide="grid" class="w-3.5 h-3.5"></i>
@@ -363,7 +373,7 @@
     </div>
   </div>
 
-  <!-- UPLOAD MODAL (WITH DESCRIPTION & CUSTOM TAGS) -->
+  <!-- UPLOAD MODAL -->
   <div class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="uploadModal">
     <div class="glass-panel rounded-2xl w-full max-w-md p-6 relative shadow-2xl my-auto">
       <button onclick="window.closeModal('uploadModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
@@ -380,13 +390,11 @@
         <select id="uploadType" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400"><option>War</option><option>Anti 3-Star</option><option>Anti-Edrag</option><option>Trophy</option><option>Farming</option><option>Hybrid</option></select>
         <input type="text" id="uploadTitle" placeholder="Base Title (e.g. TH16 Legends League Ring Base)" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400" />
         
-        <!-- Long Description Box (No limit) -->
         <div>
           <label class="text-[10px] text-slate-400 font-bold block mb-1">Base Strategy & Notes (Optional)</label>
           <textarea id="uploadDescription" placeholder="Write strategy, CC troops recommendation, or trap guide..." rows="3" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400"></textarea>
         </div>
 
-        <!-- Custom Tags Box -->
         <div>
           <label class="text-[10px] text-slate-400 font-bold block mb-1">Custom Tags (Comma Separated)</label>
           <input type="text" id="uploadTags" placeholder="Anti-Edrag, CWL, Legends, HardCore" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400" />
@@ -413,6 +421,49 @@
         <textarea id="editBio" placeholder="Bio description..." rows="2" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400"></textarea>
         <button type="submit" class="w-full bg-amber-500 text-black py-2.5 rounded-xl font-bold text-xs uppercase">Save Changes</button>
       </form>
+    </div>
+  </div>
+
+  <!-- DEDICATED ANALYTICS & MILESTONES MODAL -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="analyticsModal">
+    <div class="glass-panel rounded-2xl w-full max-w-lg p-6 relative shadow-2xl my-auto space-y-4 max-h-[90vh] overflow-y-auto scrollbar-none">
+      <button onclick="window.closeModal('analyticsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-sm">✕</button>
+      
+      <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold">
+          <i data-lucide="award" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold dark:text-white">Builder Performance & Trophies</h3>
+          <p class="text-xs text-slate-400">Detailed analytics and achievement milestones</p>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+        <div class="bg-slate-100 dark:bg-czDark p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+          <span id="analyticsTotalPosts" class="block font-black text-lg text-slate-900 dark:text-white">0</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Total Layouts</span>
+        </div>
+        <div class="bg-slate-100 dark:bg-czDark p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+          <span id="analyticsTotalCopies" class="block font-black text-lg text-amber-500">0</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">In-Game Copies</span>
+        </div>
+        <div class="bg-slate-100 dark:bg-czDark p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+          <span id="analyticsTotalLikes" class="block font-black text-lg text-rose-500">0</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Total Likes</span>
+        </div>
+        <div class="bg-slate-100 dark:bg-czDark p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+          <span id="analyticsRepScore" class="block font-black text-lg text-cyan-400">0</span>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Rep Score</span>
+        </div>
+      </div>
+
+      <!-- Milestones List -->
+      <div>
+        <h4 class="text-xs font-black uppercase text-amber-500 tracking-wider mb-2.5">Achievement Milestones</h4>
+        <div id="milestonesContainer" class="space-y-2"></div>
+      </div>
     </div>
   </div>
 

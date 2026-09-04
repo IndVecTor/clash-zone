@@ -274,18 +274,107 @@ onAuthStateChanged(auth, async (user) => {
   renderAllIcons();
 });
 
+// CALCULATE RANK TIER & STATS
 function updateUserDashboardStats(uid) {
   const userPosts = allFetchedBases.filter(b => b.uploaderUid === uid);
   const totalCopies = userPosts.reduce((acc, b) => acc + (b.copyCount || 0), 0);
   const totalLikes = userPosts.reduce((acc, b) => acc + (b.likesCount || 0), 0);
+  const postsCount = userPosts.length;
 
-  if (document.getElementById("statPostsCount")) document.getElementById("statPostsCount").innerText = userPosts.length;
-  if (document.getElementById("tabPostNum")) document.getElementById("tabPostNum").innerText = userPosts.length;
+  // Determine Creator Tier / Rank Badge
+  let tierName = "Bronze Builder";
+  let tierColor = "from-amber-700 to-yellow-600";
+  if (postsCount >= 50) {
+    tierName = "Legendary Architect 👑";
+    tierColor = "from-purple-600 via-pink-500 to-amber-400";
+  } else if (postsCount >= 31) {
+    tierName = "Platinum Master ⭐";
+    tierColor = "from-cyan-500 to-blue-600";
+  } else if (postsCount >= 16) {
+    tierName = "Gold General ⚡";
+    tierColor = "from-yellow-400 to-amber-500";
+  } else if (postsCount >= 6) {
+    tierName = "Silver Tactician 🛡️";
+    tierColor = "from-slate-400 to-slate-600";
+  }
+
+  const rankBadgeEl = document.getElementById("profileRankTierBadge");
+  if (rankBadgeEl) {
+    rankBadgeEl.innerText = tierName;
+    rankBadgeEl.className = `bg-gradient-to-r ${tierColor} text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow`;
+  }
+
+  // Update quick stats counters
+  if (document.getElementById("statPostsCount")) document.getElementById("statPostsCount").innerText = postsCount;
+  if (document.getElementById("tabPostNum")) document.getElementById("tabPostNum").innerText = postsCount;
   if (document.getElementById("statCopiesCount")) document.getElementById("statCopiesCount").innerText = totalCopies;
   if (document.getElementById("statLikesCount")) document.getElementById("statLikesCount").innerText = totalLikes;
 
+  // Update Dedicated Analytics Modal Stats
+  if (document.getElementById("analyticsTotalPosts")) document.getElementById("analyticsTotalPosts").innerText = postsCount;
+  if (document.getElementById("analyticsTotalCopies")) document.getElementById("analyticsTotalCopies").innerText = totalCopies;
+  if (document.getElementById("analyticsTotalLikes")) document.getElementById("analyticsTotalLikes").innerText = totalLikes;
+  
+  const repScore = (totalCopies * 2) + (totalLikes * 3) + (postsCount * 10);
+  if (document.getElementById("analyticsRepScore")) document.getElementById("analyticsRepScore").innerText = repScore;
+
+  renderMilestones(postsCount, totalCopies, totalLikes);
   renderInstagramProfileGrid(userPosts);
   renderUserSavedVault();
+}
+
+// RENDER GAMIFIED MILESTONES & TROPHIES
+function renderMilestones(postsCount, totalCopies, totalLikes) {
+  const container = document.getElementById("milestonesContainer");
+  if (!container) return;
+
+  const milestones = [
+    {
+      title: "First Blood",
+      desc: "Upload your first base layout",
+      icon: "🎯",
+      unlocked: postsCount >= 1
+    },
+    {
+      title: "Viral Tactician",
+      desc: "Reach 50+ total copies across your posts",
+      icon: "🔥",
+      unlocked: totalCopies >= 50
+    },
+    {
+      title: "Master Architect",
+      desc: "Publish 10 base layouts",
+      icon: "🏛️",
+      unlocked: postsCount >= 10
+    },
+    {
+      title: "Heartthrob",
+      desc: "Receive 50 total likes",
+      icon: "❤️",
+      unlocked: totalLikes >= 50
+    },
+    {
+      title: "Legendary General",
+      desc: "Cross 500+ total copies",
+      icon: "👑",
+      unlocked: totalCopies >= 500
+    }
+  ];
+
+  container.innerHTML = milestones.map(m => `
+    <div class="flex items-center justify-between p-3 rounded-xl border ${m.unlocked ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-slate-100 dark:bg-czDark border-slate-200 dark:border-slate-800 text-slate-400 opacity-60'}">
+      <div class="flex items-center gap-3">
+        <span class="text-xl">${m.icon}</span>
+        <div>
+          <h5 class="text-xs font-bold ${m.unlocked ? 'text-amber-400 font-black' : 'dark:text-slate-300'}">${m.title}</h5>
+          <p class="text-[10px] text-slate-400">${m.desc}</p>
+        </div>
+      </div>
+      <span class="text-[10px] font-extrabold px-2 py-1 rounded-lg ${m.unlocked ? 'bg-amber-500 text-black shadow' : 'bg-slate-800 text-slate-500'}">
+        ${m.unlocked ? 'UNLOCKED' : 'LOCKED'}
+      </span>
+    </div>
+  `).join("");
 }
 
 window.switchZone = function(zone) {
@@ -560,7 +649,6 @@ window.handleLikeBase = async function(baseId) {
   if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
 };
 
-// ----------------- DEDICATED POST DETAILS MODAL WITH SMART SHARE -----------------
 window.openBaseDetailsModal = async function(baseId) {
   const base = allFetchedBases.find(b => b.id === baseId);
   if (!base) return;
@@ -580,7 +668,6 @@ window.openBaseDetailsModal = async function(baseId) {
     document.body.appendChild(modal);
   }
 
-  // SMART SHARE LINK: Points to website URL with base ID so visitors come to ClashZone
   const siteUrl = window.location.origin + window.location.pathname + `?base=${base.id}`;
   const shareText = encodeURIComponent(`🔥 Check out this ${base.th} layout "${base.title}" on ClashZone!\nView & Copy Base here:\n${siteUrl}`);
   const whatsappUrl = `https://api.whatsapp.com/send?text=${shareText}`;
@@ -756,7 +843,6 @@ async function loadBasesFromFirestore() {
     renderBasesUI();
     if (auth.currentUser) updateUserDashboardStats(auth.currentUser.uid);
 
-    // Check if URL has ?base=ID query parameter to auto-open shared base detail popup
     const urlParams = new URLSearchParams(window.location.search);
     const sharedBaseId = urlParams.get("base");
     if (sharedBaseId) {
