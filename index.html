@@ -165,7 +165,7 @@
       <div id="creatorOfTheMonthBanner" class="mb-3 hidden bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 p-[1px] rounded-2xl shadow-lg">
         <div class="bg-[#070c18] px-4 py-2.5 rounded-[15px] flex items-center justify-between gap-3">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-400 shrink-0">
+            <div id="comWinnerAvatar" class="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-400 shrink-0 overflow-hidden font-bold text-xs">
               👑
             </div>
             <div>
@@ -177,7 +177,7 @@
         </div>
       </div>
 
-      <!-- RESPONSIVE BANNER CAROUSEL (Fixed height & perfect zoom on click) -->
+      <!-- RESPONSIVE BANNER CAROUSEL -->
       <div class="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-amber-500/25 bg-slate-950 p-1 mb-3 shadow-xl group">
         <div id="carouselWrapper" class="relative w-full h-48 sm:h-64 md:h-80 rounded-xl overflow-hidden cursor-pointer" onclick="window.openBannerZoomModal()">
           <div id="carouselTrack" class="flex transition-transform duration-700 ease-in-out h-full w-full"></div>
@@ -352,6 +352,27 @@
       </div>
     </div>
   </div>
+
+  <!-- FOOTER -->
+  <footer class="mt-16 bg-white dark:bg-czDark border-t border-slate-200 dark:border-amber-500/20 py-10 px-4 text-xs">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+      <div class="space-y-2">
+        <span class="cz-brand-title text-xl font-black">Clashzone</span>
+        <p class="text-slate-500 dark:text-slate-400 max-w-sm">Next-Gen Base Layouts Hub for Clash of Clans Chiefs, Architects, and Competitive Clans.</p>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-6 font-bold text-slate-600 dark:text-slate-300">
+        <a href="#" onclick="window.showToast('Privacy Policy: We protect your data securely.', 'info')" class="hover:text-amber-500 transition">Privacy Policy</a>
+        <a href="#" onclick="window.showToast('Terms of Service: Use fair play principles.', 'info')" class="hover:text-amber-500 transition">Terms of Service</a>
+        <a href="#" onclick="window.showToast('Supercell Fan Content Policy Compliant.', 'info')" class="hover:text-amber-500 transition">Disclaimer</a>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center text-[11px] text-slate-500 space-y-1">
+      <p>© 2026 ClashZone. All rights reserved.</p>
+      <p class="text-[10px] text-slate-400">Supercell and its logos are trademarks of Supercell. This material is unofficial and is not endorsed by Supercell.</p>
+    </div>
+  </footer>
 
   <!-- BOTTOM NAVIGATION -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-czDark/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-3 py-2.5 w-full shadow-xl">

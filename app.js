@@ -44,7 +44,7 @@ let currentType = "ALL";
 let currentSort = "latest";
 let allFetchedBases = [];
 let allFetchedClans = [];
-let usersProfileCache = {}; // Cache for dynamic user profiles
+let usersProfileCache = {}; 
 let currentUserProfile = null;
 
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases") || "[]");
@@ -232,7 +232,6 @@ onAuthStateChanged(auth, async (user) => {
         avatarUrl: user.photoURL || ""
       };
       
-      // Update cache
       usersProfileCache[user.uid] = currentUserProfile;
 
       if (document.getElementById("profileIGN")) document.getElementById("profileIGN").innerText = currentUserProfile.name || defaultName;
@@ -308,6 +307,7 @@ window.toggleFollowCreator = function(creatorUid, creatorName) {
 function calculateCreatorOfTheMonth() {
   const bannerEl = document.getElementById("creatorOfTheMonthBanner");
   const nameEl = document.getElementById("comWinnerName");
+  const avatarEl = document.getElementById("comWinnerAvatar");
   const statsEl = document.getElementById("comWinnerStats");
   if (!bannerEl || !nameEl || allFetchedBases.length === 0) return;
 
@@ -320,27 +320,40 @@ function calculateCreatorOfTheMonth() {
     if (!b.createdAt) return;
     const postDate = b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
     if (postDate.getMonth() === currentMonth && postDate.getFullYear() === currentYear) {
-      const uName = b.uploaderName || "Chief";
-      if (!creatorScores[uName]) creatorScores[uName] = { copies: 0, likes: 0, posts: 0 };
-      creatorScores[uName].copies += (b.copyCount || 0);
-      creatorScores[uName].likes += (b.likesCount || 0);
-      creatorScores[uName].posts += 1;
+      const uUid = b.uploaderUid;
+      if (!uUid) return;
+      if (!creatorScores[uUid]) creatorScores[uUid] = { copies: 0, likes: 0, posts: 0 };
+      creatorScores[uUid].copies += (b.copyCount || 0);
+      creatorScores[uUid].likes += (b.likesCount || 0);
+      creatorScores[uUid].posts += 1;
     }
   });
 
-  let topCreator = null;
+  let topUid = null;
   let maxScore = -1;
-  Object.keys(creatorScores).forEach(name => {
-    const score = (creatorScores[name].copies * 2) + (creatorScores[name].likes * 3);
+  Object.keys(creatorScores).forEach(uid => {
+    const score = (creatorScores[uid].copies * 2) + (creatorScores[uid].likes * 3);
     if (score > maxScore) {
       maxScore = score;
-      topCreator = { name, ...creatorScores[name] };
+      topUid = uid;
     }
   });
 
-  if (topCreator && maxScore > 0) {
-    nameEl.innerText = topCreator.name;
-    statsEl.innerText = `${topCreator.copies} Copies • ${topCreator.posts} Posts`;
+  if (topUid && maxScore > 0) {
+    const uProfile = usersProfileCache[topUid] || {};
+    const topName = uProfile.name || "Legendary Chief";
+    const topAvatar = uProfile.avatarUrl || "";
+
+    nameEl.innerText = topName;
+    statsEl.innerText = `${creatorScores[topUid].copies} Copies • ${creatorScores[topUid].posts} Posts`;
+
+    if (avatarEl) {
+      if (topAvatar) {
+        avatarEl.innerHTML = `<img src="${topAvatar}" class="w-full h-full object-cover" />`;
+      } else {
+        avatarEl.innerHTML = `<span>👑</span>`;
+      }
+    }
     bannerEl.classList.remove("hidden");
   } else {
     bannerEl.classList.add("hidden");
@@ -503,7 +516,8 @@ function renderBasesUI() {
     const matchTH = currentTH === "ALL" || base.th === currentTH;
     const matchType = currentType === "ALL" || (base.type && base.type.toLowerCase().includes(currentType.toLowerCase()));
     const tagsString = (base.tags || []).join(" ").toLowerCase();
-    const matchSearch = (base.title || "").toLowerCase().includes(search) || (base.th || "").toLowerCase().includes(search) || (usersProfileCache[base.uploaderUid]?.name || base.uploaderName || "").toLowerCase().includes(search) || tagsString.includes(search);
+    const creatorName = (usersProfileCache[base.uploaderUid]?.name || base.uploaderName || "").toLowerCase();
+    const matchSearch = (base.title || "").toLowerCase().includes(search) || (base.th || "").toLowerCase().includes(search) || creatorName.includes(search) || tagsString.includes(search);
     return matchZone && matchTH && matchType && matchSearch;
   });
 
@@ -599,7 +613,7 @@ function generateBaseCardHTML(base) {
           </button>
         </div>
 
-        <!-- 5. UPLOADER PROFILE (SABSE NICHE - REAL TIME SYNC) -->
+        <!-- 5. UPLOADER PROFILE -->
         <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/30 dark:bg-black/10 -mx-3.5 -mb-3.5 px-3.5 py-2">
           <div class="flex items-center gap-2 min-w-0">
             <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0 overflow-hidden">
@@ -1102,7 +1116,6 @@ async function loadBasesFromFirestore() {
     const querySnapshot = await getDocs(q);
     allFetchedBases = [];
     
-    // Collect unique uploader UIDs to fetch their latest profile info
     const uploaderIds = new Set();
     querySnapshot.forEach(docSnap => {
       const data = docSnap.id ? { id: docSnap.id, ...docSnap.data() } : null;
@@ -1112,7 +1125,6 @@ async function loadBasesFromFirestore() {
       }
     });
 
-    // Fetch user profiles for dynamic sync
     for (const uid of uploaderIds) {
       try {
         const uDoc = await getDoc(doc(db, "users", uid));
