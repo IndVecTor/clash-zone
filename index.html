@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>ClashZone | Next-Gen Esports Base Layout & Clan Hub</title>
   
-  <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#f59e0b" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="ClashZone" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -65,10 +63,10 @@
       -webkit-text-fill-color: transparent;
     }
     .base-filter-btn.active, .sort-btn.active, .zone-tab-btn.active, .profile-tab-btn.active {
-      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-      color: #03050b;
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+      color: #03050b !important;
       font-weight: 800;
-      border-color: #fde68a;
+      border-color: #fde68a !important;
       box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
     }
     .glass-panel { background: rgba(7, 12, 24, 0.9); backdrop-filter: blur(25px); border: 1px solid rgba(245, 158, 11, 0.25); }
@@ -84,7 +82,7 @@
 
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- ULTRA MODERN HEADER -->
+  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-czDark/95 backdrop-blur-2xl border-b border-czBorder w-full shadow-2xl">
     <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-3">
       <a href="index.html" class="flex items-center gap-3 shrink-0 group">
@@ -116,13 +114,33 @@
     
     <!-- VIEW 1: FEED -->
     <div id="viewFeedSection">
-      <section class="py-3 w-full mb-3">
+      
+      <!-- HERO BANNER -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-950/40 via-czCard to-czDark border border-amber-500/30 p-6 sm:p-8 mb-4 shadow-cyber-card">
+        <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-xl space-y-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-bold tracking-wide uppercase">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            Esports Meta Active
+          </div>
+          <h1 class="gaming-logo text-2xl sm:text-4xl text-white font-black leading-tight">
+            DOMINATE EVERY <span class="gold-gradient">CLAN WAR</span>
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-300 font-medium">
+            Verified anti-3-star war bases, direct Supercell deep-links, and competitive esports recruitment.
+          </p>
+        </div>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <section class="py-2 w-full mb-3">
         <div class="max-w-lg mx-auto bg-czDark border border-amber-500/40 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-cyber-card">
           <i data-lucide="search" class="text-amber-400 w-5 h-5 shrink-0"></i>
           <input type="text" id="searchInput" onkeyup="window.filterBases && window.filterBases()" placeholder="Search Town Hall (TH5 - TH18), Creator..." class="w-full bg-transparent border-none text-white text-xs sm:text-sm outline-none placeholder-slate-500 font-semibold min-w-0" />
         </div>
       </section>
 
+      <!-- ZONE TABS -->
       <section class="py-2 w-full mb-4">
         <div class="glass-panel rounded-2xl p-3.5 flex items-center justify-center shadow-md border-slate-800">
           <div class="flex items-center gap-2.5 overflow-x-auto w-full justify-center pb-1 sm:pb-0 scrollbar-none">
@@ -133,6 +151,7 @@
         </div>
       </section>
 
+      <!-- SORT & LEVEL FILTERS -->
       <div class="sticky top-20 z-30 bg-czDark/95 backdrop-blur-2xl py-3.5 -mx-4 px-4 border-b border-czBorder/70 shadow-lg">
         <div class="flex items-center justify-between gap-3 overflow-x-auto pb-2 scrollbar-none mb-2.5">
           <div class="flex items-center gap-2">
@@ -144,10 +163,11 @@
         <div class="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none w-full max-w-full" id="levelFilterContainer"></div>
       </div>
 
+      <!-- BASES GRID -->
       <main class="py-4 w-full">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full" id="basesContainer">
-          <div class="glass-panel rounded-3xl overflow-hidden p-5 space-y-3">
-            <div class="h-48 rounded-2xl bg-slate-800/50 animate-pulse"></div>
+          <div class="glass-panel rounded-3xl overflow-hidden p-5 space-y-3 col-span-full text-center text-xs text-slate-400">
+            Loading layouts...
           </div>
         </div>
       </main>
@@ -178,16 +198,16 @@
 
     <!-- VIEW 4: PROFILE -->
     <div id="viewProfileSection" class="hidden py-8 max-w-3xl mx-auto">
-      <div id="profileLoggedOutView" class="hidden glass-panel rounded-3xl p-10 text-center space-y-4">
+      <div id="profileLoggedOutView" class="glass-panel rounded-3xl p-10 text-center space-y-4">
         <div class="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/40">
           <i data-lucide="user-lock" class="w-8 h-8"></i>
         </div>
         <h3 class="text-xl font-bold text-white">Chief Account Required</h3>
-        <p class="text-xs text-slate-400 max-w-sm mx-auto">Login to manage your base uploads, saved vault, and Supercell live stats.</p>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto">Login to manage your base uploads, saved vault, and live stats.</p>
         <button onclick="window.openModal('authModal')" class="bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider shadow-neon-gold">Login / Register Now</button>
       </div>
 
-      <div id="profileLoggedInView" class="space-y-6">
+      <div id="profileLoggedInView" class="hidden space-y-6">
         <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-cyber-card border-amber-500/30">
           <div class="flex items-center gap-5 sm:gap-8">
             <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 p-[2px] shadow-neon-gold shrink-0">
@@ -202,18 +222,18 @@
                 <span id="profileTHBadge" class="bg-amber-500 text-black text-[10px] font-black px-2 py-0.5 rounded-md uppercase">TH 16</span>
               </div>
               <p id="profileTagClan" class="text-xs text-slate-400 font-mono mb-2 truncate">#CLASH | Solo</p>
-              <p id="profileBioText" class="text-xs text-slate-300 italic mb-3">Loading description...</p>
+              <p id="profileBioText" class="text-xs text-slate-300 italic mb-3">No description added yet.</p>
 
               <div class="grid grid-cols-3 gap-2 bg-czDark/90 p-3 rounded-xl border border-slate-800 text-center">
                 <div><b id="statPostsCount" class="text-white text-sm font-black block">0</b><span class="text-[9px] text-slate-400 uppercase">Posts</span></div>
                 <div class="border-x border-slate-800"><b id="statFollowersCount" class="text-cyan-400 text-sm font-black block">0</b><span class="text-[9px] text-slate-400 uppercase">Followers</span></div>
-                <div><b id="statTrophiesCount" class="text-amber-400 text-sm font-black block">🏆 5K</b><span class="text-[9px] text-slate-400 uppercase">Trophies</span></div>
+                <div><b id="statTrophiesCount" class="text-amber-400 text-sm font-black block">5000</b><span class="text-[9px] text-slate-400 uppercase">Trophies</span></div>
               </div>
             </div>
           </div>
 
           <div class="flex items-center gap-3 mt-6">
-            <button onclick="window.openModal('editProfileModal')" class="flex-1 bg-czDark hover:bg-slate-800 border border-amber-500/40 text-amber-400 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-sm">Edit Profile & Sync</button>
+            <button onclick="window.openModal('editProfileModal')" class="flex-1 bg-czDark hover:bg-slate-800 border border-amber-500/40 text-amber-400 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-sm">Edit Profile</button>
             <button onclick="window.handleLogout()" class="px-5 py-3 bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white rounded-xl transition text-xs font-bold">Logout</button>
           </div>
         </div>
@@ -229,7 +249,7 @@
     </div>
   </div>
 
-  <!-- BOTTOM NAVIGATION BAR -->
+  <!-- BOTTOM NAVIGATION -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#03050b]/95 backdrop-blur-2xl border-t border-amber-500/30 px-3 py-3 w-full shadow-2xl">
     <div class="max-w-xl mx-auto flex items-center justify-between">
       <button onclick="window.switchMainHubView('feed')" id="bnavFeed" class="bnav-btn active flex-1 flex flex-col items-center gap-1 text-slate-400 text-center"><i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] font-bold">Feed</span><span class="bnav-dot w-1.5 h-1.5 rounded-full bg-amber-400 shadow-neon-gold"></span></button>
@@ -253,17 +273,17 @@
 
       <form id="loginForm" onsubmit="window.handleEmailLogin(event)" class="space-y-3.5">
         <h3 class="text-lg font-black text-white text-center mb-1">Chief Portal Login</h3>
-        <input type="email" id="loginEmail" placeholder="Email Address" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
-        <input type="password" id="loginPass" placeholder="Password" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
+        <input type="email" id="loginEmail" placeholder="Email Address" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
+        <input type="password" id="loginPass" placeholder="Password" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
         <button type="submit" class="w-full bg-amber-500 text-black font-black py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-neon-gold">Login to Account</button>
       </form>
 
       <form id="signupForm" onsubmit="window.handleEmailSignup(event)" class="space-y-3.5 hidden">
         <h3 class="text-lg font-black text-white text-center mb-1">Create Chief Profile</h3>
-        <input type="text" id="signupName" placeholder="In-Game Name (IGN)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
-        <input type="email" id="signupEmail" placeholder="Email Address" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
-        <input type="password" id="signupPass" placeholder="Password" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
-        <input type="text" id="signupTag" placeholder="Player Tag (#2PP0Q8)" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white font-mono" />
+        <input type="text" id="signupName" placeholder="In-Game Name (IGN)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
+        <input type="email" id="signupEmail" placeholder="Email Address" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
+        <input type="password" id="signupPass" placeholder="Password" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
+        <input type="text" id="signupTag" placeholder="Player Tag (#2PP0Q8)" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white font-mono outline-none focus:border-amber-400" />
         <button type="submit" class="w-full bg-amber-500 text-black font-black py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-neon-gold">Register Account</button>
       </form>
     </div>
@@ -272,14 +292,14 @@
   <!-- UPLOAD MODAL -->
   <div class="fixed inset-0 bg-black/95 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="uploadModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-lg p-7 relative shadow-cyber-card my-auto">
-      <button onclick="window.closeModal('uploadModal')" class="absolute top-5 right-5 text-slate-400">✕</button>
+      <button onclick="window.closeModal('uploadModal')" class="absolute top-5 right-5 text-slate-400 hover:text-white">✕</button>
       <h3 class="text-xl text-amber-400 font-black mb-4">Publish Base Layout</h3>
       <form onsubmit="window.handleBaseUpload(event)" class="space-y-3.5">
-        <input type="url" id="uploadLink" placeholder="In-Game Copy Link" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
-        <select id="uploadZone" onchange="window.updateUploadLevelOptions()" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white"><option value="home">Home Village</option><option value="builder">Builder Base</option><option value="capital">Clan Capital</option></select>
-        <select id="uploadTH" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white"></select>
-        <select id="uploadType" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white"><option>War</option><option>Anti 3-Star</option><option>Anti-Edrag</option><option>Trophy</option><option>Farming</option></select>
-        <input type="text" id="uploadTitle" placeholder="Base Title (e.g., TH16 Max War Base)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
+        <input type="url" id="uploadLink" placeholder="In-Game Copy Link" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
+        <select id="uploadZone" onchange="window.updateUploadLevelOptions()" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400"><option value="home">Home Village</option><option value="builder">Builder Base</option><option value="capital">Clan Capital</option></select>
+        <select id="uploadTH" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400"></select>
+        <select id="uploadType" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400"><option>War</option><option>Anti 3-Star</option><option>Anti-Edrag</option><option>Trophy</option><option>Farming</option></select>
+        <input type="text" id="uploadTitle" placeholder="Base Title (e.g., TH16 Max War Base)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
         <input type="file" id="uploadImageFile" accept="image/*" required class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-slate-300" />
         <button type="submit" class="w-full bg-amber-500 text-black py-3.5 rounded-xl font-black text-xs uppercase tracking-wider shadow-neon-gold">Publish Base</button>
       </form>
@@ -289,84 +309,94 @@
   <!-- EDIT PROFILE MODAL -->
   <div class="fixed inset-0 bg-black/95 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="editProfileModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-md p-7 relative shadow-cyber-card my-auto">
-      <button onclick="window.closeModal('editProfileModal')" class="absolute top-5 right-5 text-slate-400">✕</button>
+      <button onclick="window.closeModal('editProfileModal')" class="absolute top-5 right-5 text-slate-400 hover:text-white">✕</button>
       <h3 class="text-xl text-amber-400 font-black mb-4">Edit Profile & Live Sync</h3>
       <form onsubmit="window.handleSaveProfile(event)" class="space-y-3.5">
         <div>
           <label class="text-[10px] text-slate-400 font-bold block mb-1">In-Game Player Tag (#...)</label>
           <div class="flex gap-2">
-            <input type="text" id="editTag" placeholder="#2PP0Q8" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white font-mono" />
+            <input type="text" id="editTag" placeholder="#2PP0Q8" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white font-mono outline-none focus:border-amber-400" />
             <button type="button" id="btnSyncPlayerTag" onclick="window.handleLiveSupercellSync()" class="bg-amber-500 text-black px-4 rounded-xl text-xs font-bold shrink-0">Sync Live</button>
           </div>
         </div>
-        <input type="text" id="editName" placeholder="IGN (Name)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
-        <input type="text" id="editTH" placeholder="Town Hall Level" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
-        <input type="text" id="editClan" placeholder="Clan Name" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
-        <input type="number" id="editTrophies" placeholder="Trophies" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
+        <input type="text" id="editName" placeholder="IGN (Name)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
+        <input type="text" id="editTH" placeholder="Town Hall Level" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
+        <input type="text" id="editClan" placeholder="Clan Name" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
+        <input type="number" id="editTrophies" placeholder="Trophies" class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
         <div>
           <label class="text-[10px] text-slate-400 font-bold block mb-1">Profile Photo</label>
           <input type="file" id="editAvatarFile" accept="image/*" class="w-full bg-czDark border border-slate-700 rounded-xl p-2.5 text-xs text-slate-300" />
         </div>
         <div>
           <label class="text-[10px] text-slate-400 font-bold block mb-1">Bio / Description</label>
-          <textarea id="editBio" placeholder="Write something about your profile..." rows="2" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white"></textarea>
+          <textarea id="editBio" placeholder="Write something about your profile..." rows="2" class="w-full bg-czDark border border-slate-700 rounded-xl p-3 text-xs text-white outline-none focus:border-amber-400"></textarea>
         </div>
         <button type="submit" class="w-full bg-amber-500 text-black py-3.5 rounded-xl font-bold text-xs uppercase">Save Profile</button>
       </form>
     </div>
   </div>
 
-  <!-- OTHER MODALS -->
+  <!-- HAMBURGER MODAL -->
   <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="hamburgerMenuModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-sm p-6 relative shadow-cyber-card my-auto space-y-3">
-      <button onclick="window.closeModal('hamburgerMenuModal')" class="absolute top-4 right-4 text-slate-400">✕</button>
+      <button onclick="window.closeModal('hamburgerMenuModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
       <h3 class="text-lg text-amber-400 font-black mb-4">Navigation Menu</h3>
       <button onclick="window.closeModal('hamburgerMenuModal'); window.openModal('rankingsModal');" class="w-full bg-czDark border border-amber-500/30 text-white p-3.5 rounded-2xl text-xs font-bold text-left flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4 text-amber-400"></i> Creator Rank</button>
     </div>
   </div>
 
+  <!-- RANKINGS MODAL -->
   <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="rankingsModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-lg p-6 relative shadow-cyber-card my-auto">
-      <button onclick="window.closeModal('rankingsModal')" class="absolute top-4 right-4 text-slate-400">✕</button>
+      <button onclick="window.closeModal('rankingsModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
       <h3 class="text-xl text-amber-400 font-bold mb-4">Creator Rank</h3>
       <div id="rankingsListContainer" class="space-y-3"></div>
     </div>
   </div>
 
+  <!-- REGISTER CLAN MODAL -->
   <div class="fixed inset-0 bg-black/95 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="postClanModal">
     <div class="glass-panel border border-amber-500/40 rounded-3xl w-full max-w-md p-7 relative shadow-cyber-card my-auto">
-      <button onclick="window.closeModal('postClanModal')" class="absolute top-5 right-5 text-slate-400">✕</button>
+      <button onclick="window.closeModal('postClanModal')" class="absolute top-5 right-5 text-slate-400 hover:text-white">✕</button>
       <h3 class="text-xl text-amber-400 font-bold mb-4">Register Your Clan</h3>
       <form onsubmit="window.handleClanUpload(event)" class="space-y-3.5">
-        <input type="text" id="clanNameInput" placeholder="Clan Name" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
-        <input type="text" id="clanTagInput" placeholder="Clan Tag (#2PP0Q)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white font-mono" />
-        <input type="url" id="clanLinkInput" placeholder="In-Game Join Link" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white" />
-        <textarea id="clanDescInput" placeholder="Clan description, requirements..." rows="3" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white"></textarea>
+        <input type="text" id="clanNameInput" placeholder="Clan Name" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
+        <input type="text" id="clanTagInput" placeholder="Clan Tag (#2PP0Q)" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white font-mono outline-none focus:border-amber-400" />
+        <input type="url" id="clanLinkInput" placeholder="In-Game Join Link" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400" />
+        <textarea id="clanDescInput" placeholder="Clan description, requirements..." rows="3" required class="w-full bg-czDark border border-slate-700 rounded-xl p-3.5 text-xs text-white outline-none focus:border-amber-400"></textarea>
         <button type="submit" class="w-full bg-amber-500 text-black py-3.5 rounded-xl font-bold text-xs uppercase">Publish Clan</button>
       </form>
     </div>
   </div>
 
+  <!-- CLIENT SCRIPTS -->
   <script>
     window.switchProfileTab = function(tabName) {
       ['Posts', 'Saved'].forEach(t => {
-        document.getElementById(`pTab${t}`)?.classList.toggle('active', t.toLowerCase() === tabName.toLowerCase());
-        document.getElementById(`profileTabContent${t}`)?.classList.toggle('hidden', t.toLowerCase() !== tabName.toLowerCase());
+        const btn = document.getElementById('pTab' + t);
+        const panel = document.getElementById('profileTabContent' + t);
+        if (btn) btn.classList.toggle('active', t.toLowerCase() === tabName.toLowerCase());
+        if (panel) panel.classList.toggle('hidden', t.toLowerCase() !== tabName.toLowerCase());
       });
     };
+
     window.switchAuthTab = function(type) {
       const isLogin = type === 'login';
       document.getElementById("loginForm")?.classList.toggle("hidden", !isLogin);
       document.getElementById("signupForm")?.classList.toggle("hidden", isLogin);
-      document.getElementById("authTabLoginBtn")?.classList.toggle("bg-amber-500", isLogin);
-      document.getElementById("authTabLoginBtn")?.classList.toggle("text-black", isLogin);
-      document.getElementById("authTabLoginBtn")?.classList.toggle("text-slate-400", !isLogin);
-      document.getElementById("authTabSignupBtn")?.classList.toggle("bg-amber-500", !isLogin);
-      document.getElementById("authTabSignupBtn")?.classList.toggle("text-black", !isLogin);
-      document.getElementById("authTabSignupBtn")?.classList.toggle("text-slate-400", isLogin);
+      
+      const loginBtn = document.getElementById("authTabLoginBtn");
+      const signupBtn = document.getElementById("authTabSignupBtn");
+      if (loginBtn) {
+        loginBtn.className = isLogin ? "flex-1 py-2.5 rounded-xl text-xs font-black bg-amber-500 text-black transition" : "flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-400 transition";
+      }
+      if (signupBtn) {
+        signupBtn.className = !isLogin ? "flex-1 py-2.5 rounded-xl text-xs font-black bg-amber-500 text-black transition" : "flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-400 transition";
+      }
     };
+
     window.addEventListener('DOMContentLoaded', () => {
-      if (window.lucide) lucide.createIcons();
+      if (window.lucide && lucide.createIcons) lucide.createIcons();
     });
   </script>
   <script type="module" src="app.js"></script>
