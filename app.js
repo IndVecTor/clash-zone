@@ -1,9 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import { 
   getAuth, 
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
+  GoogleAuthProvider,
+  signInWithPopup,
   signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
   signOut, 
   onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
@@ -15,7 +16,6 @@ import {
   doc, 
   setDoc, 
   getDoc, 
-  deleteDoc,
   updateDoc,
   increment,
   query, 
@@ -35,6 +35,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 const db = getFirestore(app);
 
 let currentZone = "home";
@@ -44,7 +45,6 @@ let currentSort = "latest";
 let allFetchedBases = [];
 let allFetchedClans = [];
 let currentUserProfile = null;
-let phoneConfirmationResult = null;
 
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases") || "[]");
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases") || "[]");
@@ -142,90 +142,69 @@ function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 800, 
   });
 }
 
-function setupRecaptcha() {
-  if (!window.recaptchaVerifier) {
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptchaContainer', { size: 'invisible' });
-  }
-}
-
-window.sendPhoneOtp = async function() {
-  const phoneInput = document.getElementById("userPhoneNumber");
-  const btn = document.getElementById("btnSendOtp");
-  const phoneNumber = phoneInput?.value.trim();
-
-  if (!phoneNumber || phoneNumber.length < 10) {
-    window.showToast("Enter phone with country code (e.g. +91...)", "error");
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerText = "Sending...";
+// GOOGLE SIGN-IN HANDLER
+window.handleGoogleLogin = async function() {
   try {
-    setupRecaptcha();
-    phoneConfirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
-    document.getElementById("phoneStep1").classList.add("hidden");
-    document.getElementById("phoneStep2").classList.remove("hidden");
-    window.showToast("OTP sent to mobile!");
-  } catch (error) {
-    window.showToast(error.message || "Failed to send OTP", "error");
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear();
-      window.recaptchaVerifier = null;
-    }
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "Send Instant OTP";
-  }
-};
-
-window.verifyPhoneOtp = async function() {
-  const otpInput = document.getElementById("phoneOtpInput");
-  const btn = document.getElementById("btnVerifyOtp");
-  const code = otpInput?.value.trim();
-
-  if (!code || code.length !== 6) {
-    window.showToast("Enter 6-digit OTP", "error");
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerText = "Verifying...";
-  try {
-    const result = await phoneConfirmationResult.confirm(code);
+    const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
     
-    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
     if (!userDoc.exists()) {
-      await setDoc(doc(db, "users", user.uid), {
-        name: "Chief " + user.phoneNumber.slice(-4),
+      await setDoc(userDocRef, {
+        name: user.displayName || "Chief",
         townHallLevel: "TH 16",
         tag: "#CLASH",
         clanName: "Solo",
         trophies: 5000,
         bio: "ClashZone Chief",
+        avatarUrl: user.photoURL || "",
         createdAt: serverTimestamp()
       });
     }
     window.closeModal("authModal");
-    window.showToast("Login successful!");
+    window.showToast("Google Login successful!");
     setTimeout(() => location.reload(), 600);
   } catch (error) {
-    window.showToast("Invalid OTP code", "error");
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "Verify & Login";
+    window.showToast(error.message || "Google Login Failed", "error");
   }
 };
 
+// EMAIL LOGIN / SIGNUP HANDLER
 window.handleEmailLogin = async function(e) {
   e.preventDefault();
+  const email = document.getElementById("loginEmail").value.trim();
+  const pass = document.getElementById("loginPass").value.trim();
+
   try {
-    await signInWithEmailAndPassword(auth, document.getElementById("loginEmail").value.trim(), document.getElementById("loginPass").value.trim());
+    let userCredential;
+    try {
+      // Try logging in first
+      userCredential = await signInWithEmailAndPassword(auth, email, pass);
+    } catch (err) {
+      // If user not found, automatically register them
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+        userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+        const user = userCredential.user;
+        await setDoc(doc(db, "users", user.uid), {
+          name: email.split("@")[0],
+          townHallLevel: "TH 16",
+          tag: "#CLASH",
+          clanName: "Solo",
+          trophies: 5000,
+          bio: "ClashZone Chief",
+          createdAt: serverTimestamp()
+        });
+      } else {
+        throw err;
+      }
+    }
+
     window.closeModal("authModal");
     window.showToast("Login successful!");
     setTimeout(() => location.reload(), 600);
   } catch (error) { 
-    window.showToast(error.message || "Login Failed", "error"); 
+    window.showToast(error.message || "Authentication Failed", "error"); 
   }
 };
 
@@ -240,7 +219,7 @@ onAuthStateChanged(auth, async (user) => {
   const profileLoggedOut = document.getElementById("profileLoggedOutView");
   const profileLoggedIn = document.getElementById("profileLoggedInView");
   if (user) {
-    const defaultName = user.displayName || user.phoneNumber || (user.email ? user.email.split("@")[0] : "Chief");
+    const defaultName = user.displayName || (user.email ? user.email.split("@")[0] : "Chief");
     if (profileLoggedOut) profileLoggedOut.classList.add("hidden");
     if (profileLoggedIn) profileLoggedIn.classList.remove("hidden");
     try {
@@ -251,7 +230,8 @@ onAuthStateChanged(auth, async (user) => {
         tag: "#CLASH", 
         clanName: "Solo", 
         trophies: 5000, 
-        bio: "ClashZone Chief" 
+        bio: "ClashZone Chief",
+        avatarUrl: user.photoURL || ""
       };
       
       if (document.getElementById("profileIGN")) document.getElementById("profileIGN").innerText = currentUserProfile.name || defaultName;
@@ -875,7 +855,7 @@ window.handleBaseUpload = async function(e) {
   }
 
   try {
-    const creatorIGN = currentUserProfile?.name || user.displayName || user.phoneNumber || "Chief";
+    const creatorIGN = currentUserProfile?.name || user.displayName || user.email.split("@")[0] || "Chief";
     const base64Image = await compressAndWatermarkImage(file, creatorIGN);
     const baseData = {
       zone: document.getElementById("uploadZone").value,

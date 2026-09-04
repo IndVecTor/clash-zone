@@ -246,7 +246,7 @@
       </main>
     </div>
 
-    <!-- VIEW 2: SAVED VAULT (CARD VIEW) -->
+    <!-- VIEW 2: SAVED VAULT -->
     <div id="viewVaultSection" class="hidden py-6">
       <div class="text-center mb-6">
         <h2 class="text-xl font-bold font-['Rajdhani'] dark:text-white">Bookmarked Vault</h2>
@@ -276,8 +276,8 @@
           <i data-lucide="user" class="w-6 h-6"></i>
         </div>
         <h3 class="text-lg font-bold">Chief Profile</h3>
-        <p class="text-xs text-slate-400 max-w-sm mx-auto">Login via Mobile OTP to upload your own bases and show on top creators list.</p>
-        <button onclick="window.openModal('authModal')" class="bg-amber-500 text-black font-bold px-5 py-2.5 rounded-xl text-xs uppercase shadow-md">Login with OTP</button>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto">Login with Google or Email to upload your bases and join top creators list.</p>
+        <button onclick="window.openModal('authModal')" class="bg-amber-500 text-black font-bold px-5 py-2.5 rounded-xl text-xs uppercase shadow-md">Login / Register</button>
       </div>
 
       <div id="profileLoggedInView" class="hidden space-y-4">
@@ -366,38 +366,34 @@
     </div>
   </nav>
 
-  <!-- AUTH MODAL -->
+  <!-- AUTH MODAL (GOOGLE & EMAIL) -->
   <div class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="authModal">
     <div class="glass-panel rounded-2xl w-full max-w-sm p-6 relative shadow-2xl my-auto space-y-4">
       <button onclick="window.closeModal('authModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
       
-      <div class="flex items-center justify-center gap-1.5 bg-slate-100 dark:bg-czDark p-1 rounded-xl border border-slate-200 dark:border-slate-800">
-        <button onclick="window.switchAuthMethod('phone')" id="authMethodPhoneBtn" class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-black transition">Mobile OTP</button>
-        <button onclick="window.switchAuthMethod('email')" id="authMethodEmailBtn" class="flex-1 py-1.5 rounded-lg text-xs font-bold text-slate-400 transition">Email</button>
+      <div class="text-center mb-2">
+        <h3 class="text-base font-bold text-amber-400">Chief Authentication</h3>
+        <p class="text-[11px] text-slate-400">Sign in to publish layouts and save favorites</p>
       </div>
 
-      <div id="phoneAuthContainer" class="space-y-3">
-        <div id="phoneStep1" class="space-y-3">
-          <p class="text-xs text-slate-400 text-center">Enter mobile number with country code</p>
-          <input type="tel" id="userPhoneNumber" placeholder="+91 9876543210" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400 font-bold text-center" />
-          <div id="recaptchaContainer"></div>
-          <button type="button" onclick="window.sendPhoneOtp()" id="btnSendOtp" class="w-full bg-amber-500 text-black font-bold py-3 rounded-xl text-xs uppercase shadow-md">Send Instant OTP</button>
-        </div>
+      <!-- Google Sign In Button -->
+      <button type="button" onclick="window.handleGoogleLogin()" class="w-full bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-700 py-3 rounded-xl font-bold text-xs uppercase flex items-center justify-center gap-2.5 shadow transition">
+        <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.19v3.15C3.18 21.32 7.22 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.19C.43 8.1 0 9.99 0 12s.43 3.9 1.19 5.42l4.09-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.18 2.68 1.19 6.58l4.09 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
+        <span>Continue with Google</span>
+      </button>
 
-        <div id="phoneStep2" class="space-y-3 hidden">
-          <p class="text-xs text-slate-400 text-center">Enter the 6-digit OTP received</p>
-          <input type="text" id="phoneOtpInput" placeholder="123456" maxlength="6" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs text-center font-mono tracking-widest outline-none focus:border-amber-400" />
-          <button type="button" onclick="window.verifyPhoneOtp()" id="btnVerifyOtp" class="w-full bg-amber-500 text-black font-bold py-3 rounded-xl text-xs uppercase shadow-md">Verify & Login</button>
-        </div>
+      <div class="relative flex py-2 items-center">
+        <div class="flex-grow border-t border-slate-300 dark:border-slate-800"></div>
+        <span class="flex-shrink mx-4 text-[10px] uppercase font-bold text-slate-400">Or Email</span>
+        <div class="flex-grow border-t border-slate-300 dark:border-slate-800"></div>
       </div>
 
-      <div id="emailAuthContainer" class="space-y-3 hidden">
-        <form onsubmit="window.handleEmailLogin(event)" class="space-y-3">
-          <input type="email" id="loginEmail" placeholder="Email Address" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400" />
-          <input type="password" id="loginPass" placeholder="Password" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400" />
-          <button type="submit" class="w-full bg-amber-500 text-black font-bold py-3 rounded-xl text-xs uppercase shadow-md">Login with Email</button>
-        </form>
-      </div>
+      <!-- Email Login Form -->
+      <form onsubmit="window.handleEmailLogin(event)" class="space-y-3">
+        <input type="email" id="loginEmail" placeholder="Email Address" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400 text-slate-900 dark:text-white" />
+        <input type="password" id="loginPass" placeholder="Password (Min 6 chars)" required minlength="6" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400 text-slate-900 dark:text-white" />
+        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl text-xs uppercase shadow-md transition">Email Login / Sign Up</button>
+      </form>
     </div>
   </div>
 
@@ -700,16 +696,6 @@
       document.getElementById('pTabSaved')?.classList.toggle('text-black', !isPosts);
       document.getElementById('profileTabContentPosts')?.classList.toggle('hidden', !isPosts);
       document.getElementById('profileTabContentSaved')?.classList.toggle('hidden', isPosts);
-    };
-
-    window.switchAuthMethod = function(method) {
-      const isPhone = method === 'phone';
-      document.getElementById('phoneAuthContainer')?.classList.toggle('hidden', !isPhone);
-      document.getElementById('emailAuthContainer')?.classList.toggle('hidden', isPhone);
-      document.getElementById('authMethodPhoneBtn')?.classList.toggle('bg-amber-500', isPhone);
-      document.getElementById('authMethodPhoneBtn')?.classList.toggle('text-black', isPhone);
-      document.getElementById('authMethodEmailBtn')?.classList.toggle('bg-amber-500', !isPhone);
-      document.getElementById('authMethodEmailBtn')?.classList.toggle('text-black', !isPhone);
     };
 
     window.addEventListener('DOMContentLoaded', () => {
