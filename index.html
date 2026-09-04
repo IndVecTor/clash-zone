@@ -103,16 +103,15 @@
     </div>
   </div>
 
-  <!-- HEADER WITH EXACT CLASHZONE LOGO STYLE -->
+  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-white/95 dark:bg-czDark/95 backdrop-blur-xl border-b border-slate-200 dark:border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-3">
       
-      <!-- LOGO (EXACT STYLE FROM IMAGE) -->
+      <!-- LOGO -->
       <a href="index.html" class="flex items-center gap-3 shrink-0 group select-none py-1">
-        
         <!-- Shield Emblem Character -->
-        <div class="relative w-13 h-13 sm:w-15 sm:h-15 shrink-0">
-          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-600 to-yellow-600 p-[2px] shadow-[0_0_20px_rgba(245,158,11,0.65)] group-hover:scale-105 transition duration-300">
+        <div class="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0">
+          <div class="w-full h-full rounded-2xl bg-gradient-to-b from-amber-400 via-amber-600 to-yellow-600 p-[2px] shadow-[0_0_20px_rgba(245,158,11,0.65)] group-hover:scale-105 transition duration-300">
             <div class="w-full h-full bg-[#070c18] rounded-[14px] flex items-center justify-center overflow-hidden relative">
               <img 
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMcBVwjCgUsW49LCSNG-LHN8bK96R9Y4cE0T9YEZcBbg&s=10" 
@@ -124,15 +123,10 @@
           </div>
         </div>
 
-        <!-- EXACT CLASHZONE FONT & ACCENTS -->
+        <!-- 3D Clashzone Text -->
         <div class="flex items-center gap-2">
-          <!-- Left Gold Diamond Bracket -->
           <span class="text-amber-400 text-sm sm:text-base drop-shadow-[0_0_8px_rgba(245,158,11,0.8)] font-black">◈</span>
-          
-          <!-- Exact 3D Clashzone Text -->
           <span class="coc-clashzone-text text-2xl sm:text-3xl font-black tracking-normal">Clashzone</span>
-          
-          <!-- Right Gold Diamond Bracket -->
           <span class="text-amber-400 text-sm sm:text-base drop-shadow-[0_0_8px_rgba(245,158,11,0.8)] font-black">◈</span>
         </div>
       </a>
@@ -155,7 +149,7 @@
     <!-- VIEW 1: FEED -->
     <div id="viewFeedSection">
       
-      <!-- PURE AUTO-SCROLLING BANNER -->
+      <!-- PURE AUTO-SCROLLING BANNER (NO TEXT) -->
       <div class="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-amber-500/25 bg-slate-950 p-1 mb-3 shadow-xl group">
         <div id="carouselWrapper" class="relative w-full h-44 sm:h-56 md:h-64 rounded-xl overflow-hidden">
           <div id="carouselTrack" class="flex transition-transform duration-700 ease-in-out h-full w-full"></div>
@@ -415,9 +409,9 @@
     </div>
   </div>
 
-  <!-- ==================== BANNER CAROUSEL SCRIPT ==================== -->
+  <!-- BANNER IMAGES LIST & SLIDER LOGIC -->
   <script>
-    // AAPKI IMAGES LIST: Yahan comma lagakar kitni bhi images daal sakte hain
+    // Yahan apni images ke direct URLs add karte jayein
     const bannerImages = [
       "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80",
