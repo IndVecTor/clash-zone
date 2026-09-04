@@ -142,7 +142,6 @@ function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 800, 
   });
 }
 
-// GOOGLE SIGN-IN HANDLER
 window.handleGoogleLogin = async function() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
@@ -170,7 +169,6 @@ window.handleGoogleLogin = async function() {
   }
 };
 
-// EMAIL LOGIN / SIGNUP HANDLER
 window.handleEmailLogin = async function(e) {
   e.preventDefault();
   const email = document.getElementById("loginEmail").value.trim();
@@ -179,10 +177,8 @@ window.handleEmailLogin = async function(e) {
   try {
     let userCredential;
     try {
-      // Try logging in first
       userCredential = await signInWithEmailAndPassword(auth, email, pass);
     } catch (err) {
-      // If user not found, automatically register them
       if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
         userCredential = await createUserWithEmailAndPassword(auth, email, pass);
         const user = userCredential.user;
@@ -392,6 +388,7 @@ function updateUserDashboardStats(uid) {
   renderMilestones(postsCount, totalCopies, totalLikes);
   renderInstagramProfileGrid(userPosts);
   renderUserSavedVault();
+  renderProfileSavedVaultCards();
 }
 
 function renderMilestones(postsCount, totalCopies, totalLikes) {
