@@ -177,15 +177,15 @@
         </div>
       </div>
 
-      <!-- BANNER CAROUSEL -->
+      <!-- RESPONSIVE BANNER CAROUSEL (Fixed height & perfect zoom on click) -->
       <div class="relative overflow-hidden rounded-2xl border border-slate-200 dark:border-amber-500/25 bg-slate-950 p-1 mb-3 shadow-xl group">
-        <div id="carouselWrapper" class="relative w-full h-44 sm:h-56 md:h-64 rounded-xl overflow-hidden">
+        <div id="carouselWrapper" class="relative w-full h-48 sm:h-64 md:h-80 rounded-xl overflow-hidden cursor-pointer" onclick="window.openBannerZoomModal()">
           <div id="carouselTrack" class="flex transition-transform duration-700 ease-in-out h-full w-full"></div>
 
-          <button onclick="window.prevBannerSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition opacity-0 group-hover:opacity-100 z-20">
+          <button onclick="event.stopPropagation(); window.prevBannerSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition opacity-0 group-hover:opacity-100 z-20">
             <i data-lucide="chevron-left" class="w-4 h-4"></i>
           </button>
-          <button onclick="window.nextBannerSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition opacity-0 group-hover:opacity-100 z-20">
+          <button onclick="event.stopPropagation(); window.nextBannerSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition opacity-0 group-hover:opacity-100 z-20">
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
 
@@ -365,6 +365,14 @@
       <button onclick="window.switchMainHubView('profile')" id="bnavProfile" class="bnav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[10px] font-bold">Account</span></button>
     </div>
   </nav>
+
+  <!-- BANNER ZOOM MODAL -->
+  <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="bannerZoomModal" onclick="window.closeModal('bannerZoomModal')">
+    <div class="relative max-w-4xl w-full max-h-[90vh] p-2" onclick="event.stopPropagation()">
+      <button onclick="window.closeModal('bannerZoomModal')" class="absolute -top-10 right-0 text-white bg-black/60 w-8 h-8 rounded-full flex items-center justify-center font-bold">✕</button>
+      <img id="zoomedBannerImg" src="" class="w-full h-auto max-h-[85vh] object-contain rounded-xl shadow-2xl border border-amber-500/30" />
+    </div>
+  </div>
 
   <!-- AUTH MODAL (GOOGLE & EMAIL) -->
   <div class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="authModal">
@@ -601,7 +609,7 @@
       `).join('');
 
       dots.innerHTML = bannerImages.map((_, i) => `
-        <button onclick="window.goToBannerSlide(${i})" class="h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-5 bg-amber-400' : 'w-1.5 bg-white/40'}"></button>
+        <button onclick="event.stopPropagation(); window.goToBannerSlide(${i})" class="h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-5 bg-amber-400' : 'w-1.5 bg-white/40'}"></button>
       `).join('');
 
       startBannerAutoplay();
@@ -639,6 +647,14 @@
       currentBannerIndex = index;
       updateBannerUI();
       resetBannerAutoplay();
+    };
+
+    window.openBannerZoomModal = function() {
+      const zoomedImg = document.getElementById('zoomedBannerImg');
+      if (zoomedImg) {
+        zoomedImg.src = bannerImages[currentBannerIndex];
+      }
+      window.openModal('bannerZoomModal');
     };
 
     function startBannerAutoplay() {

@@ -44,6 +44,7 @@ let currentType = "ALL";
 let currentSort = "latest";
 let allFetchedBases = [];
 let allFetchedClans = [];
+let usersProfileCache = {}; // Cache for dynamic user profiles
 let currentUserProfile = null;
 
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases") || "[]");
@@ -231,6 +232,9 @@ onAuthStateChanged(auth, async (user) => {
         avatarUrl: user.photoURL || ""
       };
       
+      // Update cache
+      usersProfileCache[user.uid] = currentUserProfile;
+
       if (document.getElementById("profileIGN")) document.getElementById("profileIGN").innerText = currentUserProfile.name || defaultName;
       if (document.getElementById("profileTHBadge")) document.getElementById("profileTHBadge").innerText = currentUserProfile.townHallLevel || "TH 16";
       if (document.getElementById("profileTagClan")) document.getElementById("profileTagClan").innerText = `Clan: ${currentUserProfile.clanName || "Solo"} | ${currentUserProfile.tag || "#CLASH"}`;
@@ -499,7 +503,7 @@ function renderBasesUI() {
     const matchTH = currentTH === "ALL" || base.th === currentTH;
     const matchType = currentType === "ALL" || (base.type && base.type.toLowerCase().includes(currentType.toLowerCase()));
     const tagsString = (base.tags || []).join(" ").toLowerCase();
-    const matchSearch = (base.title || "").toLowerCase().includes(search) || (base.th || "").toLowerCase().includes(search) || (base.uploaderName || "").toLowerCase().includes(search) || tagsString.includes(search);
+    const matchSearch = (base.title || "").toLowerCase().includes(search) || (base.th || "").toLowerCase().includes(search) || (usersProfileCache[base.uploaderUid]?.name || base.uploaderName || "").toLowerCase().includes(search) || tagsString.includes(search);
     return matchZone && matchTH && matchType && matchSearch;
   });
 
@@ -529,11 +533,19 @@ function generateBaseCardHTML(base) {
   const likes = base.likesCount || 0;
   const commentsCount = (base.comments || []).length;
   const timeAgo = formatTimeAgo(base.createdAt);
-  const creatorInitial = (base.uploaderName || "C").charAt(0).toUpperCase();
+  
+  const uploaderProfile = usersProfileCache[base.uploaderUid] || {};
+  const creatorName = uploaderProfile.name || base.uploaderName || "Chief";
+  const creatorInitial = creatorName.charAt(0).toUpperCase();
+  const creatorAvatar = uploaderProfile.avatarUrl || "";
 
   const ratingSum = base.ratingSum || 0;
   const ratingCount = base.ratingCount || 0;
   const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : "0.0";
+
+  const avatarDisplayHtml = creatorAvatar 
+    ? `<img src="${creatorAvatar}" class="w-full h-full object-cover" />`
+    : `<span>${creatorInitial}</span>`;
 
   return `
     <div class="glass-panel card-pro rounded-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-amber-500/20 shadow-md">
@@ -545,7 +557,7 @@ function generateBaseCardHTML(base) {
         </h3>
       </div>
 
-      <!-- 2. THUMBNAIL (Bina kate poora dikhega - object-contain) -->
+      <!-- 2. THUMBNAIL -->
       <div class="w-full bg-slate-950 relative overflow-hidden flex items-center justify-center cursor-pointer group" style="min-height: 200px; max-height: 260px;" onclick="window.openBaseDetailsModal('${base.id}')">
         <img src="${base.image}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500" loading="lazy" />
         
@@ -587,22 +599,22 @@ function generateBaseCardHTML(base) {
           </button>
         </div>
 
-        <!-- 5. UPLOADER PROFILE (SABSE NICHE) -->
+        <!-- 5. UPLOADER PROFILE (SABSE NICHE - REAL TIME SYNC) -->
         <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/30 dark:bg-black/10 -mx-3.5 -mb-3.5 px-3.5 py-2">
           <div class="flex items-center gap-2 min-w-0">
-            <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0">
-              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-400">
-                ${creatorInitial}
+            <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0 overflow-hidden">
+              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-400 overflow-hidden">
+                ${avatarDisplayHtml}
               </div>
             </div>
             <span class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-              ${base.uploaderName || "Chief"}
+              ${creatorName}
             </span>
           </div>
 
           <div class="flex items-center gap-2">
             <span class="text-[10px] text-slate-400 font-semibold">${timeAgo}</span>
-            <button onclick="window.toggleFollowCreator('${base.uploaderUid}', '${base.uploaderName || 'Chief'}')" class="text-[10px] font-black uppercase text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 rounded transition">
+            <button onclick="window.toggleFollowCreator('${base.uploaderUid}', '${creatorName}')" class="text-[10px] font-black uppercase text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 rounded transition">
               ${userFollowedCreators.includes(base.uploaderUid) ? 'Following' : '+ Follow'}
             </button>
           </div>
@@ -772,9 +784,10 @@ window.handleAddCommentInsideModal = async function(e, baseId) {
   const text = inputEl?.value.trim();
   if (!text) return;
 
+  const currentUploaderName = currentUserProfile?.name || user.displayName || "Chief";
   const newComment = {
     uid: user.uid,
-    authorName: currentUserProfile?.name || user.displayName || "Chief",
+    authorName: currentUploaderName,
     text: text,
     timestamp: new Date().toISOString()
   };
@@ -819,6 +832,9 @@ window.openBaseDetailsModal = async function(baseId) {
   const whatsappUrl = `https://api.whatsapp.com/send?text=${shareText}`;
   const timeAgo = formatTimeAgo(base.createdAt);
 
+  const uploaderProfile = usersProfileCache[base.uploaderUid] || {};
+  const creatorName = uploaderProfile.name || base.uploaderName || "Chief";
+
   const tagsHtml = (base.tags && base.tags.length > 0) ? base.tags.map(t => `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">#${t.trim()}</span>`).join("") : "";
   const descHtml = base.description ? `<div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">${base.description}</div>` : "";
 
@@ -851,7 +867,7 @@ window.openBaseDetailsModal = async function(baseId) {
     : comments.map(c => `
       <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-xs space-y-1">
         <div class="flex items-center justify-between">
-          <span class="font-bold text-amber-400">${c.authorName || 'Chief'}</span>
+          <span class="font-bold text-amber-400">${usersProfileCache[c.uid]?.name || c.authorName || 'Chief'}</span>
           <span class="text-[9px] text-slate-400">${formatTimeAgo(c.timestamp)}</span>
         </div>
         <p class="text-slate-200">${c.text}</p>
@@ -870,8 +886,8 @@ window.openBaseDetailsModal = async function(baseId) {
           <span class="text-[10px] text-slate-400 font-semibold">${timeAgo}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs text-slate-400">By <b class="text-amber-400">${base.uploaderName || 'Chief'}</b></span>
-          <button id="modalFollowBtn" onclick="window.toggleFollowCreator('${base.uploaderUid}', '${base.uploaderName || 'Chief'}')" class="${isFollowingCreator ? 'bg-slate-800 border border-slate-700 text-slate-300' : 'bg-amber-500 text-black'} px-2.5 py-1 rounded-lg font-extrabold text-[10px] uppercase transition shadow">
+          <span class="text-xs text-slate-400">By <b class="text-amber-400">${creatorName}</b></span>
+          <button id="modalFollowBtn" onclick="window.toggleFollowCreator('${base.uploaderUid}', '${creatorName}')" class="${isFollowingCreator ? 'bg-slate-800 border border-slate-700 text-slate-300' : 'bg-amber-500 text-black'} px-2.5 py-1 rounded-lg font-extrabold text-[10px] uppercase transition shadow">
             ${isFollowingCreator ? 'Following ✓' : '+ Follow'}
           </button>
         </div>
@@ -1085,7 +1101,26 @@ async function loadBasesFromFirestore() {
     const q = query(collection(db, "bases"), orderBy("createdAt", "desc"));
     const querySnapshot = await getDocs(q);
     allFetchedBases = [];
-    querySnapshot.forEach(docSnap => allFetchedBases.push({ id: docSnap.id, ...docSnap.data() }));
+    
+    // Collect unique uploader UIDs to fetch their latest profile info
+    const uploaderIds = new Set();
+    querySnapshot.forEach(docSnap => {
+      const data = docSnap.id ? { id: docSnap.id, ...docSnap.data() } : null;
+      if (data) {
+        allFetchedBases.push(data);
+        if (data.uploaderUid) uploaderIds.add(data.uploaderUid);
+      }
+    });
+
+    // Fetch user profiles for dynamic sync
+    for (const uid of uploaderIds) {
+      try {
+        const uDoc = await getDoc(doc(db, "users", uid));
+        if (uDoc.exists()) {
+          usersProfileCache[uid] = uDoc.data();
+        }
+      } catch (err) {}
+    }
     
     renderBasesUI();
     calculateCreatorOfTheMonth();
@@ -1169,9 +1204,10 @@ function renderRankingsUI() {
   if (!container) return;
   const creatorsMap = {};
   allFetchedBases.forEach(base => {
-    const key = base.uploaderUid || base.uploaderName || "Chief";
-    if (!creatorsMap[key]) creatorsMap[key] = { name: base.uploaderName || "Chief", uploads: 0, thLevel: base.th || "TH 16" };
-    creatorsMap[key].uploads += 1;
+    const uploader = usersProfileCache[base.uploaderUid] || {};
+    const name = uploader.name || base.uploaderName || "Chief";
+    if (!creatorsMap[base.uploaderUid]) creatorsMap[base.uploaderUid] = { name, uploads: 0, thLevel: base.th || "TH 16" };
+    creatorsMap[base.uploaderUid].uploads += 1;
   });
   const ranked = Object.values(creatorsMap).sort((a, b) => b.uploads - a.uploads);
   if (ranked.length === 0) { 
