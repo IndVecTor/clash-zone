@@ -526,6 +526,7 @@ function generateBaseCardHTML(base) {
   const copies = base.copyCount || 0;
   const views = base.viewsCount || 0;
   const likes = base.likesCount || 0;
+  const commentsCount = (base.comments || []).length;
   const timeAgo = formatTimeAgo(base.createdAt);
   const creatorInitial = (base.uploaderName || "C").charAt(0).toUpperCase();
 
@@ -536,24 +537,16 @@ function generateBaseCardHTML(base) {
   return `
     <div class="glass-panel card-pro rounded-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-amber-500/20 shadow-md">
       
-      <!-- HEADER -->
-      <div class="px-3.5 py-2.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-black/20">
-        <div class="flex items-center gap-2 min-w-0">
-          <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0">
-            <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-400">
-              ${creatorInitial}
-            </div>
-          </div>
-          <span class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-            ${base.uploaderName || "Chief"}
-          </span>
-        </div>
-        <span class="text-[10px] text-slate-400 font-semibold shrink-0">${timeAgo}</span>
+      <!-- 1. TITLE SABSE UPAR -->
+      <div class="px-3.5 pt-3.5 pb-2">
+        <h3 class="font-bold text-sm text-slate-900 dark:text-white line-clamp-1 cursor-pointer hover:text-amber-400 transition" onclick="window.openBaseDetailsModal('${base.id}')" title="${base.title}">
+          ${base.title}
+        </h3>
       </div>
 
-      <!-- IMAGE PREVIEW -->
-      <div class="h-44 relative overflow-hidden bg-slate-950 cursor-pointer group" onclick="window.openBaseDetailsModal('${base.id}')">
-        <img src="${base.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
+      <!-- 2. THUMBNAIL (Bina kate poora dikhega - object-contain) -->
+      <div class="w-full bg-slate-950 relative overflow-hidden flex items-center justify-center cursor-pointer group" style="min-height: 200px; max-height: 260px;" onclick="window.openBaseDetailsModal('${base.id}')">
+        <img src="${base.image}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500" loading="lazy" />
         
         <div class="absolute top-2.5 left-2.5 bg-black/80 backdrop-blur-md border border-amber-500/40 text-amber-400 text-[10px] font-black px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1">
           <i data-lucide="shield" class="w-3 h-3 text-amber-400"></i>
@@ -569,27 +562,51 @@ function generateBaseCardHTML(base) {
         </button>
       </div>
 
-      <!-- BODY -->
-      <div class="p-3.5 flex flex-col flex-grow justify-between gap-3">
-        <div class="cursor-pointer" onclick="window.openBaseDetailsModal('${base.id}')">
-          <h3 class="font-bold text-sm text-slate-900 dark:text-white line-clamp-1 group-hover:text-amber-400 transition" title="${base.title}">
-            ${base.title}
-          </h3>
-
-          <div class="flex items-center gap-3 mt-2 text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
-            <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400"></i> ${views}</span>
-            <span class="flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i> ${copies}</span>
-            <button onclick="event.stopPropagation(); window.handleLikeBase('${base.id}')" class="flex items-center gap-1 hover:text-rose-500 transition">
-              <i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}"></i>
-              <span class="${isLiked ? 'text-rose-500 font-bold' : ''}">${likes}</span>
-            </button>
-          </div>
-        </div>
-
+      <!-- 3. COPY BUTTON -->
+      <div class="p-3.5 flex flex-col gap-3">
         <button onclick="window.copyAndLaunchBase('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md transition">
           <i data-lucide="external-link" class="w-4 h-4 stroke-[2.5]"></i>
           <span>Copy Base Layout</span>
         </button>
+
+        <!-- 4. ENGAGEMENT & COMMENTS BAR -->
+        <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-semibold pt-1 border-t border-slate-100 dark:border-slate-800/60">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400"></i> ${views}</span>
+            <span class="flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i> ${copies}</span>
+            <button onclick="window.openCommentsModal('${base.id}')" class="flex items-center gap-1 hover:text-amber-400 transition">
+              <i data-lucide="message-square" class="w-3.5 h-3.5 text-blue-400"></i>
+              <span>${commentsCount}</span>
+            </button>
+          </div>
+          
+          <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1 hover:text-rose-500 transition">
+            <i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}"></i>
+            <span class="${isLiked ? 'text-rose-500 font-bold' : ''}">${likes}</span>
+          </button>
+        </div>
+
+        <!-- 5. UPLOADER PROFILE (SABSE NICHE) -->
+        <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/30 dark:bg-black/10 -mx-3.5 -mb-3.5 px-3.5 py-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0">
+              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-400">
+                ${creatorInitial}
+              </div>
+            </div>
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+              ${base.uploaderName || "Chief"}
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] text-slate-400 font-semibold">${timeAgo}</span>
+            <button onclick="window.toggleFollowCreator('${base.uploaderUid}', '${base.uploaderName || 'Chief'}')" class="text-[10px] font-black uppercase text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 rounded transition">
+              ${userFollowedCreators.includes(base.uploaderUid) ? 'Following' : '+ Follow'}
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   `;
@@ -633,7 +650,7 @@ function renderInstagramProfileGrid(posts) {
     </div>
   `).join("");
   renderAllIcons();
-}
+};
 
 window.copyAndLaunchBase = async function(baseId, link) {
   if (!link) return;
@@ -714,6 +731,71 @@ window.rateBase = async function(baseId, stars) {
   }
 };
 
+window.openCommentsModal = function(baseId) {
+  const base = allFetchedBases.find(b => b.id === baseId);
+  if (!base) return;
+
+  document.getElementById("activeCommentBaseId").value = baseId;
+  document.getElementById("commentModalBaseTitle").innerText = base.title;
+
+  const container = document.getElementById("commentsListContainer");
+  const comments = base.comments || [];
+
+  if (comments.length === 0) {
+    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No comments yet. Be the first chief to comment!</p>`;
+  } else {
+    container.innerHTML = comments.map(c => `
+      <div class="bg-slate-100 dark:bg-czDark p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-amber-400">${c.authorName || 'Chief'}</span>
+          <span class="text-[9px] text-slate-400">${formatTimeAgo(c.timestamp)}</span>
+        </div>
+        <p class="text-slate-700 dark:text-slate-200">${c.text}</p>
+      </div>
+    `).join("");
+  }
+
+  window.openModal("commentsModal");
+};
+
+window.handleAddComment = async function(e) {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) {
+    window.showToast("Please login to comment!", "error");
+    window.openModal("authModal");
+    return;
+  }
+
+  const baseId = document.getElementById("activeCommentBaseId").value;
+  const inputEl = document.getElementById("commentInputText");
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  const newComment = {
+    uid: user.uid,
+    authorName: currentUserProfile?.name || user.displayName || "Chief",
+    text: text,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    const baseRef = doc(db, "bases", baseId);
+    const base = allFetchedBases.find(b => b.id === baseId);
+    const updatedComments = [...(base.comments || []), newComment];
+
+    await updateDoc(baseRef, { comments: updatedComments });
+    base.comments = updatedComments;
+
+    inputEl.value = "";
+    window.openCommentsModal(baseId);
+    renderBasesUI();
+    window.showToast("Comment posted!");
+  } catch (err) {
+    window.showToast("Failed to post comment", "error");
+  }
+};
+
 window.openBaseDetailsModal = async function(baseId) {
   const base = allFetchedBases.find(b => b.id === baseId);
   if (!base) return;
@@ -772,8 +854,8 @@ window.openBaseDetailsModal = async function(baseId) {
 
       <h3 class="text-base font-bold dark:text-white">${base.title}</h3>
       
-      <div class="w-full h-64 sm:h-72 rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
-        <img src="${base.image}" class="w-full h-full object-cover" />
+      <div class="w-full bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center" style="max-height: 320px;">
+        <img src="${base.image}" class="w-full h-full object-contain" />
       </div>
 
       ${descHtml}
@@ -870,6 +952,7 @@ window.handleBaseUpload = async function(e) {
       viewsCount: 0,
       ratingSum: 0,
       ratingCount: 0,
+      comments: [],
       createdAt: serverTimestamp()
     };
     await addDoc(collection(db, "bases"), baseData);
