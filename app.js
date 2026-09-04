@@ -49,7 +49,6 @@ let phoneConfirmationResult = null;
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases") || "[]");
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases") || "[]");
 
-// Full range like cocbases.com
 const ZONE_LEVELS = {
   home: ["ALL", "TH 18", "TH 17", "TH 16", "TH 15", "TH 14", "TH 13", "TH 12", "TH 11", "TH 10", "TH 9", "TH 8", "TH 7", "TH 6", "TH 5", "TH 4"],
   builder: ["ALL", "BH 10", "BH 9", "BH 8", "BH 7", "BH 6", "BH 5", "BH 4"],
@@ -335,7 +334,7 @@ window.setSortOption = function(sortType) {
 
 window.filterBases = function() { renderBasesUI(); };
 
-// ----------------- COCBASES ENGINE RENDER -----------------
+// ----------------- RENDER ENGINE -----------------
 function renderBasesUI() {
   const container = document.getElementById("basesContainer");
   if (!container) return;
@@ -369,20 +368,17 @@ function renderBasesUI() {
     return `
       <div class="glass-panel rounded-2xl overflow-hidden flex flex-col group border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg transition">
         
-        <!-- IMAGE & DIRECT MODAL -->
         <div class="h-44 relative overflow-hidden bg-slate-950 cursor-pointer" onclick="window.openBaseDetailsModal('${base.id}')">
           <img src="${base.image}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy" />
           
           <span class="absolute top-2 left-2 bg-black/85 text-amber-400 text-[10px] font-extrabold px-2 py-0.5 rounded shadow">${base.th}</span>
           <span class="absolute top-2 right-2 bg-black/85 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">${base.type || 'War'}</span>
 
-          <!-- COPIES TICKER (Cocbases style) -->
           <span class="absolute bottom-2 left-2 bg-black/80 text-slate-200 text-[9px] font-semibold px-1.5 py-0.5 rounded flex items-center gap-1">
             <i data-lucide="download" class="w-2.5 h-2.5 text-amber-400"></i> ${copies} Copies
           </span>
         </div>
 
-        <!-- CONTENT -->
         <div class="p-3.5 flex flex-col flex-grow justify-between">
           <div>
             <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
@@ -394,7 +390,6 @@ function renderBasesUI() {
             <h3 class="font-bold text-xs text-slate-900 dark:text-white line-clamp-1">${base.title}</h3>
           </div>
 
-          <!-- BOTTOM ACTION: 1-CLICK DIRECT APP LAUNCH -->
           <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
             <button onclick="window.handleLikeBase('${base.id}')" class="text-xs text-slate-400 flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4 ${isLiked ? "fill-rose-500 text-rose-500" : ""}"></i><span>${base.likesCount || 0}</span></button>
             
@@ -409,24 +404,20 @@ function renderBasesUI() {
   renderAllIcons();
 }
 
-// ----------------- COCBASES 1-CLICK COPY & COUNTER -----------------
 window.copyAndLaunchBase = async function(baseId, link) {
   if (!link) return;
 
-  // Background increment copy counter in Firestore
   try {
     const baseRef = doc(db, "bases", baseId);
     updateDoc(baseRef, { copyCount: increment(1) });
   } catch (e) {}
 
-  // Clipboard copy
   if (navigator.clipboard) {
     navigator.clipboard.writeText(link).catch(() => {});
   }
   
   window.showToast("Opening Clash of Clans with Layout...");
   
-  // Direct Supercell App Deep-Link trigger
   setTimeout(() => {
     window.location.href = link;
   }, 400);
@@ -456,7 +447,6 @@ window.handleLikeBase = async function(baseId) {
   renderBasesUI();
 };
 
-// ----------------- MODAL POPUPS -----------------
 window.openBaseDetailsModal = function(baseId) {
   const base = allFetchedBases.find(b => b.id === baseId);
   if (!base) return;

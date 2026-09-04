@@ -82,11 +82,11 @@
 
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- PWA INSTALL BANNER (App Feature) -->
-  <div id="pwaInstallBanner" class="hidden bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-black px-4 py-2.5 flex items-center justify-between text-xs font-bold shadow-md sticky top-0 z-50">
+  <!-- PWA INSTALL BANNER -->
+  <div id="pwaInstallBanner" class="hidden bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-black px-4 py-2 flex items-center justify-between text-xs font-bold shadow-md sticky top-0 z-50">
     <div class="flex items-center gap-2">
       <i data-lucide="smartphone" class="w-4 h-4"></i>
-      <span>Install ClashZone Android App on your device</span>
+      <span>Install ClashZone App on your device</span>
     </div>
     <div class="flex items-center gap-2">
       <button id="btnPwaInstall" class="bg-black text-white px-3 py-1 rounded-lg text-[11px] font-extrabold uppercase">Install</button>
@@ -94,15 +94,19 @@
     </div>
   </div>
 
-  <!-- CLEAN TOP BAR -->
+  <!-- CLEAN TOP HEADER WITH VECTOR GAMING LOGO -->
   <header class="sticky top-0 z-40 bg-white/95 dark:bg-czDark/95 backdrop-blur-xl border-b border-slate-200 dark:border-czBorder w-full shadow-lg">
     <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
       
       <!-- LOGO -->
-      <a href="index.html" class="flex items-center gap-2.5 shrink-0 group">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-400 to-yellow-300 p-[1.5px] shadow-md group-hover:scale-105 transition">
-          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-            <i data-lucide="shield" class="text-amber-400 w-5 h-5"></i>
+      <a href="index.html" class="flex items-center gap-3 shrink-0 group">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-600 via-amber-400 to-yellow-300 p-[1.5px] shadow-lg group-hover:scale-105 transition duration-300">
+          <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center p-2 shadow-inner">
+            <svg class="w-full h-full text-amber-400 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m14.5 9-5 5"/>
+              <path d="m9.5 9 5 5"/>
+            </svg>
           </div>
         </div>
         <div class="flex flex-col">
@@ -140,7 +144,7 @@
             BEST <span class="gold-gradient">CLASH OF CLANS</span> BASES
           </h1>
           <p class="text-xs text-slate-300 font-medium">
-            Copy base layouts with buildings and traps directly into your Clash of Clans game with 1 click.
+            Copy base layouts with buildings and traps directly into your game with 1 click.
           </p>
         </div>
       </div>
@@ -153,7 +157,7 @@
         </div>
       </section>
 
-      <!-- ZONE SELECTOR (Home Village / Builder Base / Clan Capital) -->
+      <!-- ZONE SELECTOR -->
       <section class="w-full mb-3">
         <div class="glass-panel rounded-xl p-1.5 flex items-center justify-center shadow-sm">
           <div class="flex items-center gap-1.5 overflow-x-auto w-full justify-center scrollbar-none">
@@ -164,7 +168,7 @@
         </div>
       </section>
 
-      <!-- COC BASES STYLE TYPE CHIPS (War, Anti 3-Star, Trophy, Farming, Hybrid) -->
+      <!-- TYPE CHIPS -->
       <div class="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none mb-2" id="typeChipsContainer">
         <button onclick="window.setTypeFilter('ALL')" id="typeChipALL" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-black shrink-0 transition">All Types</button>
         <button onclick="window.setTypeFilter('War')" id="typeChipWar" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-czPanel border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 shrink-0 hover:border-amber-400 transition">War</button>
@@ -174,7 +178,7 @@
         <button onclick="window.setTypeFilter('Hybrid')" id="typeChipHybrid" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-czPanel border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 shrink-0 hover:border-amber-400 transition">Hybrid</button>
       </div>
 
-      <!-- STICKY LEVEL SELECTOR & SORT (TH4 to TH17) -->
+      <!-- STICKY LEVEL SELECTOR & SORT -->
       <div class="sticky top-16 z-30 bg-white/95 dark:bg-czDark/95 backdrop-blur-xl py-2 -mx-4 px-4 border-b border-slate-200 dark:border-slate-800 shadow-sm">
         <div class="flex items-center justify-between gap-2 overflow-x-auto pb-1.5 scrollbar-none mb-1">
           <div class="flex items-center gap-1.5">
@@ -292,7 +296,7 @@
 
       <div id="phoneAuthContainer" class="space-y-3">
         <div id="phoneStep1" class="space-y-3">
-          <p class="text-xs text-slate-400 text-center">Enter your mobile number with country code</p>
+          <p class="text-xs text-slate-400 text-center">Enter mobile number with country code</p>
           <input type="tel" id="userPhoneNumber" placeholder="+91 9876543210" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400 font-bold text-center" />
           <div id="recaptchaContainer"></div>
           <button type="button" onclick="window.sendPhoneOtp()" id="btnSendOtp" class="w-full bg-amber-500 text-black font-bold py-3 rounded-xl text-xs uppercase shadow-md">Send Instant OTP</button>
@@ -390,7 +394,6 @@
   </div>
 
   <script>
-    // PWA Install prompt capture
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -412,7 +415,6 @@
 
     document.getElementById('btnPwaInstall')?.addEventListener('click', window.triggerPwaPrompt);
 
-    // Dark Mode Theme Init
     function initTheme() {
       const isDark = localStorage.getItem('cz_theme') !== 'light';
       document.documentElement.classList.toggle('dark', isDark);
