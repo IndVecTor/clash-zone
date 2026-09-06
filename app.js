@@ -52,6 +52,7 @@ let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases")
 let userRatedBases = JSON.parse(localStorage.getItem("cz_rated_bases") || "{}");
 let userFollowedCreators = JSON.parse(localStorage.getItem("cz_followed_creators") || "[]");
 let userEmojiReactions = JSON.parse(localStorage.getItem("cz_emoji_reactions") || "{}");
+let userPollVotes = JSON.parse(localStorage.getItem("cz_poll_votes") || "{}");
 let viewedBases = JSON.parse(sessionStorage.getItem("cz_viewed_bases") || "[]");
 
 const ZONE_LEVELS = {
@@ -160,6 +161,7 @@ window.handleGoogleLogin = async function() {
         trophies: 5000,
         bio: "ClashZone Chief",
         avatarUrl: user.photoURL || "",
+        pushAlerts: true,
         createdAt: serverTimestamp()
       });
     }
@@ -191,6 +193,7 @@ window.handleEmailLogin = async function(e) {
           clanName: "Solo",
           trophies: 5000,
           bio: "ClashZone Chief",
+          pushAlerts: true,
           createdAt: serverTimestamp()
         });
       } else {
@@ -213,6 +216,20 @@ window.handleLogout = function() {
   });
 };
 
+window.togglePushAlerts = async function(el) {
+  const user = auth.currentUser;
+  if (!user) {
+    window.showToast("Please login first!", "error");
+    el.checked = false;
+    return;
+  }
+  const status = el.checked;
+  try {
+    await updateDoc(doc(db, "users", user.uid), { pushAlerts: status });
+    window.showToast(status ? "Push alerts enabled!" : "Push alerts disabled!");
+  } catch (e) {}
+};
+
 onAuthStateChanged(auth, async (user) => {
   const profileLoggedOut = document.getElementById("profileLoggedOutView");
   const profileLoggedIn = document.getElementById("profileLoggedInView");
@@ -229,7 +246,8 @@ onAuthStateChanged(auth, async (user) => {
         clanName: "Solo", 
         trophies: 5000, 
         bio: "ClashZone Chief",
-        avatarUrl: user.photoURL || ""
+        avatarUrl: user.photoURL || "",
+        pushAlerts: true
       };
       
       usersProfileCache[user.uid] = currentUserProfile;
@@ -238,6 +256,7 @@ onAuthStateChanged(auth, async (user) => {
       if (document.getElementById("profileTHBadge")) document.getElementById("profileTHBadge").innerText = currentUserProfile.townHallLevel || "TH 16";
       if (document.getElementById("profileTagClan")) document.getElementById("profileTagClan").innerText = `Clan: ${currentUserProfile.clanName || "Solo"} | ${currentUserProfile.tag || "#CLASH"}`;
       if (document.getElementById("profileBioText")) document.getElementById("profileBioText").innerText = currentUserProfile.bio || "No bio added.";
+      if (document.getElementById("pushNotificationToggle")) document.getElementById("pushNotificationToggle").checked = currentUserProfile.pushAlerts !== false;
       
       if (document.getElementById("editName")) document.getElementById("editName").value = currentUserProfile.name || defaultName;
       if (document.getElementById("editTH")) document.getElementById("editTH").value = currentUserProfile.townHallLevel || "TH 16";
@@ -785,6 +804,32 @@ window.handleEmojiReaction = async function(baseId, emoji) {
   window.openBaseDetailsModal(baseId);
 };
 
+window.voteBasePoll = async function(baseId, isDefended) {
+  const userKey = `poll_${baseId}`;
+  if (userPollVotes[baseId]) {
+    window.showToast("You have already voted on this base!", "info");
+    return;
+  }
+
+  userPollVotes[baseId] = isDefended ? 'defended' : 'destroyed';
+  localStorage.setItem("cz_poll_votes", JSON.stringify(userPollVotes));
+
+  const base = allFetchedBases.find(b => b.id === baseId);
+  if (!base) return;
+
+  if (!base.poll) base.poll = { defended: 0, destroyed: 0 };
+  if (isDefended) base.poll.defended += 1;
+  else base.poll.destroyed += 1;
+
+  try {
+    const baseRef = doc(db, "bases", baseId);
+    await updateDoc(baseRef, { poll: base.poll });
+  } catch (e) {}
+
+  window.showToast(isDefended ? "Voted: Defended 3-Star! 🛡️" : "Voted: Got Destroyed ⚔️");
+  window.openBaseDetailsModal(baseId);
+};
+
 window.handleAddCommentInsideModal = async function(e, baseId) {
   e.preventDefault();
   const user = auth.currentUser;
@@ -875,6 +920,10 @@ window.openBaseDetailsModal = async function(baseId) {
     `;
   }).join("");
 
+  const poll = base.poll || { defended: 0, destroyed: 0 };
+  const totalVotes = (poll.defended || 0) + (poll.destroyed || 0);
+  const defPct = totalVotes > 0 ? Math.round((poll.defended / totalVotes) * 100) : 50;
+
   const comments = base.comments || [];
   const commentsHtml = comments.length === 0 
     ? `<p class="text-xs text-slate-400 text-center py-4">No comments yet. Start the strategy discussion below!</p>`
@@ -916,6 +965,23 @@ window.openBaseDetailsModal = async function(baseId) {
       <!-- Emoji Reactions Bar -->
       <div class="flex flex-wrap items-center gap-2 pt-1">
         ${emojiReactionsHtml}
+      </div>
+
+      <!-- Base Testing / Poll -->
+      <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl space-y-2">
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">🛡️ War Testing Poll (How did this base perform?)</span>
+        <div class="flex items-center gap-2">
+          <button onclick="window.voteBasePoll('${base.id}', true)" class="flex-1 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 py-2 rounded-xl text-xs font-bold transition">
+            🛡️ Defended (${poll.defended || 0})
+          </button>
+          <button onclick="window.voteBasePoll('${base.id}', false)" class="flex-1 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 py-2 rounded-xl text-xs font-bold transition">
+            ⚔️ Destroyed (${poll.destroyed || 0})
+          </button>
+        </div>
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex">
+          <div class="bg-emerald-500 h-full transition-all duration-500" style="width: ${defPct}%"></div>
+          <div class="bg-rose-500 h-full transition-all duration-500" style="width: ${100 - defPct}%"></div>
+        </div>
       </div>
 
       ${descHtml}
@@ -1029,6 +1095,7 @@ window.handleBaseUpload = async function(e) {
       ratingCount: 0,
       comments: [],
       reactions: { "🔥": 0, "🗿": 0, "👑": 0, "❤️": 0, "⚡": 0 },
+      poll: { defended: 0, destroyed: 0 },
       createdAt: serverTimestamp()
     };
     await addDoc(collection(db, "bases"), baseData);
@@ -1053,6 +1120,7 @@ window.handleClanUpload = async function(e) {
     name: document.getElementById("clanNameInput").value.trim(),
     tag: document.getElementById("clanTagInput").value.trim().toUpperCase(),
     link: document.getElementById("clanLinkInput").value.trim(),
+    category: document.getElementById("clanCategoryInput").value,
     desc: document.getElementById("clanDescInput").value.trim(),
     uploaderUid: user.uid,
     createdAt: serverTimestamp()
@@ -1062,7 +1130,7 @@ window.handleClanUpload = async function(e) {
     window.closeModal("postClanModal");
     e.target.reset();
     await loadClansFromFirestore();
-    window.showToast("Clan added!");
+    window.showToast("Clan recruitment posted!");
   } catch (err) { 
     window.showToast("Error registering clan", "error"); 
   }
@@ -1177,6 +1245,7 @@ function renderClansUI() {
           <h3 class="font-bold text-sm">${clan.name}</h3>
           <span class="bg-amber-500/20 text-amber-500 font-mono text-[10px] px-2 py-0.5 rounded">${clan.tag}</span>
         </div>
+        <span class="inline-block bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 text-[9px] font-extrabold px-2 py-0.5 rounded-full my-1">${clan.category || 'Active Clan'}</span>
         <p class="text-xs text-slate-500 dark:text-slate-300 my-2">${clan.desc}</p>
       </div>
       <a href="${clan.link}" target="_blank" class="w-full bg-amber-500 text-black font-bold py-2 rounded-xl text-xs text-center uppercase tracking-wider block mt-2">Join Clan</a>

@@ -21,7 +21,7 @@
       theme: {
         extend: {
           colors: {
-            czGold: '#f59e0b',
+            czGold: 'var(--cz-accent, #f59e0b)',
             czDark: '#03050b',
             czPanel: '#070c18',
             czCard: '#0b1326',
@@ -36,6 +36,9 @@
     }
   </script>
   <style>
+    :root {
+      --cz-accent: #f59e0b;
+    }
     html, body {
       overflow-x: hidden;
       max-width: 100vw;
@@ -60,7 +63,7 @@
       font-family: 'Changa One', sans-serif;
       letter-spacing: 1px;
       text-transform: uppercase;
-      background: linear-gradient(180deg, #ffffff 0%, #fde047 35%, #f59e0b 70%, #d97706 100%);
+      background: linear-gradient(180deg, #ffffff 0%, #fde047 35%, var(--cz-accent) 70%, #d97706 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8))
@@ -80,7 +83,7 @@
 
     .profile-hero-card {
       background: linear-gradient(135deg, rgba(7, 12, 24, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-      border: 2px solid rgba(245, 158, 11, 0.4);
+      border: 2px solid var(--cz-accent);
       box-shadow: 0 10px 30px -5px rgba(245, 158, 11, 0.2);
     }
     
@@ -95,7 +98,7 @@
     .scrollbar-none::-webkit-scrollbar { display: none; }
     .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
     .bnav-btn { transition: all 0.2s ease-in-out; }
-    .bnav-btn.active { color: #f59e0b; transform: translateY(-2px); }
+    .bnav-btn.active { color: var(--cz-accent); transform: translateY(-2px); }
   </style>
 </head>
 <body class="min-h-screen pb-32 selection:bg-amber-500 selection:text-black">
@@ -145,6 +148,14 @@
 
       <!-- RIGHT ICONS -->
       <div class="flex items-center gap-2">
+        <!-- Theme Picker Dropdown -->
+        <select onchange="window.changeAppTheme(this.value)" class="bg-slate-100 dark:bg-czPanel text-slate-700 dark:text-amber-400 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-2 text-xs font-bold outline-none">
+          <option value="#f59e0b">⚡ Gold Theme</option>
+          <option value="#a855f7">💜 P.E.K.K.A</option>
+          <option value="#3b82f6">💙 Electro</option>
+          <option value="#ef4444">🔥 Lava Fire</option>
+        </select>
+
         <button id="themeToggleBtn" onclick="window.toggleDarkMode()" class="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-czPanel text-slate-700 dark:text-amber-400 transition" title="Toggle Mode">
           <i id="themeIcon" data-lucide="moon" class="w-4 h-4"></i>
         </button>
@@ -154,6 +165,12 @@
       </div>
     </div>
   </header>
+
+  <!-- LIVE CWL & EVENT COUNTDOWN BAR -->
+  <div class="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-black py-1.5 px-4 text-center text-xs font-black uppercase tracking-wider flex items-center justify-center gap-3 shadow-inner">
+    <span>⏳ Next Clan War League Starts In:</span>
+    <span id="liveCwlCountdown" class="bg-black text-amber-400 px-2.5 py-0.5 rounded font-mono text-[11px]">04d : 12h : 45m</span>
+  </div>
 
   <!-- MAIN APP CONTAINER -->
   <div class="max-w-7xl mx-auto px-4 pt-3 w-full">
@@ -260,10 +277,10 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h2 class="text-xl font-bold font-['Rajdhani'] dark:text-white">Clan Directory</h2>
-          <p class="text-xs text-slate-500">Find an active competitive war or CWL clan.</p>
+          <p class="text-xs text-slate-500">Find active competitive war clans or recruit members.</p>
         </div>
         <button onclick="window.openModal('postClanModal')" class="bg-amber-500 hover:bg-amber-400 text-black px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition shadow-md inline-flex items-center gap-1.5 self-start">
-          <i data-lucide="plus" class="w-4 h-4"></i> Add Clan
+          <i data-lucide="plus" class="w-4 h-4"></i> Add Clan (Recruit)
         </button>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="clansContainer"></div>
@@ -325,7 +342,12 @@
             </div>
           </div>
 
-          <button onclick="window.openModal('analyticsModal')" class="w-full mt-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-300 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 transition">
+          <div class="mt-3 flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-slate-800 text-xs">
+            <span class="font-bold text-slate-300">🔔 Push Alerts for New Uploads</span>
+            <input type="checkbox" id="pushNotificationToggle" onchange="window.togglePushAlerts(this)" class="w-4 h-4 accent-amber-500 cursor-pointer" />
+          </div>
+
+          <button onclick="window.openModal('analyticsModal')" class="w-full mt-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-300 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1.5 transition">
             <i data-lucide="bar-chart-2" class="w-4 h-4"></i> View Detailed Performance & Milestones
           </button>
 
@@ -395,7 +417,7 @@
     </div>
   </div>
 
-  <!-- AUTH MODAL (GOOGLE & EMAIL) -->
+  <!-- AUTH MODAL -->
   <div class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="authModal">
     <div class="glass-panel rounded-2xl w-full max-w-sm p-6 relative shadow-2xl my-auto space-y-4">
       <button onclick="window.closeModal('authModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
@@ -405,7 +427,6 @@
         <p class="text-[11px] text-slate-400">Sign in to publish layouts and save favorites</p>
       </div>
 
-      <!-- Google Sign In Button -->
       <button type="button" onclick="window.handleGoogleLogin()" class="w-full bg-white dark:bg-slate-900 hover:bg-slate-100 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-700 py-3 rounded-xl font-bold text-xs uppercase flex items-center justify-center gap-2.5 shadow transition">
         <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.19v3.15C3.18 21.32 7.22 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.19C.43 8.1 0 9.99 0 12s.43 3.9 1.19 5.42l4.09-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.18 2.68 1.19 6.58l4.09 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></svg>
         <span>Continue with Google</span>
@@ -417,7 +438,6 @@
         <div class="flex-grow border-t border-slate-300 dark:border-slate-800"></div>
       </div>
 
-      <!-- Email Login Form -->
       <form onsubmit="window.handleEmailLogin(event)" class="space-y-3">
         <input type="email" id="loginEmail" placeholder="Email Address" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400 text-slate-900 dark:text-white" />
         <input type="password" id="loginPass" placeholder="Password (Min 6 chars)" required minlength="6" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400 text-slate-900 dark:text-white" />
@@ -596,13 +616,14 @@
   <div class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden justify-center items-center p-4 z-50 overflow-y-auto" id="postClanModal">
     <div class="glass-panel rounded-2xl w-full max-w-sm p-6 relative shadow-xl my-auto">
       <button onclick="window.closeModal('postClanModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
-      <h3 class="text-base text-amber-500 font-bold mb-3">Register Clan</h3>
+      <h3 class="text-base text-amber-500 font-bold mb-3">Register Clan (Recruit)</h3>
       <form onsubmit="window.handleClanUpload(event)" class="space-y-3">
         <input type="text" id="clanNameInput" placeholder="Clan Name" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400" />
         <input type="text" id="clanTagInput" placeholder="Clan Tag (#2PP0Q)" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs font-mono outline-none focus:border-amber-400" />
-        <input type="url" id="clanLinkInput" placeholder="In-Game Clan Link" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400" />
-        <textarea id="clanDescInput" placeholder="Requirements & details..." rows="2" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400"></textarea>
-        <button type="submit" class="w-full bg-amber-500 text-black py-2.5 rounded-xl font-bold text-xs uppercase">Submit</button>
+        <input type="url" id="clanLinkInput" placeholder="In-Game Clan Invite Link" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400" />
+        <select id="clanCategoryInput" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400"><option value="CWL Active">CWL Active</option><option value="War Clan">War Clan</option><option value="Casual / Farming">Casual / Farming</option></select>
+        <textarea id="clanDescInput" placeholder="Requirements & details (e.g. TH15+, Active donations)..." rows="2" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400"></textarea>
+        <button type="submit" class="w-full bg-amber-500 text-black py-2.5 rounded-xl font-bold text-xs uppercase">Post Clan Recruitment</button>
       </form>
     </div>
   </div>
@@ -678,6 +699,12 @@
       window.openModal('bannerZoomModal');
     };
 
+    window.changeAppTheme = function(colorHex) {
+      document.documentElement.style.setProperty('--cz-accent', colorHex);
+      localStorage.setItem('cz_accent_color', colorHex);
+      window.showToast(`Theme updated successfully!`);
+    };
+
     function startBannerAutoplay() {
       clearInterval(bannerInterval);
       bannerInterval = setInterval(() => {
@@ -715,6 +742,11 @@
       document.documentElement.classList.toggle('dark', isDark);
       const icon = document.getElementById('themeIcon');
       if (icon) icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+
+      const savedAccent = localStorage.getItem('cz_accent_color');
+      if (savedAccent) {
+        document.documentElement.style.setProperty('--cz-accent', savedAccent);
+      }
     }
     window.toggleDarkMode = function() {
       const isDark = document.documentElement.classList.toggle('dark');
