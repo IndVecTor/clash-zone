@@ -165,10 +165,10 @@
     </div>
   </header>
 
-  <!-- LIVE CWL COUNTDOWN BAR -->
+  <!-- ACCURATE LIVE CWL COUNTDOWN BAR -->
   <div class="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-black py-1.5 px-4 text-center text-xs font-black uppercase tracking-wider flex items-center justify-center gap-3 shadow-inner">
-    <span>⏳ Next Clan War League Starts In:</span>
-    <span id="liveCwlCountdown" class="bg-black text-amber-400 px-2.5 py-0.5 rounded font-mono text-[11px]">04d : 12h : 45m</span>
+    <span>🛡️ Next Clan War League Starts In:</span>
+    <span id="liveCwlCountdown" class="bg-black text-amber-400 px-2.5 py-0.5 rounded font-mono text-[11px]">Calculations...</span>
   </div>
 
   <!-- MAIN APP CONTAINER -->
@@ -252,12 +252,19 @@
         <div class="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none w-full" id="levelFilterContainer"></div>
       </div>
 
-      <!-- BASE CARDS FEED -->
+      <!-- BASE CARDS FEED WITH PAGINATION -->
       <main class="py-4 w-full">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full" id="basesContainer">
           <div class="glass-panel rounded-2xl p-6 col-span-full text-center text-xs text-slate-400">
             Loading base layouts...
           </div>
+        </div>
+        
+        <!-- Load More Pagination Button -->
+        <div id="loadMoreContainer" class="text-center mt-6 hidden">
+          <button onclick="window.loadMoreBases()" class="bg-amber-500 hover:bg-amber-400 text-black px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shadow transition">
+            Load More Layouts ⚡
+          </button>
         </div>
       </main>
     </div>
@@ -704,6 +711,27 @@
       localStorage.setItem('cz_accent_color', colorHex);
       window.showToast(`Theme updated successfully!`);
     };
+
+    // Live Accurate CWL Countdown (1st of every month)
+    function updateCwlCountdown() {
+      const now = new Date();
+      let target = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+      if (now > target) {
+        target = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
+      }
+      const diff = target - now;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const mins = Math.floor((diff / 1000 / 60) % 60);
+      const secs = Math.floor((diff / 1000) % 60);
+
+      const el = document.getElementById('liveCwlCountdown');
+      if (el) {
+        el.innerText = `${days}d : ${hours}h : ${mins}m : ${secs}s`;
+      }
+    }
+    setInterval(updateCwlCountdown, 1000);
+    updateCwlCountdown();
 
     function startBannerAutoplay() {
       clearInterval(bannerInterval);

@@ -46,6 +46,7 @@ let allFetchedBases = [];
 let allFetchedClans = [];
 let usersProfileCache = {}; 
 let currentUserProfile = null;
+let displayLimit = 12; // Pagination limit for fast loading
 
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases") || "[]");
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases") || "[]");
@@ -460,6 +461,7 @@ function renderMilestones(postsCount, totalCopies, totalLikes) {
 window.switchZone = function(zone) {
   currentZone = zone; 
   currentTH = "ALL";
+  displayLimit = 12;
   ['home', 'builder', 'capital'].forEach(z => {
     const tab = document.getElementById('zoneTab' + z.charAt(0).toUpperCase() + z.slice(1));
     if (tab) {
@@ -475,6 +477,7 @@ window.switchZone = function(zone) {
 
 window.setTypeFilter = function(type) {
   currentType = type;
+  displayLimit = 12;
   const chipKeys = ['ALL', 'War', 'Anti3Star', 'Trophy', 'Farming', 'Hybrid'];
   chipKeys.forEach(k => {
     const rawMatch = k === 'Anti3Star' ? 'Anti 3-Star' : k;
@@ -507,12 +510,14 @@ function renderLevelFilters() {
 
 window.setTHFilter = function(th) { 
   currentTH = th; 
+  displayLimit = 12;
   renderLevelFilters(); 
   renderBasesUI(); 
 };
 
 window.setSortOption = function(sortType) { 
   currentSort = sortType;
+  displayLimit = 12;
   ['latest', 'copies', 'views', 'likes'].forEach(s => {
     const btn = document.getElementById('sort' + s.charAt(0).toUpperCase() + s.slice(1));
     if (btn) {
@@ -524,10 +529,19 @@ window.setSortOption = function(sortType) {
   renderBasesUI(); 
 };
 
-window.filterBases = function() { renderBasesUI(); };
+window.filterBases = function() { 
+  displayLimit = 12;
+  renderBasesUI(); 
+};
+
+window.loadMoreBases = function() {
+  displayLimit += 12;
+  renderBasesUI();
+};
 
 function renderBasesUI() {
   const container = document.getElementById("basesContainer");
+  const loadMoreBtnContainer = document.getElementById("loadMoreContainer");
   if (!container) return;
   const search = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
   
@@ -551,11 +565,22 @@ function renderBasesUI() {
 
   if (filtered.length === 0) {
     container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">No base layouts found matching filters.</div>`;
+    if (loadMoreBtnContainer) loadMoreBtnContainer.classList.add("hidden");
     renderAllIcons();
     return;
   }
 
-  container.innerHTML = filtered.map(base => generateBaseCardHTML(base)).join("");
+  const paginatedList = filtered.slice(0, displayLimit);
+  container.innerHTML = paginatedList.map(base => generateBaseCardHTML(base)).join("");
+
+  if (loadMoreBtnContainer) {
+    if (filtered.length > displayLimit) {
+      loadMoreBtnContainer.classList.remove("hidden");
+    } else {
+      loadMoreBtnContainer.classList.add("hidden");
+    }
+  }
+
   renderAllIcons();
 }
 
