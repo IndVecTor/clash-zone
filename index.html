@@ -110,7 +110,7 @@
   <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- PWA INSTALL BANNER -->
-  <div id="pwaInstallBanner" class="hidden bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-black px-4 py-2.5 flex items-center justify-between text-xs font-bold shadow-md sticky top-0 z-50">
+  <div id="pwaInstallBanner" class="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-black px-4 py-2.5 flex items-center justify-between text-xs font-bold shadow-md sticky top-0 z-50">
     <div class="flex items-center gap-2">
       <i data-lucide="smartphone" class="w-4 h-4 shrink-0"></i>
       <span>Install ClashZone Android App</span>
@@ -425,6 +425,27 @@
       <button onclick="window.switchMainHubView('profile')" id="bnavProfile" class="bnav-btn flex-1 flex flex-col items-center gap-0.5 text-slate-400"><i data-lucide="user" class="w-5 h-5"></i><span class="text-[10px] font-bold">Account</span></button>
     </div>
   </nav>
+
+  <!-- PWA MANUAL FALLBACK INSTALL MODAL -->
+  <div class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="pwaManualModal">
+    <div class="glass-panel rounded-2xl w-full max-w-sm p-6 relative shadow-2xl my-auto space-y-4 text-center">
+      <button onclick="window.closeModal('pwaManualModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold">✕</button>
+      <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center mx-auto text-2xl shadow">📱</div>
+      <div>
+        <h3 class="text-base font-bold text-amber-400">Install ClashZone Android App</h3>
+        <p class="text-xs text-slate-300 mt-1">Get instant full-screen gaming experience right on your home screen.</p>
+      </div>
+
+      <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-xl text-left space-y-2 text-xs text-slate-200">
+        <p class="font-bold text-amber-400">Quick Installation Steps:</p>
+        <p>1. Tap the Chrome browser menu button (<b>3 dots ⋮</b>) in the top right corner.</p>
+        <p>2. Tap on <b>"Add to Home screen"</b> or <b>"Install app"</b>.</p>
+        <p>3. Confirm <b>Install</b> to place ClashZone on your phone!</p>
+      </div>
+
+      <button onclick="window.closeModal('pwaManualModal')" class="w-full bg-amber-500 hover:bg-amber-400 text-black py-2.5 rounded-xl text-xs font-black uppercase shadow">Got It!</button>
+    </div>
+  </div>
 
   <!-- BANNER ZOOM MODAL -->
   <div class="fixed inset-0 bg-black/90 backdrop-blur-md hidden justify-center items-center p-4 z-50 overflow-y-auto" id="bannerZoomModal" onclick="window.closeModal('bannerZoomModal')">
@@ -814,7 +835,7 @@
       startBannerAutoplay();
     }
 
-    // Direct Native Android App PWA Installation
+    // Smart Native PWA Installation with Bulletproof Fallback Modal
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -832,7 +853,8 @@
         deferredPrompt = null;
         document.getElementById('pwaInstallBanner')?.classList.add('hidden');
       } else {
-        window.showToast("App is already installed or your browser triggers direct installation.", "info");
+        // Fallback: If browser blocks or caches previous install state, open gorgeous manual guide
+        window.openModal('pwaManualModal');
       }
     };
     document.getElementById('btnPwaInstall')?.addEventListener('click', window.triggerPwaPrompt);

@@ -124,7 +124,6 @@ function compressAndWatermarkImage(file, creatorName = "Chief", borderTheme = "g
         const ctx = elem.getContext("2d");
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Custom Neon Border Styler
         let borderColor = "#f59e0b";
         if (borderTheme === "purple") borderColor = "#a855f7";
         else if (borderTheme === "blue") borderColor = "#3b82f6";
@@ -134,7 +133,6 @@ function compressAndWatermarkImage(file, creatorName = "Chief", borderTheme = "g
         ctx.lineWidth = 8;
         ctx.strokeRect(0, 0, width, height);
         
-        // Custom Watermark Badge
         const padding = 16, badgeHeight = 32, badgeWidth = Math.min(width * 0.55, 240);
         const x = width - badgeWidth - padding, y = height - badgeHeight - padding;
         
@@ -159,7 +157,6 @@ function compressAndWatermarkImage(file, creatorName = "Chief", borderTheme = "g
   });
 }
 
-// Meta AI Base Strength Score Calculator
 function calculateMetaDefenseScore(base) {
   let score = 75;
   const type = (base.type || "").toLowerCase();
