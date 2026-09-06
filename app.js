@@ -321,6 +321,7 @@ window.toggleFollowCreator = function(creatorUid, creatorName) {
     followBtn.className = isFollowing ? "bg-slate-800 border border-slate-700 text-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs uppercase" : "bg-amber-500 text-black px-4 py-2.5 rounded-xl font-bold text-xs uppercase";
     followBtn.innerText = isFollowing ? "Following ✓" : "Follow Creator";
   }
+  renderBasesUI();
 };
 
 function calculateCreatorOfTheMonth() {
@@ -571,6 +572,7 @@ function generateBaseCardHTML(base) {
   const creatorName = uploaderProfile.name || base.uploaderName || "Chief";
   const creatorInitial = creatorName.charAt(0).toUpperCase();
   const creatorAvatar = uploaderProfile.avatarUrl || "";
+  const isFollowing = userFollowedCreators.includes(base.uploaderUid);
 
   const ratingSum = base.ratingSum || 0;
   const ratingCount = base.ratingCount || 0;
@@ -583,14 +585,32 @@ function generateBaseCardHTML(base) {
   return `
     <div class="glass-panel card-pro rounded-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-amber-500/20 shadow-md">
       
-      <!-- 1. TITLE SABSE UPAR -->
-      <div class="px-3.5 pt-3.5 pb-2">
+      <!-- TITLE + UPLOADER PROFILE BOX (SABSE UPAR EK HI BOX MEIN) -->
+      <div class="p-3.5 bg-slate-50/60 dark:bg-black/30 border-b border-slate-100 dark:border-slate-800/80 space-y-2.5">
         <h3 class="font-bold text-sm text-slate-900 dark:text-white line-clamp-1 cursor-pointer hover:text-amber-400 transition" onclick="window.openBaseDetailsModal('${base.id}')" title="${base.title}">
           ${base.title}
         </h3>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0 overflow-hidden">
+              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-400 overflow-hidden">
+                ${avatarDisplayHtml}
+              </div>
+            </div>
+            <div class="min-w-0">
+              <h5 class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">${creatorName}</h5>
+              <p class="text-[9px] text-amber-500 font-extrabold uppercase">12 Followers • ${timeAgo}</p>
+            </div>
+          </div>
+
+          <button onclick="window.toggleFollowCreator('${base.uploaderUid}', '${creatorName}')" class="text-[10px] font-black uppercase ${isFollowing ? 'bg-slate-800 border border-slate-700 text-slate-300' : 'bg-amber-500 text-black'} px-2.5 py-1 rounded-lg transition shadow">
+            ${isFollowing ? 'Following ✓' : '+ Follow'}
+          </button>
+        </div>
       </div>
 
-      <!-- 2. THUMBNAIL -->
+      <!-- THUMBNAIL -->
       <div class="w-full bg-slate-950 relative overflow-hidden flex items-center justify-center cursor-pointer group" style="min-height: 200px; max-height: 260px;" onclick="window.openBaseDetailsModal('${base.id}')">
         <img src="${base.image}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500" loading="lazy" />
         
@@ -608,14 +628,13 @@ function generateBaseCardHTML(base) {
         </button>
       </div>
 
-      <!-- 3. COPY BUTTON -->
+      <!-- COPY BUTTON & ENGAGEMENT -->
       <div class="p-3.5 flex flex-col gap-3">
         <button onclick="window.copyAndLaunchBase('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md transition">
           <i data-lucide="external-link" class="w-4 h-4 stroke-[2.5]"></i>
           <span>Copy Base Layout</span>
         </button>
 
-        <!-- 4. ENGAGEMENT & COMMENTS BAR -->
         <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-semibold pt-1 border-t border-slate-100 dark:border-slate-800/60">
           <div class="flex items-center gap-3">
             <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400"></i> ${views}</span>
@@ -626,29 +645,13 @@ function generateBaseCardHTML(base) {
             </button>
           </div>
           
-          <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1 hover:text-rose-500 transition">
-            <i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}"></i>
-            <span class="${isLiked ? 'text-rose-500 font-bold' : ''}">${likes}</span>
-          </button>
-        </div>
-
-        <!-- 5. UPLOADER PROFILE -->
-        <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/30 dark:bg-black/10 -mx-3.5 -mb-3.5 px-3.5 py-2">
-          <div class="flex items-center gap-2 min-w-0">
-            <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0 overflow-hidden">
-              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-400 overflow-hidden">
-                ${avatarDisplayHtml}
-              </div>
-            </div>
-            <span class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-              ${creatorName}
-            </span>
-          </div>
-
           <div class="flex items-center gap-2">
-            <span class="text-[10px] text-slate-400 font-semibold">${timeAgo}</span>
-            <button onclick="window.toggleFollowCreator('${base.uploaderUid}', '${creatorName}')" class="text-[10px] font-black uppercase text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 rounded transition">
-              ${userFollowedCreators.includes(base.uploaderUid) ? 'Following' : '+ Follow'}
+            <button onclick="window.generateQuickShareCard('${base.id}')" class="text-slate-400 hover:text-amber-400 transition" title="Quick Share Card">
+              <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+            </button>
+            <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1 hover:text-rose-500 transition">
+              <i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}"></i>
+              <span class="${isLiked ? 'text-rose-500 font-bold' : ''}">${likes}</span>
             </button>
           </div>
         </div>
@@ -657,6 +660,20 @@ function generateBaseCardHTML(base) {
     </div>
   `;
 }
+
+window.generateQuickShareCard = function(baseId) {
+  const base = allFetchedBases.find(b => b.id === baseId);
+  if (!base) return;
+  const siteUrl = window.location.origin + window.location.pathname + `?base=${base.id}`;
+  const shareText = `🔥 ClashZone Base Card\n📌 Title: ${base.title}\n🛡️ Level: ${base.th}\n📥 Copy & View:\n${siteUrl}`;
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareText);
+    window.showToast("Quick share card copied to clipboard!");
+  } else {
+    window.showToast("Share link ready!");
+  }
+};
 
 function renderInstagramProfileGrid(posts) {
   const container = document.getElementById("profileTabContentPosts");

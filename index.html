@@ -148,7 +148,6 @@
 
       <!-- RIGHT ICONS -->
       <div class="flex items-center gap-2">
-        <!-- Theme Picker Dropdown -->
         <select onchange="window.changeAppTheme(this.value)" class="bg-slate-100 dark:bg-czPanel text-slate-700 dark:text-amber-400 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-2 text-xs font-bold outline-none">
           <option value="#f59e0b">⚡ Gold Theme</option>
           <option value="#a855f7">💜 P.E.K.K.A</option>
@@ -166,7 +165,7 @@
     </div>
   </header>
 
-  <!-- LIVE CWL & EVENT COUNTDOWN BAR -->
+  <!-- LIVE CWL COUNTDOWN BAR -->
   <div class="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-black py-1.5 px-4 text-center text-xs font-black uppercase tracking-wider flex items-center justify-center gap-3 shadow-inner">
     <span>⏳ Next Clan War League Starts In:</span>
     <span id="liveCwlCountdown" class="bg-black text-amber-400 px-2.5 py-0.5 rounded font-mono text-[11px]">04d : 12h : 45m</span>
@@ -622,7 +621,7 @@
         <input type="text" id="clanTagInput" placeholder="Clan Tag (#2PP0Q)" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs font-mono outline-none focus:border-amber-400" />
         <input type="url" id="clanLinkInput" placeholder="In-Game Clan Invite Link" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400" />
         <select id="clanCategoryInput" class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs outline-none focus:border-amber-400"><option value="CWL Active">CWL Active</option><option value="War Clan">War Clan</option><option value="Casual / Farming">Casual / Farming</option></select>
-        <textarea id="clanDescInput" placeholder="Requirements & details (e.g. TH15+, Active donations)..." rows="2" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400"></textarea>
+        <textarea id="clanDescInput" placeholder="Requirements & details..." rows="2" required class="w-full bg-slate-100 dark:bg-czDark border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs outline-none focus:border-amber-400"></textarea>
         <button type="submit" class="w-full bg-amber-500 text-black py-2.5 rounded-xl font-bold text-xs uppercase">Post Clan Recruitment</button>
       </form>
     </div>
@@ -633,7 +632,8 @@
     const bannerImages = [
       "https://lh3.googleusercontent.com/d/1anPBvlizAv0vB2pyqQe5e9G3yg0pRbgu",
       "https://lh3.googleusercontent.com/d/1Fq3SPOvUfyIEixlK8n2C089YSEukWu0a",
-      "https://lh3.googleusercontent.com/d/1IU80K0Vi99mOtwKfgmKEdLV1NuXEVzXn"
+      "https://lh3.googleusercontent.com/d/1IU80K0Vi99mOtwKfgmKEdLV1NuXEVzXn",
+      "https://lh3.googleusercontent.com/d/1e2fApm6qC5oes_DIJ2wMpbKvMTnY76HN"
     ];
 
     let currentBannerIndex = 0;
