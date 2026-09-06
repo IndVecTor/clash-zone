@@ -44,9 +44,11 @@ let currentType = "ALL";
 let currentSort = "latest";
 let allFetchedBases = [];
 let allFetchedClans = [];
+let globalChatMessages = [];
 let usersProfileCache = {}; 
 let currentUserProfile = null;
-let displayLimit = 12; // Pagination limit for fast loading
+let displayLimit = 12;
+let swipeIndex = 0;
 
 let userLikedBases = JSON.parse(localStorage.getItem("cz_liked_bases") || "[]");
 let userBookmarkedBases = JSON.parse(localStorage.getItem("cz_bookmarked_bases") || "[]");
@@ -102,7 +104,7 @@ window.showToast = function(message, type = "success") {
   }, 3000);
 };
 
-function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 800, quality = 0.65) {
+function compressAndWatermarkImage(file, creatorName = "Chief", borderTheme = "gold", watermarkStyle = "classic", maxWidth = 800, quality = 0.65) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -121,21 +123,32 @@ function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 800, 
         elem.height = height;
         const ctx = elem.getContext("2d");
         ctx.drawImage(img, 0, 0, width, height);
+
+        // Custom Neon Border Styler
+        let borderColor = "#f59e0b";
+        if (borderTheme === "purple") borderColor = "#a855f7";
+        else if (borderTheme === "blue") borderColor = "#3b82f6";
+        else if (borderTheme === "fire") borderColor = "#ef4444";
+
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 8;
+        ctx.strokeRect(0, 0, width, height);
         
-        const padding = 16, badgeHeight = 28, badgeWidth = Math.min(width * 0.5, 230);
+        // Custom Watermark Badge
+        const padding = 16, badgeHeight = 32, badgeWidth = Math.min(width * 0.55, 240);
         const x = width - badgeWidth - padding, y = height - badgeHeight - padding;
         
         ctx.save();
-        ctx.fillStyle = "rgba(3, 5, 11, 0.85)";
+        ctx.fillStyle = "rgba(3, 5, 11, 0.88)";
         ctx.fillRect(x, y, badgeWidth, badgeHeight);
-        ctx.strokeStyle = "rgba(245, 158, 11, 0.7)"; 
+        ctx.strokeStyle = borderColor; 
         ctx.lineWidth = 1.5; 
         ctx.strokeRect(x, y, badgeWidth, badgeHeight);
         ctx.font = "bold 11px Rajdhani, sans-serif"; 
-        ctx.fillStyle = "#fbbf24"; 
-        ctx.fillText("CLASHZONE", x + 8, y + 18);
+        ctx.fillStyle = borderColor; 
+        ctx.fillText(watermarkStyle === 'pro' ? "⭐ ESPORT PRO" : "CLASHZONE", x + 8, y + 20);
         ctx.fillStyle = "#ffffff"; 
-        ctx.fillText(`| ${creatorName.substring(0, 10)}`, x + 80, y + 18);
+        ctx.fillText(`| ${creatorName.substring(0, 10)}`, x + 95, y + 20);
         ctx.restore();
         
         resolve(elem.toDataURL("image/jpeg", quality));
@@ -144,6 +157,20 @@ function compressAndWatermarkImage(file, creatorName = "Chief", maxWidth = 800, 
     };
     reader.onerror = err => reject(err);
   });
+}
+
+// Meta AI Base Strength Score Calculator
+function calculateMetaDefenseScore(base) {
+  let score = 75;
+  const type = (base.type || "").toLowerCase();
+  const copies = base.copyCount || 0;
+  const likes = base.likesCount || 0;
+
+  if (type.includes("war") || type.includes("anti")) score += 12;
+  if (copies > 20) score += 8;
+  if (likes > 10) score += 5;
+
+  return Math.min(score, 99);
 }
 
 window.handleGoogleLogin = async function() {
@@ -264,8 +291,6 @@ onAuthStateChanged(auth, async (user) => {
       if (document.getElementById("editPlayerTag")) document.getElementById("editPlayerTag").value = currentUserProfile.tag || "";
       if (document.getElementById("editClan")) document.getElementById("editClan").value = currentUserProfile.clanName || "";
       if (document.getElementById("editDiscord")) document.getElementById("editDiscord").value = currentUserProfile.discord || "";
-      if (document.getElementById("editYoutube")) document.getElementById("editYoutube").value = currentUserProfile.youtube || "";
-      if (document.getElementById("editInstagram")) document.getElementById("editInstagram").value = currentUserProfile.instagram || "";
       if (document.getElementById("editBio")) document.getElementById("editBio").value = currentUserProfile.bio || "";
 
       const avatarContainer = document.getElementById("profileAvatarContainer");
@@ -279,9 +304,7 @@ onAuthStateChanged(auth, async (user) => {
 
       renderProfileSocialLinks(currentUserProfile);
       updateUserDashboardStats(user.uid);
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) {}
   } else {
     currentUserProfile = null;
     if (profileLoggedOut) profileLoggedOut.classList.remove("hidden");
@@ -300,8 +323,6 @@ function renderProfileSocialLinks(profile) {
   if (!container) return;
   let html = "";
   if (profile.discord) html += `<span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-full font-bold">Discord: ${profile.discord}</span>`;
-  if (profile.youtube) html += `<a href="${profile.youtube}" target="_blank" class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-full font-bold">YouTube</a>`;
-  if (profile.instagram) html += `<span class="text-[10px] bg-pink-500/20 text-pink-300 border border-pink-500/40 px-2 py-0.5 rounded-full font-bold">${profile.instagram}</span>`;
   container.innerHTML = html;
 }
 
@@ -467,8 +488,8 @@ window.switchZone = function(zone) {
     if (tab) {
       const active = z === zone;
       tab.className = active 
-        ? "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-500 text-black"
-        : "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:text-amber-500";
+        ? "px-3.5 py-2 rounded-lg text-xs font-bold transition bg-amber-500 text-black shrink-0"
+        : "px-3.5 py-2 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:text-amber-500 shrink-0";
     }
   });
   renderLevelFilters(); 
@@ -539,12 +560,8 @@ window.loadMoreBases = function() {
   renderBasesUI();
 };
 
-function renderBasesUI() {
-  const container = document.getElementById("basesContainer");
-  const loadMoreBtnContainer = document.getElementById("loadMoreContainer");
-  if (!container) return;
+function getFilteredBases() {
   const search = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
-  
   let filtered = allFetchedBases.filter(base => {
     const matchZone = (base.zone || "home") === currentZone;
     const matchTH = currentTH === "ALL" || base.th === currentTH;
@@ -558,10 +575,19 @@ function renderBasesUI() {
   if (currentSort === "likes") {
     filtered.sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
   } else if (currentSort === "copies") {
-    filtered.sort((a, b) => (b.copyCount || 0) - (a.copyCount || 0));
+    filtered.sort((a, b) => (b.copyCount || 0) - (b.copyCount || 0));
   } else if (currentSort === "views") {
     filtered.sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0));
   }
+  return filtered;
+}
+
+function renderBasesUI() {
+  const container = document.getElementById("basesContainer");
+  const loadMoreBtnContainer = document.getElementById("loadMoreContainer");
+  if (!container) return;
+
+  const filtered = getFilteredBases();
 
   if (filtered.length === 0) {
     container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">No base layouts found matching filters.</div>`;
@@ -610,72 +636,72 @@ function generateBaseCardHTML(base) {
   return `
     <div class="glass-panel card-pro rounded-2xl overflow-hidden flex flex-col border border-slate-200 dark:border-amber-500/20 shadow-md">
       
-      <!-- TITLE + UPLOADER PROFILE BOX (SABSE UPAR EK HI BOX MEIN) -->
-      <div class="p-3.5 bg-slate-50/60 dark:bg-black/30 border-b border-slate-100 dark:border-slate-800/80 space-y-2.5">
-        <h3 class="font-bold text-sm text-slate-900 dark:text-white line-clamp-1 cursor-pointer hover:text-amber-400 transition" onclick="window.openBaseDetailsModal('${base.id}')" title="${base.title}">
+      <!-- TITLE + UPLOADER PROFILE BOX -->
+      <div class="p-3 bg-slate-50/60 dark:bg-black/30 border-b border-slate-100 dark:border-slate-800/80 space-y-2">
+        <h3 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white line-clamp-1 cursor-pointer hover:text-amber-400 transition" onclick="window.openBaseDetailsModal('${base.id}')" title="${base.title}">
           ${base.title}
         </h3>
 
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0 overflow-hidden">
-              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-400 overflow-hidden">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1px] shrink-0 overflow-hidden">
+              <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[9px] font-bold text-amber-400 overflow-hidden">
                 ${avatarDisplayHtml}
               </div>
             </div>
             <div class="min-w-0">
-              <h5 class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">${creatorName}</h5>
-              <p class="text-[9px] text-amber-500 font-extrabold uppercase">12 Followers • ${timeAgo}</p>
+              <h5 class="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate">${creatorName}</h5>
+              <p class="text-[8px] text-amber-500 font-extrabold uppercase">12 Followers • ${timeAgo}</p>
             </div>
           </div>
 
-          <button onclick="window.toggleFollowCreator('${base.uploaderUid}', '${creatorName}')" class="text-[10px] font-black uppercase ${isFollowing ? 'bg-slate-800 border border-slate-700 text-slate-300' : 'bg-amber-500 text-black'} px-2.5 py-1 rounded-lg transition shadow">
+          <button onclick="window.toggleFollowCreator('${base.uploaderUid}', '${creatorName}')" class="text-[9px] font-black uppercase ${isFollowing ? 'bg-slate-800 border border-slate-700 text-slate-300' : 'bg-amber-500 text-black'} px-2 py-0.5 rounded transition shadow">
             ${isFollowing ? 'Following ✓' : '+ Follow'}
           </button>
         </div>
       </div>
 
       <!-- THUMBNAIL -->
-      <div class="w-full bg-slate-950 relative overflow-hidden flex items-center justify-center cursor-pointer group" style="min-height: 200px; max-height: 260px;" onclick="window.openBaseDetailsModal('${base.id}')">
+      <div class="w-full bg-slate-950 relative overflow-hidden flex items-center justify-center cursor-pointer group" style="min-height: 180px; max-height: 240px;" onclick="window.openBaseDetailsModal('${base.id}')">
         <img src="${base.image}" class="w-full h-full object-contain group-hover:scale-105 transition duration-500" loading="lazy" />
         
-        <div class="absolute top-2.5 left-2.5 bg-black/80 backdrop-blur-md border border-amber-500/40 text-amber-400 text-[10px] font-black px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1">
+        <div class="absolute top-2 left-2 bg-black/80 backdrop-blur-md border border-amber-500/40 text-amber-400 text-[9px] font-black px-1.5 py-0.5 rounded shadow flex items-center gap-1">
           <i data-lucide="shield" class="w-3 h-3 text-amber-400"></i>
           <span>${base.th}</span>
         </div>
 
-        <div class="absolute top-2.5 right-2.5 bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1">
+        <div class="absolute top-2 right-2 bg-black/80 backdrop-blur-md border border-amber-500/30 text-amber-400 text-[9px] font-bold px-1.5 py-0.5 rounded shadow flex items-center gap-1">
           <span>⭐ ${avgRating}</span>
         </div>
 
-        <button onclick="event.stopPropagation(); window.toggleBookmark('${base.id}')" class="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-xl bg-black/70 hover:bg-black/90 backdrop-blur-md flex items-center justify-center text-white transition shadow border border-white/10" title="${isBookmarked ? 'Unsave' : 'Save'}">
-          <i data-lucide="bookmark" class="w-4 h-4 ${isBookmarked ? 'fill-amber-400 text-amber-400' : ''}"></i>
+        <button onclick="event.stopPropagation(); window.toggleBookmark('${base.id}')" class="absolute bottom-2 right-2 w-7 h-7 rounded-xl bg-black/70 hover:bg-black/90 backdrop-blur-md flex items-center justify-center text-white transition shadow border border-white/10" title="${isBookmarked ? 'Unsave' : 'Save'}">
+          <i data-lucide="bookmark" class="w-3.5 h-3.5 ${isBookmarked ? 'fill-amber-400 text-amber-400' : ''}"></i>
         </button>
       </div>
 
       <!-- COPY BUTTON & ENGAGEMENT -->
-      <div class="p-3.5 flex flex-col gap-3">
-        <button onclick="window.copyAndLaunchBase('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md transition">
-          <i data-lucide="external-link" class="w-4 h-4 stroke-[2.5]"></i>
+      <div class="p-3 flex flex-col gap-2.5">
+        <button onclick="window.copyAndLaunchBase('${base.id}', '${base.link}')" class="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 text-black py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow transition">
+          <i data-lucide="external-link" class="w-3.5 h-3.5 stroke-[2.5]"></i>
           <span>Copy Base Layout</span>
         </button>
 
-        <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-semibold pt-1 border-t border-slate-100 dark:border-slate-800/60">
-          <div class="flex items-center gap-3">
-            <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400"></i> ${views}</span>
-            <span class="flex items-center gap-1"><i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i> ${copies}</span>
-            <button onclick="window.openBaseDetailsModal('${base.id}')" class="flex items-center gap-1 hover:text-amber-400 transition">
-              <i data-lucide="message-square" class="w-3.5 h-3.5 text-blue-400"></i>
+        <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-semibold pt-1 border-t border-slate-100 dark:border-slate-800/60">
+          <div class="flex items-center gap-2.5">
+            <span class="flex items-center gap-0.5"><i data-lucide="eye" class="w-3 h-3 text-cyan-400"></i> ${views}</span>
+            <span class="flex items-center gap-0.5"><i data-lucide="download" class="w-3 h-3 text-amber-400"></i> ${copies}</span>
+            <button onclick="window.openBaseDetailsModal('${base.id}')" class="flex items-center gap-0.5 hover:text-amber-400 transition">
+              <i data-lucide="message-square" class="w-3 h-3 text-blue-400"></i>
               <span>${commentsCount}</span>
             </button>
           </div>
           
           <div class="flex items-center gap-2">
-            <button onclick="window.generateQuickShareCard('${base.id}')" class="text-slate-400 hover:text-amber-400 transition" title="Quick Share Card">
-              <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+            <button onclick="window.generateQuickShareCard('${base.id}')" class="text-slate-400 hover:text-amber-400 transition" title="Share Card">
+              <i data-lucide="share-2" class="w-3 h-3"></i>
             </button>
             <button onclick="window.handleLikeBase('${base.id}')" class="flex items-center gap-1 hover:text-rose-500 transition">
-              <i data-lucide="heart" class="w-3.5 h-3.5 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}"></i>
+              <i data-lucide="heart" class="w-3 h-3 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}"></i>
               <span class="${isLiked ? 'text-rose-500 font-bold' : ''}">${likes}</span>
             </button>
           </div>
@@ -686,6 +712,108 @@ function generateBaseCardHTML(base) {
   `;
 }
 
+// Tinder Swiper Mode
+window.openSwipeModeModal = function() {
+  swipeIndex = 0;
+  window.openModal('swipeModeModal');
+  renderCurrentSwipeCard();
+};
+
+function renderCurrentSwipeCard() {
+  const container = document.getElementById("swipeCardContainer");
+  if (!container) return;
+  const filtered = getFilteredBases();
+
+  if (filtered.length === 0 || swipeIndex >= filtered.length) {
+    container.innerHTML = `
+      <div class="glass-panel rounded-2xl p-8 text-center space-y-3">
+        <span class="text-3xl">🎉</span>
+        <h4 class="text-sm font-bold text-white">All Bases Swiped!</h4>
+        <p class="text-xs text-slate-400">You have explored all matching layouts.</p>
+        <button onclick="window.closeModal('swipeModeModal')" class="bg-amber-500 text-black px-4 py-2 rounded-xl text-xs font-bold uppercase">Close Swiper</button>
+      </div>
+    `;
+    return;
+  }
+
+  const base = filtered[swipeIndex];
+  container.innerHTML = generateBaseCardHTML(base);
+}
+
+window.swipeBaseAction = function(action) {
+  const filtered = getFilteredBases();
+  const base = filtered[swipeIndex];
+  if (base) {
+    if (action === 'save') window.toggleBookmark(base.id);
+    else if (action === 'like') window.handleLikeBase(base.id);
+  }
+  swipeIndex++;
+  renderCurrentSwipeCard();
+};
+
+// Global Chat Functions
+window.openGlobalChatModal = function() {
+  window.openModal('globalChatModal');
+  loadGlobalChatMessages();
+};
+
+async function loadGlobalChatMessages() {
+  const container = document.getElementById("globalChatMessagesList");
+  if (!container) return;
+  try {
+    const q = query(collection(db, "global_chat"), orderBy("createdAt", "asc"));
+    const snap = await getDocs(q);
+    globalChatMessages = [];
+    snap.forEach(docSnap => globalChatMessages.push({ id: docSnap.id, ...docSnap.data() }));
+
+    if (globalChatMessages.length === 0) {
+      container.innerHTML = `<p class="text-xs text-slate-400 text-center py-10">No messages in the lounge yet. Be the first to say hello!</p>`;
+      return;
+    }
+
+    container.innerHTML = globalChatMessages.map(m => `
+      <div class="bg-slate-900/80 border border-slate-800 p-2.5 rounded-xl space-y-1 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-amber-400">${m.authorName || 'Chief'}</span>
+          <span class="text-[9px] text-slate-400">${formatTimeAgo(m.createdAt)}</span>
+        </div>
+        <p class="text-slate-200">${m.text}</p>
+      </div>
+    `).join("");
+    container.scrollTop = container.scrollHeight;
+  } catch (e) {
+    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-10">Failed to load chat lounge.</p>`;
+  }
+}
+
+window.handleSendGlobalChatMessage = async function(e) {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) {
+    window.showToast("Please login to chat!", "error");
+    window.openModal("authModal");
+    return;
+  }
+
+  const input = document.getElementById("globalChatInput");
+  const text = input?.value.trim();
+  if (!text) return;
+
+  const authorName = currentUserProfile?.name || user.displayName || "Chief";
+  try {
+    await addDoc(collection(db, "global_chat"), {
+      uid: user.uid,
+      authorName: authorName,
+      text: text,
+      createdAt: serverTimestamp()
+    });
+    input.value = "";
+    loadGlobalChatMessages();
+  } catch (err) {
+    window.showToast("Failed to send message", "error");
+  }
+};
+
 window.generateQuickShareCard = function(baseId) {
   const base = allFetchedBases.find(b => b.id === baseId);
   if (!base) return;
@@ -694,7 +822,7 @@ window.generateQuickShareCard = function(baseId) {
   
   if (navigator.clipboard) {
     navigator.clipboard.writeText(shareText);
-    window.showToast("Quick share card copied to clipboard!");
+    window.showToast("Quick share card copied!");
   } else {
     window.showToast("Share link ready!");
   }
@@ -789,126 +917,6 @@ window.handleLikeBase = async function(baseId) {
   }
 };
 
-window.rateBase = async function(baseId, stars) {
-  if (userRatedBases[baseId]) {
-    window.showToast("You have already rated this base!", "info");
-    return;
-  }
-
-  userRatedBases[baseId] = stars;
-  localStorage.setItem("cz_rated_bases", JSON.stringify(userRatedBases));
-
-  try {
-    const baseRef = doc(db, "bases", baseId);
-    await updateDoc(baseRef, {
-      ratingSum: increment(stars),
-      ratingCount: increment(1)
-    });
-
-    const localBase = allFetchedBases.find(b => b.id === baseId);
-    if (localBase) {
-      localBase.ratingSum = (localBase.ratingSum || 0) + stars;
-      localBase.ratingCount = (localBase.ratingCount || 0) + 1;
-    }
-
-    window.showToast(`Thank you for rating ${stars} Stars!`);
-    window.openBaseDetailsModal(baseId);
-    renderBasesUI();
-  } catch (err) {
-    window.showToast("Failed to submit rating", "error");
-  }
-};
-
-window.handleEmojiReaction = async function(baseId, emoji) {
-  const base = allFetchedBases.find(b => b.id === baseId);
-  if (!base) return;
-
-  if (!base.reactions) base.reactions = { "🔥": 0, "🗿": 0, "👑": 0, "❤️": 0, "⚡": 0 };
-  
-  const userKey = `${baseId}_${emoji}`;
-  if (userEmojiReactions[userKey]) {
-    base.reactions[emoji] = Math.max(0, base.reactions[emoji] - 1);
-    delete userEmojiReactions[userKey];
-    window.showToast(`Removed reaction ${emoji}`);
-  } else {
-    base.reactions[emoji] = (base.reactions[emoji] || 0) + 1;
-    userEmojiReactions[userKey] = true;
-    window.showToast(`Reacted with ${emoji}!`);
-  }
-
-  localStorage.setItem("cz_emoji_reactions", JSON.stringify(userEmojiReactions));
-
-  try {
-    const baseRef = doc(db, "bases", baseId);
-    await updateDoc(baseRef, { reactions: base.reactions });
-  } catch (err) {}
-
-  window.openBaseDetailsModal(baseId);
-};
-
-window.voteBasePoll = async function(baseId, isDefended) {
-  const userKey = `poll_${baseId}`;
-  if (userPollVotes[baseId]) {
-    window.showToast("You have already voted on this base!", "info");
-    return;
-  }
-
-  userPollVotes[baseId] = isDefended ? 'defended' : 'destroyed';
-  localStorage.setItem("cz_poll_votes", JSON.stringify(userPollVotes));
-
-  const base = allFetchedBases.find(b => b.id === baseId);
-  if (!base) return;
-
-  if (!base.poll) base.poll = { defended: 0, destroyed: 0 };
-  if (isDefended) base.poll.defended += 1;
-  else base.poll.destroyed += 1;
-
-  try {
-    const baseRef = doc(db, "bases", baseId);
-    await updateDoc(baseRef, { poll: base.poll });
-  } catch (e) {}
-
-  window.showToast(isDefended ? "Voted: Defended 3-Star! 🛡️" : "Voted: Got Destroyed ⚔️");
-  window.openBaseDetailsModal(baseId);
-};
-
-window.handleAddCommentInsideModal = async function(e, baseId) {
-  e.preventDefault();
-  const user = auth.currentUser;
-  if (!user) {
-    window.showToast("Please login to comment!", "error");
-    window.openModal("authModal");
-    return;
-  }
-
-  const inputEl = document.getElementById(`modalCommentInput_${baseId}`);
-  const text = inputEl?.value.trim();
-  if (!text) return;
-
-  const currentUploaderName = currentUserProfile?.name || user.displayName || "Chief";
-  const newComment = {
-    uid: user.uid,
-    authorName: currentUploaderName,
-    text: text,
-    timestamp: new Date().toISOString()
-  };
-
-  try {
-    const baseRef = doc(db, "bases", baseId);
-    const base = allFetchedBases.find(b => b.id === baseId);
-    const updatedComments = [...(base.comments || []), newComment];
-
-    await updateDoc(baseRef, { comments: updatedComments });
-    base.comments = updatedComments;
-
-    window.openBaseDetailsModal(baseId);
-    renderBasesUI();
-    window.showToast("Comment posted!");
-  } catch (err) {
-    window.showToast("Failed to post comment", "error");
-  }
-};
-
 window.openBaseDetailsModal = async function(baseId) {
   const base = allFetchedBases.find(b => b.id === baseId);
   if (!base) return;
@@ -935,36 +943,10 @@ window.openBaseDetailsModal = async function(baseId) {
 
   const uploaderProfile = usersProfileCache[base.uploaderUid] || {};
   const creatorName = uploaderProfile.name || base.uploaderName || "Chief";
+  const defenseScore = calculateMetaDefenseScore(base);
 
   const tagsHtml = (base.tags && base.tags.length > 0) ? base.tags.map(t => `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">#${t.trim()}</span>`).join("") : "";
   const descHtml = base.description ? `<div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">${base.description}</div>` : "";
-
-  const ratingSum = base.ratingSum || 0;
-  const ratingCount = base.ratingCount || 0;
-  const avgRating = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : "0.0";
-  const userHasRated = userRatedBases[baseId];
-
-  const starsHtml = [1, 2, 3, 4, 5].map(starNum => {
-    const isFilled = userHasRated >= starNum;
-    return `<button onclick="window.rateBase('${base.id}', ${starNum})" class="text-xl ${isFilled ? 'text-amber-400' : 'text-slate-600 hover:text-amber-400'} transition">★</button>`;
-  }).join("");
-
-  const reactions = base.reactions || { "🔥": 0, "🗿": 0, "👑": 0, "❤️": 0, "⚡": 0 };
-  const emojisList = ["🔥", "🗿", "👑", "❤️", "⚡"];
-  const emojiReactionsHtml = emojisList.map(emoji => {
-    const count = reactions[emoji] || 0;
-    const isReacted = userEmojiReactions[`${base.id}_${emoji}`];
-    return `
-      <button onclick="window.handleEmojiReaction('${base.id}', '${emoji}')" class="flex items-center gap-1 bg-slate-900/80 hover:bg-slate-800 border ${isReacted ? 'border-amber-400 text-amber-400' : 'border-slate-800 text-slate-300'} px-2.5 py-1.5 rounded-xl text-xs font-bold transition">
-        <span>${emoji}</span>
-        <span>${count}</span>
-      </button>
-    `;
-  }).join("");
-
-  const poll = base.poll || { defended: 0, destroyed: 0 };
-  const totalVotes = (poll.defended || 0) + (poll.destroyed || 0);
-  const defPct = totalVotes > 0 ? Math.round((poll.defended / totalVotes) * 100) : 50;
 
   const comments = base.comments || [];
   const commentsHtml = comments.length === 0 
@@ -1004,44 +986,19 @@ window.openBaseDetailsModal = async function(baseId) {
         <img src="${base.image}" class="w-full h-full object-contain" />
       </div>
 
-      <!-- Emoji Reactions Bar -->
-      <div class="flex flex-wrap items-center gap-2 pt-1">
-        ${emojiReactionsHtml}
-      </div>
-
-      <!-- Base Testing / Poll -->
-      <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl space-y-2">
-        <span class="text-[10px] text-slate-400 uppercase font-bold block">🛡️ War Testing Poll (How did this base perform?)</span>
-        <div class="flex items-center gap-2">
-          <button onclick="window.voteBasePoll('${base.id}', true)" class="flex-1 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 py-2 rounded-xl text-xs font-bold transition">
-            🛡️ Defended (${poll.defended || 0})
-          </button>
-          <button onclick="window.voteBasePoll('${base.id}', false)" class="flex-1 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 py-2 rounded-xl text-xs font-bold transition">
-            ⚔️ Destroyed (${poll.destroyed || 0})
-          </button>
+      <!-- Meta Defense Analyzer / AI Score -->
+      <div class="bg-gradient-to-r from-amber-500/15 to-yellow-500/10 border border-amber-500/40 p-3 rounded-xl flex items-center justify-between">
+        <div>
+          <span class="text-[10px] text-amber-400 uppercase font-extrabold block">🛡️ Meta Defense Analyzer (AI Score)</span>
+          <p class="text-[11px] text-slate-300">Estimated trap density & anti-meta resilience</p>
         </div>
-        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex">
-          <div class="bg-emerald-500 h-full transition-all duration-500" style="width: ${defPct}%"></div>
-          <div class="bg-rose-500 h-full transition-all duration-500" style="width: ${100 - defPct}%"></div>
+        <div class="text-right">
+          <span class="font-black text-lg text-amber-400">${defenseScore}/100</span>
         </div>
       </div>
 
       ${descHtml}
       ${tagsHtml ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHtml}</div>` : ""}
-
-      <div class="bg-slate-900/40 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
-        <div>
-          <span class="text-[10px] text-slate-400 uppercase font-bold block">Community Rating</span>
-          <div class="flex items-center gap-1.5 mt-0.5">
-            <span class="text-amber-400 font-black text-sm">⭐ ${avgRating}</span>
-            <span class="text-[10px] text-slate-500">(${ratingCount} votes)</span>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="text-[10px] text-slate-400 uppercase font-bold block">Rate this base</span>
-          <div class="flex items-center gap-0.5 mt-0.5">${starsHtml}</div>
-        </div>
-      </div>
 
       <div class="flex items-center gap-4 text-xs font-semibold text-slate-400 py-1 border-t border-slate-200 dark:border-slate-800">
         <span class="flex items-center gap-1"><i data-lucide="eye" class="w-4 h-4 text-cyan-400"></i> ${base.viewsCount || 0} Views</span>
@@ -1058,7 +1015,7 @@ window.openBaseDetailsModal = async function(baseId) {
         </a>
       </div>
 
-      <!-- BUILT-IN COMMENTS & DISCUSSION SECTION -->
+      <!-- COMMENTS SECTION -->
       <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
         <h4 class="text-xs font-black uppercase text-amber-500 tracking-wider">Strategy Discussion & Comments (${comments.length})</h4>
         
@@ -1067,7 +1024,7 @@ window.openBaseDetailsModal = async function(baseId) {
         </div>
 
         <form onsubmit="window.handleAddCommentInsideModal(event, '${base.id}')" class="flex items-center gap-2 pt-2">
-          <input type="text" id="modalCommentInput_${base.id}" placeholder="Write strategy tip or feedback..." required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-amber-400 text-white" />
+          <input type="text" id="modalCommentInput_${base.id}" placeholder="Write strategy tip..." required class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none focus:border-amber-400 text-white" />
           <button type="submit" class="bg-amber-500 text-black px-4 py-2.5 rounded-xl text-xs font-bold uppercase shrink-0 shadow">Post</button>
         </form>
       </div>
@@ -1077,6 +1034,43 @@ window.openBaseDetailsModal = async function(baseId) {
   modal.classList.remove("hidden"); 
   modal.classList.add("flex");
   renderAllIcons();
+};
+
+window.handleAddCommentInsideModal = async function(e, baseId) {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) {
+    window.showToast("Please login to comment!", "error");
+    window.openModal("authModal");
+    return;
+  }
+
+  const inputEl = document.getElementById(`modalCommentInput_${baseId}`);
+  const text = inputEl?.value.trim();
+  if (!text) return;
+
+  const currentUploaderName = currentUserProfile?.name || user.displayName || "Chief";
+  const newComment = {
+    uid: user.uid,
+    authorName: currentUploaderName,
+    text: text,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    const baseRef = doc(db, "bases", baseId);
+    const base = allFetchedBases.find(b => b.id === baseId);
+    const updatedComments = [...(base.comments || []), newComment];
+
+    await updateDoc(baseRef, { comments: updatedComments });
+    base.comments = updatedComments;
+
+    window.openBaseDetailsModal(baseId);
+    renderBasesUI();
+    window.showToast("Comment posted!");
+  } catch (err) {
+    window.showToast("Failed to post comment", "error");
+  }
 };
 
 window.openModal = function(id) {
@@ -1109,6 +1103,8 @@ window.handleBaseUpload = async function(e) {
   const file = document.getElementById("uploadImageFile")?.files[0];
   const descriptionText = document.getElementById("uploadDescription")?.value.trim() || "";
   const rawTags = document.getElementById("uploadTags")?.value.trim() || "";
+  const borderTheme = document.getElementById("uploadBorderTheme").value;
+  const watermarkStyle = document.getElementById("uploadWatermarkStyle").value;
   const tagsArray = rawTags ? rawTags.split(",").map(t => t.trim()).filter(t => t.length > 0) : [];
 
   if (!file) { 
@@ -1118,7 +1114,7 @@ window.handleBaseUpload = async function(e) {
 
   try {
     const creatorIGN = currentUserProfile?.name || user.displayName || user.email.split("@")[0] || "Chief";
-    const base64Image = await compressAndWatermarkImage(file, creatorIGN);
+    const base64Image = await compressAndWatermarkImage(file, creatorIGN, borderTheme, watermarkStyle);
     const baseData = {
       zone: document.getElementById("uploadZone").value,
       th: document.getElementById("uploadTH").value,
@@ -1136,15 +1132,13 @@ window.handleBaseUpload = async function(e) {
       ratingSum: 0,
       ratingCount: 0,
       comments: [],
-      reactions: { "🔥": 0, "🗿": 0, "👑": 0, "❤️": 0, "⚡": 0 },
-      poll: { defended: 0, destroyed: 0 },
       createdAt: serverTimestamp()
     };
     await addDoc(collection(db, "bases"), baseData);
     window.closeModal("uploadModal");
     e.target.reset();
     await loadBasesFromFirestore();
-    window.showToast("Base published to ClashZone!");
+    window.showToast("Base published with custom styling!");
   } catch (error) { 
     window.showToast(error.message || "Upload Error", "error"); 
   }
@@ -1187,12 +1181,9 @@ window.handleSaveProfile = async function(e) {
   const presetAvatarUrl = document.getElementById("editPresetAvatarUrl")?.value.trim();
   
   let finalAvatarUrl = currentUserProfile?.avatarUrl || "";
-  if (presetAvatarUrl) {
-    finalAvatarUrl = presetAvatarUrl;
-  }
-
+  if (presetAvatarUrl) finalAvatarUrl = presetAvatarUrl;
   if (fileInput) {
-    finalAvatarUrl = await compressAndWatermarkImage(fileInput, document.getElementById("editName").value.trim(), 200, 0.7);
+    finalAvatarUrl = await compressAndWatermarkImage(fileInput, document.getElementById("editName").value.trim(), "gold", "classic", 200, 0.7);
   }
 
   const profileData = {
@@ -1201,8 +1192,6 @@ window.handleSaveProfile = async function(e) {
     tag: document.getElementById("editPlayerTag").value.trim().toUpperCase(),
     clanName: document.getElementById("editClan").value.trim() || "Solo",
     discord: document.getElementById("editDiscord").value.trim(),
-    youtube: document.getElementById("editYoutube").value.trim(),
-    instagram: document.getElementById("editInstagram").value.trim(),
     bio: document.getElementById("editBio").value.trim(),
     avatarUrl: finalAvatarUrl,
     updatedAt: serverTimestamp()
